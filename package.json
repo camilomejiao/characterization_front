@@ -1,0 +1,63 @@
+{
+  "name": "characterization-front",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/nunito": "^5.1.1",
+    "@fontsource/roboto": "^5.2.5",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@mui/x-data-grid": "^7.28.3",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "bootstrap": "^5.3.5",
+    "cra-template": "1.2.0",
+    "date-fns": "^4.1.0",
+    "formik": "^2.4.6",
+    "jwt-decode": "^4.0.0",
+    "lodash.debounce": "^4.0.8",
+    "numero-a-letras": "^1.0.6",
+    "papaparse": "^5.5.2",
+    "print-js": "^1.6.0",
+    "react": "^18.3.1",
+    "react-bootstrap": "^2.10.9",
+    "react-datepicker": "^7.6.0",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.4.0",
+    "react-router-dom": "^6.28.2",
+    "react-scripts": "^5.0.1",
+    "react-select": "^5.9.0",
+    "react-to-print": "^3.0.4",
+    "sweetalert2": "^11.15.10",
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5",
+    "yup": "^1.6.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
