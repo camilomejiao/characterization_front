@@ -35,11 +35,13 @@ export const UserList = () => {
     };
 
     const normalizeRows = async (data) => {
+        console.log(data);
         return data.map((row) => {
             return {
                 id: row?.id,
                 name: row?.firstName + ' ' + row?.middleName,
                 lastName: row?.firstLastName + ' ' + row?.middleLastName,
+                identificationType: row?.identificationType?.acronym,
                 identificationNumber: row?.identificationNumber,
                 email: row?.email
             };
@@ -70,8 +72,14 @@ export const UserList = () => {
             headerAlign: "left",
         },
         {
+            field: "identificationType",
+            headerName: "Tipo de Documento",
+            width: 100,
+            headerAlign: "left",
+        },
+        {
             field: "identificationNumber",
-            headerName: "Cédula",
+            headerName: "Número de Documento",
             width: 150,
             headerAlign: "left",
         },

@@ -54,8 +54,9 @@ export const Routing = () => {
 
                         {/* PQRS */}
                         <Route path={ RouterEnum.AffiliatesList } element={ <AffiliateList /> }   />
-                        <Route path={ RouterEnum.BulkAffiliates } element={ <BulkAffiliates /> }   />
                         <Route path={ RouterEnum.AffiliatesCreate } element={ <AffiliateForm /> } />
+                        <Route path={ RouterEnum.AffiliatesUpdate } element={ <AffiliateForm /> } />
+                        <Route path={ RouterEnum.BulkAffiliates } element={ <BulkAffiliates /> }   />
 
                         {/* Logout */}
                         <Route path={ RouterEnum.Logout } element={ <Logout /> }  />

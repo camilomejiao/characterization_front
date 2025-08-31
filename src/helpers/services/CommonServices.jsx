@@ -103,7 +103,10 @@ class CommonServices {
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
-
+    async getCountries() {
+        const url = this.buildUrl(`countries`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
 }
 
 export const commonServices = new CommonServices();

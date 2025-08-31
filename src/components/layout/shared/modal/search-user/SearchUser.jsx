@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Button, Form, FloatingLabel } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-
 import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 import { commonServices } from "../../../../../helpers/services/CommonServices";
@@ -11,7 +10,7 @@ export const SearchUser = ({ showModal, onUserFound }) => {
     const navigate = useNavigate();
 
     const [documentTypes, setDocumentTypes] = useState([]);
-    const [selectedDocumentType, setSelectedDocumentType] = useState("");
+    const [selectedDocumentType, setSelectedDocumentType] = useState(2); // valor por defecto
     const [documentNumber, setDocumentNumber] = useState("");
     const [errors, setErrors] = useState({});
 
@@ -21,48 +20,58 @@ export const SearchUser = ({ showModal, onUserFound }) => {
             if (status === ResponseStatusEnum.OK) {
                 setDocumentTypes(data);
             }
-        } catch (error) {
+        } catch {
             AlertComponent.warning("No se pudieron cargar los tipos de documento.");
         }
     };
 
-    const handleSearchUser = async () => {
+    const validate = () => {
         const validationErrors = {};
         if (!selectedDocumentType) {
             validationErrors.documentType = "Debe seleccionar un tipo de documento";
         }
-        if (!documentNumber || isNaN(documentNumber) || documentNumber < 0) {
+        if (!documentNumber || isNaN(documentNumber) || Number(documentNumber) < 0) {
             validationErrors.documentNumber = "Debe ingresar un número válido";
         }
-
         setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
+    };
 
-        if (Object.keys(validationErrors).length === 0) {
-            try {
-                const { data, status } = await userServices.getIdentifiedUser(
-                    selectedDocumentType,
-                    documentNumber
-                );
-                if (status === ResponseStatusEnum.OK) {
-                    onUserFound(data);
-                    return;
-                }
+    const handleSearchUser = async () => {
+        if (!validate()) return;
 
-                if (status === ResponseStatusEnum.NOT_FOUND) {
-                    AlertComponent.warning(
-                        "El usuario que buscas no existe en el sistema, por favor registralo para poder continuar!"
-                    );
-                    navigate("/admin/user-create");
-                }
-            } catch (error) {
-                AlertComponent.error("Error al buscar el usuario");
+        try {
+            const { data, status } = await userServices.getIdentifiedUser(
+                Number(selectedDocumentType),
+                Number(documentNumber)
+            );
+
+            if (status === ResponseStatusEnum.OK) {
+                onUserFound(data);
+                return;
             }
+
+            if (status === ResponseStatusEnum.NOT_FOUND) {
+                AlertComponent.warning(
+                    "El usuario que buscas no existe en el sistema, por favor regístralo para poder continuar!"
+                );
+                navigate("/admin/user-create");
+            }
+        } catch {
+            AlertComponent.error("Error al buscar el usuario");
         }
+    };
+
+    // Maneja Enter en cualquier control del form
+    const handleSubmit = (e) => {
+        e.preventDefault(); // evita refresh/navegación
+        e.stopPropagation();
+        handleSearchUser();
     };
 
     useEffect(() => {
         getIdentificationType();
-        setSelectedDocumentType(2);
+        setSelectedDocumentType(2); // si quieres forzar TI por defecto
         setDocumentNumber("");
         setErrors({});
     }, []);
@@ -72,13 +81,15 @@ export const SearchUser = ({ showModal, onUserFound }) => {
             <Modal.Header>
                 <Modal.Title>Buscar Usuario</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-                <Form>
+
+            {/* ← clave: onSubmit */}
+            <Form onSubmit={handleSubmit} noValidate>
+                <Modal.Body>
                     <Form.Group className="mb-3">
                         <Form.Label>Tipo de Documento</Form.Label>
                         <Form.Select
                             value={selectedDocumentType}
-                            onChange={(e) => setSelectedDocumentType(e.target.value)}
+                            onChange={(e) => setSelectedDocumentType(Number(e.target.value))}
                             isInvalid={!!errors.documentType}
                         >
                             <option value="">Seleccione...</option>
@@ -97,6 +108,7 @@ export const SearchUser = ({ showModal, onUserFound }) => {
                         <FloatingLabel label="Número de Documento">
                             <Form.Control
                                 type="number"
+                                inputMode="numeric"
                                 placeholder="Ingrese el número de documento"
                                 value={documentNumber}
                                 onChange={(e) => setDocumentNumber(e.target.value)}
@@ -108,12 +120,20 @@ export const SearchUser = ({ showModal, onUserFound }) => {
                             </Form.Control.Feedback>
                         </FloatingLabel>
                     </Form.Group>
-                </Form>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={() => navigate("/admin/pqrs-list")}>Cancelar</Button>
-                <Button variant="primary" onClick={handleSearchUser}>Buscar</Button>
-            </Modal.Footer>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    {/* type="button" para que NO dispare submit */}
+                    <Button variant="secondary" type="button" onClick={() => navigate("/admin/pqrs-list")}>
+                        Cancelar
+                    </Button>
+
+                    {/* type="submit" para que Enter llame a handleSubmit */}
+                    <Button variant="primary" type="submit">
+                        Buscar
+                    </Button>
+                </Modal.Footer>
+            </Form>
         </Modal>
     );
 };

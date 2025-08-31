@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
-import {TextField, MenuItem, Button} from "@mui/material";
+import {TextField, MenuItem, Button } from "@mui/material";
 
 //Services
 import { depaMuniServices } from "../../../../../helpers/services/DepaMuniServices";
@@ -30,6 +30,7 @@ const validationSchema = Yup.object({
     disability_type_id: Yup.string().required("La discapacidad es obligatoria"),
     gender_id: Yup.string().required("El género es obligatorio"),
     area_id: Yup.string().required("El área es obligatoria"),
+    country_id: Yup.string().required("El pais es obligatorio"),
 });
 
 const initialValues = {
@@ -49,6 +50,7 @@ const initialValues = {
     disability_type_id: "",
     gender_id: "",
     area_id: "",
+    country_id: "",
 };
 
 export const UserForm = () => {
@@ -62,6 +64,7 @@ export const UserForm = () => {
     const [disabilityType, setDisabilityType] = useState([]);
     const [gender, setGender] = useState([]);
     const [area, setArea] = useState([]);
+    const [country, setCountry] = useState([]);
 
     //
     const formik = useFormik({
@@ -69,7 +72,8 @@ export const UserForm = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
-                const formattedValues = { ...values, phone_number: String(values.phone_number) };
+                const formattedValues = { ...values };
+                console.log('formattedValues: ', formattedValues);
                 const response = id
                     ? await userServices.update(id, formattedValues)
                     : await userServices.create(formattedValues);
@@ -94,23 +98,23 @@ export const UserForm = () => {
             if (status === ResponseStatusEnum.OK) {
                 formik.setValues({
                     ...initialValues,
-                    ...data,
-                    first_name: data?.firstName,
-                    middle_name: data?.middleName,
-                    first_last_name: data?.firstLastName,
-                    middle_last_name: data?.middleLastName,
-                    identification_type_id: data?.identificationType?.id,
-                    identification_number: data?.identificationNumber,
-                    birthdate: data?.birthdate,
-                    email: data?.email,
-                    phone_number: data?.phoneNumber,
-                    neighborhood: data?.neighborhood,
-                    address: data?.address,
-                    department_id: data?.department?.id,
-                    municipality_id: data?.municipality?.id,
-                    disability_type_id: data?.disabilityType?.id,
-                    gender_id: data?.gender?.id,
-                    area_id: data?.area?.id,
+                    first_name: data?.firstName ?? "",
+                    middle_name: data?.middleName ?? "",
+                    first_last_name: data?.firstLastName ?? "",
+                    middle_last_name: data?.middleLastName ?? "",
+                    identification_type_id: data?.identificationType?.id ?? "",
+                    identification_number: data?.identificationNumber ?? "",
+                    birthdate: data?.birthdate ?? "",
+                    email: data?.email ?? "",
+                    phone_number: data?.phoneNumber ?? "",
+                    neighborhood: data?.neighborhood ?? "",
+                    address: data?.address ?? "",
+                    department_id: data?.department?.id ?? "",
+                    municipality_id: data?.municipality?.id ?? "",
+                    disability_type_id: data?.disabilityType?.id ?? "",
+                    gender_id: data?.gender?.id ?? "",
+                    area_id: data?.area?.id ?? "",
+                    country_id: data?.country?.id ?? "",
                 });
                 if (data?.department?.id) {
                     fetchMunicipalities(data?.department?.id);
@@ -138,6 +142,7 @@ export const UserForm = () => {
         await load(() => commonServices.getGender(), setGender);
         await load(() => commonServices.getArea(), setArea);
         await load(() => depaMuniServices.getDepartments(), setDepartments);
+        await load(() => commonServices.getCountries(), setCountry);
     };
 
     //
@@ -302,6 +307,17 @@ export const UserForm = () => {
                                    error={formik.touched.area_id && Boolean(formik.errors.area_id)}
                                    helperText={formik.touched.area_id && formik.errors.area_id}>
                             {area.map((a) => (
+                                <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                    <div className="col-md-6">
+                        <TextField select
+                                   fullWidth
+                                   label="Pais" {...formik.getFieldProps("country_id")}
+                                   error={formik.touched.country_id && Boolean(formik.errors.country_id)}
+                                   helperText={formik.touched.country_id && formik.errors.country_id}>
+                            {country.map((a) => (
                                 <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
                             ))}
                         </TextField>

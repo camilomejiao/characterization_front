@@ -11,8 +11,9 @@ export const ObservationHistory = ({ observations }) => {
             <Card.Body>
                 {observations?.map((obs, idx) => (
                     <Row key={idx} className="mb-3 pb-2 border-bottom">
-                        <Col md={3}><strong>Fecha:</strong> {new Date(obs?.created_at).toLocaleDateString()}</Col>
-                        <Col md={9}><strong>Observación:</strong> {obs?.notification}</Col>
+                        <Col md={4}><strong>Fecha:</strong> {new Date(obs?.created_at).toLocaleDateString()}</Col>
+                        <Col md={4}><strong>Estado:</strong> {obs?.status?.name}</Col>
+                        <Col md={4}><strong>Observación:</strong> {obs?.notification}</Col>
                     </Row>
                 ))}
             </Card.Body>

@@ -16,3 +16,10 @@ export const RolesEnum = {
     ADMIN: 1,
     SUPPLIER: 2,
 }
+
+
+export const PqrsStatusEnum = {
+    OPENED: 1,
+    IN_FOLLOW_UP: 2,
+    CLOSED: 3
+}

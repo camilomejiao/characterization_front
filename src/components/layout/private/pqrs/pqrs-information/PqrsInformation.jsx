@@ -1,7 +1,15 @@
 import { Card, Row, Col } from "react-bootstrap";
-import { FiFileText } from "react-icons/fi";
+import {FiExternalLink, FiFileText} from "react-icons/fi";
 
 export const PqrsInformation = ({ data }) => {
+
+    const docUrl = data?.fileUrl ?? data?.files ?? null;
+
+    const handleOpen = () => {
+        if (!docUrl) return;
+        window.open(docUrl, "_blank", "noopener,noreferrer");
+    };
+
     return (
         <Card className="shadow-sm rounded-4 overflow-hidden mt-3">
             {/* Encabezado */}
@@ -64,17 +72,28 @@ export const PqrsInformation = ({ data }) => {
                                 <strong>Entidad:</strong> {data?.entity}
                             </Col>
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Responsable:</strong> {data?.responsible}
+                                <strong>Responsable:</strong> {data?.userSystem?.name}
                             </Col>
                         </Row>
 
                         <Row className="mb-2">
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Dirección:</strong> {data?.address}
-                            </Col>
-                            <Col md={6} className="py-2 border-bottom">
                                 <strong>Fecha del Evento:</strong> {data?.dateOfEvents}
                             </Col>
+
+                            <Col md={6} className="py-2">
+                                {docUrl ? (
+                                    <a href={docUrl} target="_blank" rel="noopener noreferrer"
+                                       className="btn btn-outline-primary btn-sm">
+                                        <FiExternalLink className="me-1" />
+                                        Ver documento
+                                    </a>
+                                ) : (
+                                    <span className="text-muted">Sin documento adjunto</span>
+                                )}
+                            </Col>
+
+
                         </Row>
 
                         <Row>

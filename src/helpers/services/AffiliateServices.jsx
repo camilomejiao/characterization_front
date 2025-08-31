@@ -17,11 +17,6 @@ class AffiliateServices {
         return this.baseUrl + endpoint;
     }
 
-    async getList() {
-        const url = this.buildUrl(`list`)
-        return authTokenService.fetchWithAuth(url, { method: "GET" });
-    }
-
     async create(data) {
         const url = this.buildUrl(`create`)
         return authTokenService.fetchWithAuth(url, {
@@ -30,12 +25,9 @@ class AffiliateServices {
         });
     }
 
-    async update(id, formData) {
-        const url = this.buildUrl(`${id}`)
-        return authTokenService.fetchWithAuth(url, {
-            method: "PUT",
-            body: formData,
-        });
+    async getList() {
+        const url = this.buildUrl(`list`)
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
     async getById(id) {
@@ -43,8 +35,20 @@ class AffiliateServices {
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
-    async bulk() {
+    async update(id, data) {
+        const url = this.buildUrl(`update/${id}`)
+        return authTokenService.fetchWithAuth(url, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    }
 
+    async bulk(data) {
+        const url = this.buildUrl(`bulk`)
+        return authTokenService.fetchWithAuth(url, {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
     }
 }
 

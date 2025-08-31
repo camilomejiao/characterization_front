@@ -138,7 +138,7 @@ export const AffiliateList = () => {
     ];
 
     const handleEdit = (id) => {
-        navigate(`/admin/pqrs-update/${id}`);
+        navigate(`/admin/affiliates-update/${id}`);
     }
 
     const showAffiliateDetail = (id) => {

@@ -27,5 +27,7 @@ export const RouterEnum = {
     //Affiliates
     AffiliatesList: 'affiliates-list',
     BulkAffiliates: 'affiliates-bulk',
-    AffiliatesCreate: 'affiliates-create'
+    AffiliatesCreate: 'affiliates-create',
+    AffiliatesUpdate: 'affiliates-update/:id',
+    AffiliatesObservation: 'affiliates-observation/:id'
 }

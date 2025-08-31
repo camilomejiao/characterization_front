@@ -1,8 +1,7 @@
-import {Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
-import { UserInformation } from "../../../shared/user-information/UserInformation";
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {useFormik} from "formik";
+import { useFormik } from "formik";
+import {Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 
 //Helper
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
@@ -12,9 +11,10 @@ import { pqrsServices } from "../../../../../helpers/services/PqrsServices";
 import { commonServices } from "../../../../../helpers/services/CommonServices";
 
 //Enum
-import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
+import { PqrsStatusEnum, ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
 //Components
+import { UserInformation } from "../../../shared/user-information/UserInformation";
 import { PqrsInformation } from "../pqrs-information/PqrsInformation";
 import { ObservationHistory } from "../observation-history/ObservationHistory";
 
@@ -31,7 +31,6 @@ export const PQRSObservation = () => {
     const fetchPQRSData = async (id) => {
         try {
             const {data, status} = await pqrsServices.getById(id);
-            console.log('data: ', data);
             if(status === ResponseStatusEnum.OK) {
                 setUserData(data);
             }
@@ -137,7 +136,13 @@ export const PQRSObservation = () => {
                     />
 
                     <Box sx={{ textAlign: "right", mt: 2 }}>
-                        <Button type="submit" variant="contained" color="primary">Guardar observación</Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={userData?.applicationStatus?.id === PqrsStatusEnum.CLOSED}
+                            color="primary">
+                            Guardar observación
+                        </Button>
                     </Box>
                 </Box>
             </div>

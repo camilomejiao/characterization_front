@@ -28,10 +28,8 @@ const validationSchema = Yup.object({
     reason_id: Yup.string().required("La razón es obligatorio"),
     eps_id: Yup.string().required("La EPS es obligatoria"),
     entity: Yup.string().required("La entidad es obligatoria"),
-    responsible: Yup.string().required("El responsable es obligatorio"),
     date_of_events: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha del evento es obligatoria"),
     description_of_events: Yup.string().required("La descripción es obligatoria"),
-    address: Yup.string().required("La dirección es obligatoria"),
     attachment: Yup.mixed().nullable().test("fileFormat", "Solo se permiten archivos PDF", value => !value || value.type === "application/pdf"),
 });
 
@@ -43,10 +41,8 @@ const initialValues = {
     reason_id: "",
     eps_id: "",
     entity: "",
-    responsible: "",
     date_of_events: "",
     description_of_events: "",
-    address: "",
     attachment: null,
 };
 
@@ -96,8 +92,6 @@ export const PQRSForm = () => {
                 formData.append("reasonId", values.reason_id);
                 formData.append("epsId", values.eps_id);
                 formData.append("entity", values.entity);
-                formData.append("address", values.address);
-                formData.append("responsible", values.responsible);
                 formData.append("dateOfEvents", values.date_of_events);
                 formData.append("descriptionOfEvents", values.description_of_events);
                 if (values.attachment) formData.append("file", values.attachment);
@@ -120,7 +114,9 @@ export const PQRSForm = () => {
         try {
             const { data, status } = await depaMuniServices.getMunicipalities(departmentId);
             if (status === ResponseStatusEnum.OK) setMunicipalities(data);
-        } catch {}
+        } catch(error) {
+            console.log('')
+        }
     };
 
     //
@@ -145,17 +141,17 @@ export const PQRSForm = () => {
                     reason_id: data.reason?.id,
                     eps_id: data.eps?.id,
                     entity: data.entity,
-                    responsible: data.responsible,
                     date_of_events: data.dateOfEvents,
                     description_of_events: data.descriptionOfEvents,
-                    address: data.address,
                     attachment: null,
                 });
                 if (data.department?.id){
                     await fetchMunicipalities(data.department.id);
                 }
             }
-        } catch {}
+        } catch(error) {
+            console.log(error, '');
+        }
     };
 
     const handleUserSearch = (data) => {
@@ -206,7 +202,7 @@ export const PQRSForm = () => {
                                 <FormControl
                                     fullWidth
                                     error={formik.touched.application_status_id && Boolean(formik.errors.application_status_id)}>
-                                    <InputLabel>Status</InputLabel>
+                                    <InputLabel>Estado</InputLabel>
                                     <Select {...formik.getFieldProps("application_status_id")}>{status.map(opt => <MenuItem key={opt.id} value={opt.id}>{opt.name}</MenuItem>)}</Select>
                                 </FormControl>
                             </Col>
@@ -261,29 +257,11 @@ export const PQRSForm = () => {
 
                         <Row className="mb-3">
                             <Col md={6}><TextField
-                                label="Entidad"
+                                label="Entidad o IPS"
                                 fullWidth
                                 {...formik.getFieldProps("entity")}
                                 error={formik.touched.entity && Boolean(formik.errors.entity)}
                                 helperText={formik.touched.entity && formik.errors.entity} />
-                            </Col>
-                            <Col md={6}>
-                                <TextField
-                                    label="Responsable"
-                                    fullWidth
-                                    {...formik.getFieldProps("responsible")}
-                                    error={formik.touched.responsible && Boolean(formik.errors.responsible)}
-                                    helperText={formik.touched.responsible && formik.errors.responsible} />
-                            </Col>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Col md={6}><TextField
-                                label="Dirección"
-                                fullWidth
-                                {...formik.getFieldProps("address")}
-                                error={formik.touched.address && Boolean(formik.errors.address)}
-                                helperText={formik.touched.address && formik.errors.address} />
                             </Col>
                             <Col md={6}>
                                 <TextField
@@ -297,13 +275,14 @@ export const PQRSForm = () => {
                         </Row>
 
                         <Row className="mb-3">
-                            <Col><TextField
-                                label="Descripción del evento"
-                                multiline
-                                rows={4}
-                                fullWidth {...formik.getFieldProps("description_of_events")}
-                                error={formik.touched.description_of_events && Boolean(formik.errors.description_of_events)}
-                                helperText={formik.touched.description_of_events && formik.errors.description_of_events} />
+                            <Col>
+                                <TextField
+                                    label="Descripción del evento"
+                                    multiline
+                                    rows={4}
+                                    fullWidth {...formik.getFieldProps("description_of_events")}
+                                    error={formik.touched.description_of_events && Boolean(formik.errors.description_of_events)}
+                                    helperText={formik.touched.description_of_events && formik.errors.description_of_events} />
                             </Col>
                         </Row>
 

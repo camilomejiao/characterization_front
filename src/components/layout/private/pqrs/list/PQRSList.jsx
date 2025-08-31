@@ -30,6 +30,7 @@ export const PQRSList = () => {
     const getPqrsList = async () => {
         try {
             const {data, status} = await pqrsServices.getList();
+            console.log(data);
             if(status === ResponseStatusEnum.OK) {
                 setPqrsList(await normalizeRows(data));
             }
@@ -105,12 +106,12 @@ export const PQRSList = () => {
             headerAlign: "left",
         },
         {
-            field: "report",
-            headerName: "Reporte",
-            width: 80,
+            field: "actions",
+            headerName: "Acciones",
+            width: 200,
             headerAlign: "left",
             renderCell: (params) => (
-                <div>
+                <Stack direction="row" spacing={1}>
                     <IconButton
                         color="info"
                         onClick={() =>
@@ -119,18 +120,6 @@ export const PQRSList = () => {
                     >
                         <FaFilePdf />
                     </IconButton>
-                </div>
-            ),
-            sortable: false,
-            filterable: false,
-        },
-        {
-            field: "actions",
-            headerName: "Acciones",
-            width: 200,
-            headerAlign: "left",
-            renderCell: (params) => (
-                <Stack direction="row" spacing={1}>
                     <IconButton
                         color="secondary"
                         onClick={() => showDetail(params.row.id)}
@@ -143,13 +132,6 @@ export const PQRSList = () => {
                     >
                         <FaPencilAlt/>
                     </IconButton>
-                    <IconButton
-                        color="error"
-                        onClick={() => handleDelete(params.row.id)}
-                        //disabled={isButtonDisabled(params.row.id)}
-                    >
-                        <FaTrash/>
-                    </IconButton>
                 </Stack>
             ),
         },
@@ -158,20 +140,6 @@ export const PQRSList = () => {
     //
     const handleEdit = (id) => {
         navigate(`/admin/pqrs-update/${id}`);
-    }
-
-    //
-    const handleDelete = async (id) => {
-        try {
-            const {status} = await pqrsServices.delete(id);
-            if(status === ResponseStatusEnum.OK) {
-                AlertComponent.success('Pqrs Eliminado correctamente!');
-                getPqrsList();
-            }
-        } catch (error) {
-            console.log(`Error al eliminar ${error}`);
-        }
-
     }
 
     //

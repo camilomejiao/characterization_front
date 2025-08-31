@@ -127,8 +127,6 @@ export const AffiliateForm = () => {
                     dateOfAffiliated: values.dateOfAffiliated || null,
                     observations: values.observations || null,
                 };
-                console.log('payload: ', payload);
-
                 let response;
                 if (id) {
                     response = await affiliateServices.update(id, payload);
@@ -148,6 +146,38 @@ export const AffiliateForm = () => {
         },
     });
 
+    //
+    const fetchAffilateData = async (id) => {
+        try {
+            const {data, status} = await affiliateServices.getById(id);
+            if (status === ResponseStatusEnum.OK) {
+                setUserData(data.user);
+                await formik.setValues({
+                    populationTypeId: data?.populationType?.id,
+                    epsId: data?.eps?.id,
+                    affiliateTypeId: data?.affiliateType?.id,
+                    methodologyId: data?.methodology?.id,
+                    levelId: data?.level?.id,
+                    membershipClassId: data?.membershipClass?.id,
+                    ethnicityId: data?.ethnicity?.id,
+                    communityId: data?.community?.id,
+                    groupSubgroupId: data?.groupSubgroup?.id,
+                    stateId: data?.state?.id,
+                    sisbenScore: data?.sisbenScore ?? "",
+                    sisbenRegistrationDate: data?.sisbenRegistrationDate ?? "",
+                    sisbenNumber: data?.sisbenNumber ?? "",
+                    highCost: data?.highCost ?? "",
+                    featuresSurvival: data?.featuresSurvival ?? "",
+                    namesake: data?.namesake ?? "",
+                    dateOfAffiliated: data?.dateOfAffiliated ?? "",
+                    observations: data?.observations ?? "",
+                });
+            }
+        } catch (error) {
+            console.log(error, '');
+        }
+    }
+
     const handleUserSearch = (data) => {
         setUserData(data);
         setShowModal(false);
@@ -157,6 +187,7 @@ export const AffiliateForm = () => {
         fetchOptions();
         setShowModal(true);
         if (id) {
+            fetchAffilateData(id);
             setShowModal(false);
         }
     }, []);
