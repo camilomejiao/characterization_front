@@ -26,6 +26,11 @@ class CommonServices {
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
+    async sexGender() {
+        const url = this.buildUrl(`sex`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
+
     async getGender() {
         const url = this.buildUrl(`gender`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
@@ -56,8 +61,17 @@ class CommonServices {
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
-    //
+    async getIpsPrimary() {
+        const url = this.buildUrl(`ips-primary`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
 
+    async getIpsDental() {
+        const url = this.buildUrl(`ips-dental`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
+
+    //
     async getPopulationType() {
         const url = this.buildUrl(`population-type`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });

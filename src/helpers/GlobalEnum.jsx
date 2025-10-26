@@ -17,9 +17,14 @@ export const RolesEnum = {
     SUPPLIER: 2,
 }
 
-
 export const PqrsStatusEnum = {
     OPENED: 1,
     IN_FOLLOW_UP: 2,
     CLOSED: 3
 }
+
+export const DefaultsSelectEnum = {
+    country: 43,
+    department: 25,
+    municipality: 526,
+};

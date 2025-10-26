@@ -5,7 +5,12 @@ export const UserInformation = ({ data }) => {
     return (
         <Card className="shadow-sm rounded-4 overflow-hidden">
             {/* Encabezado */}
-            <Card.Header className="bg-primary text-white text-center fw-semibold">
+            <Card.Header className="text-center fw-semibold"
+                         style={{
+                             backgroundColor: "#031b32",
+                             color: "white"
+                         }}
+            >
                 Información del Usuario
             </Card.Header>
 

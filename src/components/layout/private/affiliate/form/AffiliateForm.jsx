@@ -21,6 +21,8 @@ import { affiliateServices } from "../../../../../helpers/services/AffiliateServ
 const validationSchema = Yup.object({
     populationTypeId: Yup.string().required("Campo requerido"),
     epsId: Yup.string().required("Campo requerido"),
+    ipsPrimaryId: Yup.string().required("Campo requerido"),
+    ipsDentalId: Yup.string().required("Campo requerido"),
     affiliateTypeId: Yup.string().required("Campo requerido"),
     methodologyId: Yup.string().required("Campo requerido"),
     levelId: Yup.string().required("Campo requerido"),
@@ -29,12 +31,8 @@ const validationSchema = Yup.object({
     communityId: Yup.number().optional(),
     groupSubgroupId: Yup.number().required("Campo requerido"),
     stateId: Yup.string().required("Campo requerido"),
-    sisbenScore: Yup.number().optional(),
-    sisbenRegistrationDate: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").optional(),
     sisbenNumber: Yup.number().optional(),
-    highCost: Yup.number().optional(),
-    featuresSurvival: Yup.number().optional(),
-    namesake: Yup.number().optional(),
+    formNumber: Yup.number().optional(),
     dateOfAffiliated: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").optional(),
     observations: Yup.string().max(500, "Máximo 500 caracteres").optional(),
 });
@@ -43,6 +41,8 @@ const validationSchema = Yup.object({
 const initialValues = {
     populationTypeId: "",
     epsId: "",
+    ipsPrimaryId: "",
+    ipsDentalId: "",
     affiliateTypeId: "",
     methodologyId: "",
     levelId: "",
@@ -51,12 +51,8 @@ const initialValues = {
     communityId: "",
     groupSubgroupId: "",
     stateId: "",
-    sisbenScore: "",
-    sisbenRegistrationDate: "",
     sisbenNumber: "",
-    highCost: "",
-    featuresSurvival: "",
-    namesake: "",
+    formNumber: "",
     dateOfAffiliated: "",
     observations: "",
 };
@@ -69,6 +65,8 @@ export const AffiliateForm = () => {
     const [userData, setUserData] = useState(null);
     const [populationType, setPopulationType] = useState([]);
     const [eps, setEps] = useState([]);
+    const [ipsPrimary, setIpsPrimary] = useState([]);
+    const [ipsDental, setIpsDental] = useState([]);
     const [affiliateType, setAffiliateType] = useState([]);
     const [metodology, setMetodology] = useState([]);
     const [level, setLevel] = useState([]);
@@ -90,6 +88,8 @@ export const AffiliateForm = () => {
 
         await load(() => commonServices.getPopulationType(), setPopulationType);
         await load(() => commonServices.getEps(), setEps);
+        await load(() => commonServices.getIpsPrimary(), setIpsPrimary);
+        await load(() => commonServices.getIpsDental(), setIpsDental);
         await load(() => commonServices.getAffiliateType(), setAffiliateType);
         await load(() => commonServices.getMethodology(), setMetodology);
         await load(() => commonServices.getlevel(), setLevel);
@@ -107,25 +107,9 @@ export const AffiliateForm = () => {
         onSubmit: async (values) => {
             try {
                 const payload = {
-                    userId: userData?.id,
-                    populationTypeId: Number(values.populationTypeId),
-                    epsId: Number(values.epsId),
-                    affiliateTypeId: Number(values.affiliateTypeId),
-                    methodologyId: Number(values.methodologyId),
-                    levelId: Number(values.levelId),
-                    membershipClassId: Number(values.membershipClassId),
-                    ethnicityId: Number(values.ethnicityId),
-                    communityId: values.communityId ? Number(values.communityId) : null,
-                    groupSubgroupId: values.groupSubgroupId ? Number(values.groupSubgroupId) : null,
-                    stateId: Number(values.stateId),
-                    sisbenScore: values.sisbenScore !== "" ? Number(values.sisbenScore) : null,
-                    sisbenRegistrationDate: values.sisbenRegistrationDate || null,
-                    sisbenNumber: values.sisbenNumber !== "" ? Number(values.sisbenNumber) : null,
-                    highCost: values.highCost !== "" ? Number(values.highCost) : null,
-                    featuresSurvival: values.featuresSurvival !== "" ? Number(values.featuresSurvival) : null,
-                    namesake: values.namesake !== "" ? Number(values.namesake) : null,
-                    dateOfAffiliated: values.dateOfAffiliated || null,
-                    observations: values.observations || null,
+                    ...values,
+                    regimeId: 1,
+                    userId: userData.id
                 };
                 let response;
                 if (id) {
@@ -138,7 +122,7 @@ export const AffiliateForm = () => {
                     AlertComponent.success("Afiliado guardado exitosamente");
                     navigate("/admin/affiliates-list");
                 } else {
-                    AlertComponent.warning("Error al guardar", response.data?.errors?.[0]?.title || "Error desconocido");
+                    AlertComponent.warning(response.data?.errors?.[0]?.title, response?.data?.errors?.[0]?.source?.pointer[0]?.errors);
                 }
             } catch (error) {
                 AlertComponent.error("Error al crear el afiliado");
@@ -155,6 +139,8 @@ export const AffiliateForm = () => {
                 await formik.setValues({
                     populationTypeId: data?.populationType?.id,
                     epsId: data?.eps?.id,
+                    ipsPrimaryId: data?.ipsPrimary?.id,
+                    ipsDentalId: data?.ipsDental?.id,
                     affiliateTypeId: data?.affiliateType?.id,
                     methodologyId: data?.methodology?.id,
                     levelId: data?.level?.id,
@@ -163,12 +149,8 @@ export const AffiliateForm = () => {
                     communityId: data?.community?.id,
                     groupSubgroupId: data?.groupSubgroup?.id,
                     stateId: data?.state?.id,
-                    sisbenScore: data?.sisbenScore ?? "",
-                    sisbenRegistrationDate: data?.sisbenRegistrationDate ?? "",
                     sisbenNumber: data?.sisbenNumber ?? "",
-                    highCost: data?.highCost ?? "",
-                    featuresSurvival: data?.featuresSurvival ?? "",
-                    namesake: data?.namesake ?? "",
+                    formNumber: data?.formNumber ?? "",
                     dateOfAffiliated: data?.dateOfAffiliated ?? "",
                     observations: data?.observations ?? "",
                 });
@@ -208,319 +190,228 @@ export const AffiliateForm = () => {
 
                     {/* Form */}
                     <form onSubmit={formik.handleSubmit} className="mt-4">
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    className="mb-3"
-                                    error={formik.touched.populationTypeId && Boolean(formik.errors.populationTypeId)}
-                                >
-                                    <InputLabel>Tipo de Población</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("populationTypeId")}
-                                    >
-                                        {populationType.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.epsId && Boolean(formik.errors.epsId)}>
-                                    <InputLabel>EPS</InputLabel>
-                                    <Select {...formik.getFieldProps("epsId")}>
-                                        {eps.map(opt =>
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name} - {opt.cod}
-                                            </MenuItem>
-                                        )}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
+                        <div className="row g-3">
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Tipo de Población" {...formik.getFieldProps("populationTypeId")}
+                                           error={formik.touched.populationTypeId && Boolean(formik.errors.populationTypeId)}
+                                           helperText={formik.touched.populationTypeId && formik.errors.populationTypeId}>
+                                    {populationType.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
 
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.affiliateTypeId && Boolean(formik.errors.affiliateTypeId)}
-                                >
-                                    <InputLabel>Tipo de Población</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("affiliateTypeId")}
-                                        label="Tipo de afiliado"
-                                    >
-                                        {affiliateType.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.methodologyId && Boolean(formik.errors.methodologyId)}
-                                >
-                                    <InputLabel>Metodología</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("methodologyId")}
-                                        label="Metodología"
-                                    >
-                                        {metodology.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="EPS" {...formik.getFieldProps("epsId")}
+                                           error={formik.touched.epsId && Boolean(formik.errors.epsId)}
+                                           helperText={formik.touched.epsId && formik.errors.epsId}>
+                                    {eps.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name} - {item.cod}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
 
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.levelId && Boolean(formik.errors.levelId)}
-                                >
-                                    <InputLabel>Nivel</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("levelId")}
-                                        label="Nivel"
-                                    >
-                                        {level.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.membershipClassId && Boolean(formik.errors.membershipClassId)}
-                                >
-                                    <InputLabel>Clase de afiliación</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("membershipClassId")}
-                                        label="Tipo de Población"
-                                    >
-                                        {membershipClass.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Ips Primaria" {...formik.getFieldProps("ipsPrimaryId")}
+                                           error={formik.touched.ipsPrimaryId && Boolean(formik.errors.ipsPrimaryId)}
+                                           helperText={formik.touched.ipsPrimaryId && formik.errors.ipsPrimaryId}>
+                                    {ipsPrimary.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
 
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.ethnicityId && Boolean(formik.errors.ethnicityId)}
-                                >
-                                    <InputLabel>Etnia</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("ethnicityId")}
-                                        label="Tipo de Población"
-                                    >
-                                        {ethnicity.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.communityId && Boolean(formik.errors.communityId)}
-                                >
-                                    <InputLabel>Comunidad</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("communityId")}
-                                        label="Tipo de Población"
-                                    >
-                                        <MenuItem value="">Seleccionar opción</MenuItem>
-                                        {community.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Ips Odontologia" {...formik.getFieldProps("ipsDentalId")}
+                                           error={formik.touched.ipsDentalId && Boolean(formik.errors.ipsDentalId)}
+                                           helperText={formik.touched.ipsDentalId && formik.errors.ipsDentalId}>
+                                    {ipsDental.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
 
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.groupSubgroupId && Boolean(formik.errors.groupSubgroupId)}
-                                >
-                                    <InputLabel>Grupo/Subgrupo</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("groupSubgroupId")}
-                                        label="Tipo de Población"
-                                    >
-                                        {groupSubgroup.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.group} - {opt.subgroup}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.stateId && Boolean(formik.errors.stateId)}
-                                >
-                                    <InputLabel>Estado</InputLabel>
-                                    <Select
-                                        {...formik.getFieldProps("stateId")}
-                                        label="Tipo de Población"
-                                    >
-                                        {state.map(opt => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.cod} - {opt.description}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Tipo de Población" {...formik.getFieldProps("affiliateTypeId")}
+                                           error={formik.touched.affiliateTypeId && Boolean(formik.errors.affiliateTypeId)}
+                                           helperText={formik.touched.affiliateTypeId && formik.errors.affiliateTypeId}>
+                                    {affiliateType.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
 
-                        <Row className="mb-3">
-                            <Col md={6}>
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Metodología" {...formik.getFieldProps("methodologyId")}
+                                           error={formik.touched.methodologyId && Boolean(formik.errors.methodologyId)}
+                                           helperText={formik.touched.methodologyId && formik.errors.methodologyId}>
+                                    {metodology.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Nivel" {...formik.getFieldProps("levelId")}
+                                           error={formik.touched.levelId && Boolean(formik.errors.levelId)}
+                                           helperText={formik.touched.levelId && formik.errors.levelId}>
+                                    {level.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Clase de afiliación" {...formik.getFieldProps("membershipClassId")}
+                                           error={formik.touched.membershipClassId && Boolean(formik.errors.membershipClassId)}
+                                           helperText={formik.touched.membershipClassId && formik.errors.membershipClassId}>
+                                    {membershipClass.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Etnia" {...formik.getFieldProps("ethnicityId")}
+                                           error={formik.touched.ethnicityId && Boolean(formik.errors.ethnicityId)}
+                                           helperText={formik.touched.ethnicityId && formik.errors.ethnicityId}>
+                                    {ethnicity.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Comunidad" {...formik.getFieldProps("communityId")}
+                                           error={formik.touched.communityId && Boolean(formik.errors.communityId)}
+                                           helperText={formik.touched.communityId && formik.errors.communityId}>
+                                    {community.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.name}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Grupo/Subgrupo" {...formik.getFieldProps("groupSubgroupId")}
+                                           error={formik.touched.groupSubgroupId && Boolean(formik.errors.groupSubgroupId)}
+                                           helperText={formik.touched.groupSubgroupId && formik.errors.groupSubgroupId}>
+                                    {groupSubgroup.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.group} - {item.subgroup}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
+                                           label="Estado" {...formik.getFieldProps("stateId")}
+                                           error={formik.touched.stateId && Boolean(formik.errors.stateId)}
+                                           helperText={formik.touched.stateId && formik.errors.stateId}>
+                                    {state.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.cod} - {item.description}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
                                 <TextField
-                                    label="Puntuación Sisben"
                                     fullWidth
-                                    {...formik.getFieldProps("sisbenScore")}
+                                    label="Número de formulario EPS"
+                                    {...formik.getFieldProps("formNumber")}
+                                    error={formik.touched.formNumber && Boolean(formik.errors.formNumber)}
+                                    helperText={formik.touched.formNumber && formik.errors.formNumber}
                                 />
-                            </Col>
-                            <Col md={6}>
+                            </div>
+
+                            <div className="col-md-6">
                                 <TextField
-                                    label="Fecha ficha de sisben"
-                                    type="date"
                                     fullWidth
-                                    InputLabelProps={{ shrink: true }} {...formik.getFieldProps("sisbenRegistrationDate")}
-                                    error={formik.touched.sisbenRegistrationDate && Boolean(formik.errors.sisbenRegistrationDate)}
-                                    helperText={formik.touched.sisbenRegistrationDate && formik.errors.sisbenRegistrationDate} />
-                            </Col>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <TextField
-                                    label="Número de ficha"
-                                    fullWidth
-                                    {...formik.getFieldProps("sisbenNumber")}
-                                />
-                            </Col>
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.highCost && Boolean(formik.errors.highCost)}
-                                >
-                                    <InputLabel>Costo Alto</InputLabel>
-                                    <Select
-                                        id="highCost"
-                                        name="highCost"
-                                        value={formik.values.highCost}
-                                        {...formik.getFieldProps("highCost")}
-                                        onChange={(e) => {
-                                            formik.setFieldValue("highCost", e.target.value);
-                                        }}
-                                    >
-                                        <MenuItem value="">Seleccionar opción</MenuItem>
-                                        <MenuItem value={1}>Sí</MenuItem>
-                                        <MenuItem value={0}>No</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
-
-                        <Row className="mb-3" >
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.featuresSurvival && Boolean(formik.errors.featuresSurvival)}
-                                >
-                                    <InputLabel>Características de supervivencia</InputLabel>
-                                    <Select
-                                        id="featuresSurvival"
-                                        name="featuresSurvival"
-                                        value={formik.values.featuresSurvival}
-                                        {...formik.getFieldProps("featuresSurvival")}
-                                        onChange={(e) => {
-                                            formik.setFieldValue("featuresSurvival", e.target.value);
-                                        }}
-                                    >
-                                        <MenuItem value="">Seleccionar opción</MenuItem>
-                                        <MenuItem value={1}>Sí</MenuItem>
-                                        <MenuItem value={0}>No</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Col>
-
-                            <Col md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.namesake && Boolean(formik.errors.namesake)}
-                                >
-                                    <InputLabel>Homónimo</InputLabel>
-                                    <Select
-                                        id="namesake"
-                                        name="namesake"
-                                        value={formik.values.namesake}
-                                        {...formik.getFieldProps("namesake")}
-                                        onChange={(e) => {
-                                            formik.setFieldValue("namesake", e.target.value);
-                                        }}
-                                    >
-                                        <MenuItem value="">Seleccionar opción</MenuItem>
-                                        <MenuItem value={1}>Sí</MenuItem>
-                                        <MenuItem value={0}>No</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Col>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Col md={6}>
-                                <TextField
-                                    label="Fecha del afiliación"
-                                    type="date"
-                                    fullWidth
+                                    type="date" label="Fecha del afiliación EPS"
                                     InputLabelProps={{ shrink: true }} {...formik.getFieldProps("dateOfAffiliated")}
                                     error={formik.touched.dateOfAffiliated && Boolean(formik.errors.dateOfAffiliated)}
                                     helperText={formik.touched.dateOfAffiliated && formik.errors.dateOfAffiliated} />
-                            </Col>
-                        </Row>
+                            </div>
 
-                        <Row className="mb-3">
-                            <Col md={12}>
+                            <div className="col-md-6">
                                 <TextField
-                                    label="Observaciones"
+                                    fullWidth
+                                    label="Número de ficha sisben"
+                                    {...formik.getFieldProps("sisbenNumber")}
+                                    error={formik.touched.sisbenNumber && Boolean(formik.errors.sisbenNumber)}
+                                    helperText={formik.touched.sisbenNumber && formik.errors.sisbenNumber}
+                                />
+                            </div>
+
+                            <div className="col-md-12">
+                                <TextField
                                     fullWidth
                                     multiline
+                                    minRows={4}
+                                    maxRows={8}
+                                    label="Observaciones"
                                     {...formik.getFieldProps("observations")}
+                                    error={formik.touched.observations && Boolean(formik.errors.observations)}
+                                    helperText={formik.touched.observations && formik.errors.observations}
                                 />
-                            </Col>
-                        </Row>
-
-                        <div className="text-end">
-                            <Button type="submit" variant="contained" color="primary">
+                            </div>
+                        </div>
+                        <div className="text-end mt-4">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                disableElevation
+                                sx={{
+                                    backgroundColor: "#2d8165",
+                                    color: "#fff",
+                                    "&:hover": { backgroundColor: "#3f8872" },
+                                }}
+                            >
                                 {id ? "Actualizar" : "Crear"}
                             </Button>
                         </div>

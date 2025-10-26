@@ -36,6 +36,8 @@ export const PrivateLayout = () => {
             />
 
             <Sidebar
+                headerBg={"/assets/tu-header-azul.png"}
+                paperSx={{ bgcolor: "#031b32", color: "#fff" }}
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
                 mobileOpen={mobileOpen}

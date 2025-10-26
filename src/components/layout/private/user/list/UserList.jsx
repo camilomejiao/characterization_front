@@ -155,7 +155,11 @@ export const UserList = () => {
                     {/* Botón para redirigir a "Crear" */}
                     <Button
                         variant="contained"
-                        color="primary"
+                        sx={{
+                            backgroundColor: "#031b32",
+                            color: "#fff",
+                            "&:hover": { backgroundColor: "#21569a" },
+                        }}
                         onClick={() => navigate("/admin/user-create")}
                     >
                         Crear Nuevo
@@ -168,7 +172,7 @@ export const UserList = () => {
                     pageSize={10}
                     sx={{
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#40A581",
+                            backgroundColor: "#031b32",
                             color: "white",
                             fontSize: "14px",
                         },
@@ -179,7 +183,7 @@ export const UserList = () => {
                             alignItems: "center",
                         },
                         "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#40A581 !important",
+                            backgroundColor: "#031b32 !important",
                             color: "white !important",
                         },
                         "& .MuiDataGrid-cell": {

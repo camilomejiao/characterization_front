@@ -2,8 +2,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 import {TextField, MenuItem, Button } from "@mui/material";
+
+import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 
 //Services
 import { depaMuniServices } from "../../../../../helpers/services/DepaMuniServices";
@@ -11,7 +12,7 @@ import { commonServices } from "../../../../../helpers/services/CommonServices";
 import { userServices } from "../../../../../helpers/services/UserServices";
 
 //Enum
-import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
+import {DefaultsSelectEnum, ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
 
 const validationSchema = Yup.object({
     first_name: Yup.string().required("El primer nombre es obligatorio"),
@@ -21,16 +22,17 @@ const validationSchema = Yup.object({
     identification_type_id: Yup.string().required("El tipo de documento es obligatorio"),
     identification_number: Yup.number().required("El número de identificación es obligatorio"),
     birthdate: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha de nacimiento es obligatoria"),
-    email: Yup.string().email("Formato de email inválido").required("El email es obligatorio"),
+    sex_id: Yup.string().required("El sexo es obligatorio"),
+    gender_id: Yup.string().required("El género es obligatorio"),
     phone_number: Yup.string().required("El número de teléfono es obligatorio"),
     department_id: Yup.string().required("El departamento es obligatorio"),
     municipality_id: Yup.string().required("El municipio es obligatorio"),
     neighborhood: Yup.string().required("El barrio es obligatorio"),
     address: Yup.string().required("La dirección es obligatoria"),
     disability_type_id: Yup.string().required("La discapacidad es obligatoria"),
-    gender_id: Yup.string().required("El género es obligatorio"),
     area_id: Yup.string().required("El área es obligatoria"),
     country_id: Yup.string().required("El pais es obligatorio"),
+    email: Yup.string().trim().email("Formato de email inválido").transform(v => (v === '' ? undefined : v)).notRequired(),
 });
 
 const initialValues = {
@@ -43,14 +45,15 @@ const initialValues = {
     birthdate: "",
     email: "",
     phone_number: "",
+    country_id: "",
     department_id: "",
     municipality_id: "",
     neighborhood: "",
     address: "",
     disability_type_id: "",
+    sex_id: "",
     gender_id: "",
     area_id: "",
-    country_id: "",
 };
 
 export const UserForm = () => {
@@ -62,6 +65,7 @@ export const UserForm = () => {
     const [isMunicipalityDisabled, setIsMunicipalityDisabled] = useState(true);
     const [identificationType, setIdentificationType] = useState([]);
     const [disabilityType, setDisabilityType] = useState([]);
+    const [sex, setSex] = useState([]);
     const [gender, setGender] = useState([]);
     const [area, setArea] = useState([]);
     const [country, setCountry] = useState([]);
@@ -72,8 +76,10 @@ export const UserForm = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
-                const formattedValues = { ...values };
-                console.log('formattedValues: ', formattedValues);
+                const formattedValues = {
+                    ...values,
+                    email: values.email?.trim() || undefined
+                };
                 const response = id
                     ? await userServices.update(id, formattedValues)
                     : await userServices.create(formattedValues);
@@ -82,7 +88,7 @@ export const UserForm = () => {
                     AlertComponent.success("Operación realizada correctamente");
                     navigate("/admin/user-list");
                 } else {
-                    AlertComponent.warning("Error", response?.data?.errors?.[0]?.title);
+                    AlertComponent.warning(response?.data?.errors?.[0]?.title, response?.data?.errors?.[0]?.source?.pointer[0]?.errors);
                 }
             } catch (error) {
                 console.error("Error al enviar el formulario:", error);
@@ -105,13 +111,14 @@ export const UserForm = () => {
                     identification_type_id: data?.identificationType?.id ?? "",
                     identification_number: data?.identificationNumber ?? "",
                     birthdate: data?.birthdate ?? "",
-                    email: data?.email ?? "",
+                    email: data.email ?? "",
                     phone_number: data?.phoneNumber ?? "",
                     neighborhood: data?.neighborhood ?? "",
                     address: data?.address ?? "",
                     department_id: data?.department?.id ?? "",
                     municipality_id: data?.municipality?.id ?? "",
                     disability_type_id: data?.disabilityType?.id ?? "",
+                    sex_id: data?.sex?.id ?? "",
                     gender_id: data?.gender?.id ?? "",
                     area_id: data?.area?.id ?? "",
                     country_id: data?.country?.id ?? "",
@@ -127,6 +134,7 @@ export const UserForm = () => {
         }
     };
 
+    //
     const fetchOptions = async () => {
         const load = async (fn, set) => {
             try {
@@ -139,6 +147,7 @@ export const UserForm = () => {
 
         await load(() => commonServices.getIdentificationType(), setIdentificationType);
         await load(() => commonServices.getDisabilityType(), setDisabilityType);
+        await load(() => commonServices.sexGender(), setSex);
         await load(() => commonServices.getGender(), setGender);
         await load(() => commonServices.getArea(), setArea);
         await load(() => depaMuniServices.getDepartments(), setDepartments);
@@ -162,20 +171,55 @@ export const UserForm = () => {
     //
     const fetchMunicipalities = async (id) => {
         const { data, status } = await depaMuniServices.getMunicipalities(id);
-        if (status === ResponseStatusEnum.OK) setMunicipalities(data);
+        if (status === ResponseStatusEnum.OK) {
+            setMunicipalities(data);
+            return data;
+        }
+        return [];
+    };
+
+    // --------------- Colocar municipio por defecto si existe ---------------
+    const trySetDefaultMunicipality = (list) => {
+        const exists = list.some((m) => m.id === DefaultsSelectEnum.municipality);
+        formik.setFieldValue("municipality_id", exists ? DefaultsSelectEnum.municipality : "");
+    };
+
+    // --------------- Método genérico para seleccionar depto ---------------
+    const selectDepartment = async (departmentId, { setMunicipalityDefault = false } = {}) => {
+        formik.setFieldValue("department_id", departmentId);
+        setIsMunicipalityDisabled(false);
+        const list = await fetchMunicipalities(departmentId);
+        if (setMunicipalityDefault) {
+            trySetDefaultMunicipality(list);
+        }
+    };
+
+    const initForm = async () => {
+        await fetchOptions();
+
+        if (id) {
+            await fetchUserData(id);
+            return;
+        }
+        // Metodo CREAR: país y depto por defecto, y setear municipio por defecto si existe
+        formik.setFieldValue("country_id", DefaultsSelectEnum.country);
+        await selectDepartment(DefaultsSelectEnum.department, { setMunicipalityDefault: true });
     };
 
     useEffect(() => {
-        fetchOptions();
-        if (id) {
-            fetchUserData(id);
-        }
+        initForm();
     }, []);
 
     return (
         <>
             <div className="d-flex justify-content-end mb-2">
-                <Button variant="contained" color="primary" onClick={() => navigate("/admin/user-list")}>
+                <Button variant="contained"
+                        sx={{
+                            backgroundColor: "#031b32",
+                            color: "#fff",
+                            "&:hover": { backgroundColor: "#21569a" },
+                        }}
+                        onClick={() => navigate("/admin/user-list")}>
                     Volver al listado
                 </Button>
             </div>
@@ -241,6 +285,17 @@ export const UserForm = () => {
                     <div className="col-md-6">
                         <TextField select
                                    fullWidth
+                                   label="Pais" {...formik.getFieldProps("country_id")}
+                                   error={formik.touched.country_id && Boolean(formik.errors.country_id)}
+                                   helperText={formik.touched.country_id && formik.errors.country_id}>
+                            {country.map((a) => (
+                                <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                    <div className="col-md-6">
+                        <TextField select
+                                   fullWidth
                                    label="Departamento"
                                    value={formik.values.department_id}
                                    onChange={handleDepartmentChange}
@@ -292,6 +347,17 @@ export const UserForm = () => {
                     <div className="col-md-6">
                         <TextField select
                                    fullWidth
+                                   label="Sexo" {...formik.getFieldProps("sex_id")}
+                                   error={formik.touched.sex_id && Boolean(formik.errors.sex_id)}
+                                   helperText={formik.touched.sex_id && formik.errors.sex_id}>
+                            {sex.map((g) => (
+                                <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                    <div className="col-md-6">
+                        <TextField select
+                                   fullWidth
                                    label="Género" {...formik.getFieldProps("gender_id")}
                                    error={formik.touched.gender_id && Boolean(formik.errors.gender_id)}
                                    helperText={formik.touched.gender_id && formik.errors.gender_id}>
@@ -312,17 +378,6 @@ export const UserForm = () => {
                         </TextField>
                     </div>
                     <div className="col-md-6">
-                        <TextField select
-                                   fullWidth
-                                   label="Pais" {...formik.getFieldProps("country_id")}
-                                   error={formik.touched.country_id && Boolean(formik.errors.country_id)}
-                                   helperText={formik.touched.country_id && formik.errors.country_id}>
-                            {country.map((a) => (
-                                <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
-                            ))}
-                        </TextField>
-                    </div>
-                    <div className="col-md-6">
                         <TextField
                             fullWidth
                             label="Número de teléfono" {...formik.getFieldProps("phone_number")}
@@ -338,9 +393,18 @@ export const UserForm = () => {
                     </div>
                 </div>
                 <div className="text-end mt-4">
-                    <button type="submit" className="btn btn-primary btn-submit">
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        disableElevation
+                        sx={{
+                            backgroundColor: "#2d8165",
+                            color: "#fff",
+                            "&:hover": { backgroundColor: "#3f8872" },
+                        }}
+                    >
                         {id ? "Actualizar" : "Crear"}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </>

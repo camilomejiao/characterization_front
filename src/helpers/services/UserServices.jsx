@@ -46,8 +46,8 @@ class UserServices {
         return authTokenService.fetchWithAuth(url, { method: "DELETE" });
     }
 
-    async getIdentifiedUser(identificationType, identificationNumber) {
-        const url = this.buildUrl(`identification/${identificationType}/${identificationNumber}`);
+    async getIdentifiedUser(identificationNumber) {
+        const url = this.buildUrl(`identification/${identificationNumber}`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 }

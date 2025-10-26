@@ -155,7 +155,7 @@ export const AdministratorList = () => {
                     pageSize={10}
                     sx={{
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#40A581",
+                            backgroundColor: "#031b32",
                             color: "white",
                             fontSize: "14px",
                         },
@@ -166,7 +166,7 @@ export const AdministratorList = () => {
                             alignItems: "center",
                         },
                         "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#40A581 !important",
+                            backgroundColor: "#031b32 !important",
                             color: "white !important",
                         },
                         "& .MuiDataGrid-cell": {
