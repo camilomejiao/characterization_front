@@ -23,6 +23,7 @@ export const AffiliateList = () => {
     const getAffiliateList = async () => {
         setLoadingData(true);
         try {
+            setIsLoading(true);
             const {data, status} = await affiliateServices.getList();
             if(status === ResponseStatusEnum.OK) {
                 setAffiliateList(await normalizeRows(data));
@@ -35,6 +36,7 @@ export const AffiliateList = () => {
             console.log(`Error en Admin List ${error}`);
         } finally {
             setLoadingData(false);
+            setIsLoading(false);
         }
     }
 

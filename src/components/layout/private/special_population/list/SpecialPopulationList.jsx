@@ -1,66 +1,76 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {useEffect, useRef, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Box, Button, IconButton, Stack, TextField} from "@mui/material";
+import {FaPencilAlt, FaRegFile} from "react-icons/fa";
+import {Spinner} from "react-bootstrap";
+import {DataGrid} from "@mui/x-data-grid";
+
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
-import { FaPencilAlt, FaTrash } from "react-icons/fa";
-import { DataGrid } from "@mui/x-data-grid";
-import { IconButton, Button, Stack, TextField, Box } from "@mui/material";
 
-//Enum
-import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
-
-//Services
-import { userServices } from "../../../../../helpers/services/UserServices";
+import {ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
+import {specialPopulationServices} from "../../../../../helpers/services/SpecialPopulationServices";
 
 
-export const UserList = () => {
+export const SpecialPopulationList = () => {
 
     const navigate = useNavigate();
+    const AffiliateReportRef = useRef();
 
-    const [userList, setUserList] = useState([]);
+    const [specialPopulationList, setSpecialPopulationList] = useState([]);
     const [searchText, setSearchText] = useState("");
+    const [loadingData, setLoadingData] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const getUserList = async () => {
+    const getSpecialPopulationList = async () => {
+        setLoadingData(true);
         try {
-            const {data, status} = await userServices.getList();
+            setIsLoading(true);
+            const {data, status} = await specialPopulationServices.getList();
+            console.log('data:', data);
             if(status === ResponseStatusEnum.OK) {
-                setUserList(await normalizeRows(data));
+                setSpecialPopulationList(await normalizeRows(data));
             }
 
             if(status !== ResponseStatusEnum.OK) {
-                AlertComponent.warning('Error al obtener lista de usuarios');
+                AlertComponent.warning('Error al obtener lista de afiliados');
             }
         } catch (error) {
             console.log(`Error en Admin List ${error}`);
+        } finally {
+            setLoadingData(false);
+            setIsLoading(false);
         }
-    };
+    }
 
     const normalizeRows = async (data) => {
-        console.log(data);
+        //console.log(data);
         return data.map((row) => {
             return {
                 id: row?.id,
-                name: row?.firstName + ' ' + row?.middleName,
-                lastName: row?.firstLastName + ' ' + row?.middleLastName,
-                identificationType: row?.identificationType?.acronym,
-                identificationNumber: row?.identificationNumber,
-                email: row?.email
+                name: row?.user?.firstName + ' ' + row?.user?.middleName,
+                lastName: row?.user?.firstLastName + ' ' + row?.user?.middleLastName,
+                identificationNumber: row?.user?.identificationNumber,
+                eps: row?.eps?.name ?? "No registra",
+                populationType: row?.populationType?.name,
+                hasEpsAffiliate: row?.hasEpsAffiliate === false ? 'NO' : 'SI',
+                ethnicity: row?.ethnicity?.name,
+                observations: row?.observations,
             };
         });
     }
 
-    // Filtrar los datos según el texto de búsqueda
-    const filteredRows = userList.filter((row) =>
+    const filteredRows = specialPopulationList.filter((row) =>
         Object.values(row).some((value) =>
             String(value).toLowerCase().includes(searchText.toLowerCase())
         )
     );
 
-    const UserColumns = [
+    const AffiliateColumns = [
         { field: "id", headerName: "N°", width: 50 },
         {
             field: "name",
             headerName: "Nombre",
-            width: 200,
+            width: 150,
             headerAlign: "left",
             align: "left",
             cellClassName: "MuiDataGrid-cell-left",
@@ -68,45 +78,57 @@ export const UserList = () => {
         {
             field: "lastName",
             headerName: "Apellido",
-            width: 200,
-            headerAlign: "left",
-        },
-        {
-            field: "identificationType",
-            headerName: "Tipo de Documento",
             width: 150,
             headerAlign: "left",
         },
         {
             field: "identificationNumber",
-            headerName: "Número de Documento",
-            width: 200,
+            headerName: "Cédula",
+            width: 110,
             headerAlign: "left",
         },
         {
-            field: "email",
-            headerName: "Email",
-            width: 150,
+            field: "eps",
+            headerName: "EPS",
+            width: 120,
+            headerAlign: "left",
+        },
+        {
+            field: "hasEpsAffiliate",
+            headerName: "Afiliado?",
+            width: 80,
+            headerAlign: "left",
+        },
+        {
+            field: "ethnicity",
+            headerName: "Etnia",
+            width: 100,
+            headerAlign: "left",
+        },
+        {
+            field: "observations",
+            headerName: "Observaciones",
+            width: 200,
             headerAlign: "left",
         },
         {
             field: "actions",
             headerName: "Acciones",
             width: 150,
+            headerAlign: "left",
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
                     <IconButton
-                        color="warning"
-                        onClick={() => handleEdit(params.row.id) }
+                        color="secondary"
+                        onClick={() => showAffiliateDetail(params.row.id)}
                     >
-                        <FaPencilAlt/>
+                        <FaRegFile/>
                     </IconButton>
                     <IconButton
-                        color="error"
-                        onClick={() => handleDelete(params.row.id)}
-                        //disabled={isButtonDisabled(params.row.id)}
+                        color="warning"
+                        onClick={() => handleEdit(params.row.id)}
                     >
-                        <FaTrash/>
+                        <FaPencilAlt/>
                     </IconButton>
                 </Stack>
             ),
@@ -114,28 +136,15 @@ export const UserList = () => {
     ];
 
     const handleEdit = (id) => {
-        navigate(`/admin/user-update/${id}`);
+        navigate(`/admin/special-population-update/${id}`);
     }
 
-    const handleDelete = async (id) => {
-        try {
-            const {status} = await userServices.delete(id);
-            if (status === ResponseStatusEnum.OK) {
-                getUserList();
-                AlertComponent.success('Eliminado correctamente');
-            }
-
-            if (status !== ResponseStatusEnum.OK) {
-                AlertComponent.warning('Error al eliminar el usuario');
-            }
-        } catch (error) {
-            console.log(`Error en borrar usuario ${error}`);
-        }
+    const showAffiliateDetail = (id) => {
+        navigate(`/admin/special-population-update/${id}`);
     }
-
 
     useEffect(() => {
-        getUserList();
+        getSpecialPopulationList();
     }, []);
 
     return (
@@ -155,21 +164,25 @@ export const UserList = () => {
                     {/* Botón para redirigir a "Crear" */}
                     <Button
                         variant="contained"
-                        sx={{
-                            backgroundColor: "#031b32",
-                            color: "#fff",
-                            "&:hover": { backgroundColor: "#21569a" },
-                        }}
-                        onClick={() => navigate("/admin/user-create")}
+                        color="primary"
+                        onClick={() => navigate("/admin/special-population-create")}
                     >
                         Crear Nuevo
                     </Button>
                 </Stack>
 
+                {isLoading && (
+                    <div className="text-center spinner-container">
+                        <Spinner animation="border" variant="success" />
+                        <span>Cargando...</span>
+                    </div>
+                )}
+
                 <DataGrid
                     rows={filteredRows}
-                    columns={UserColumns}
-                    pageSize={10}
+                    columns={AffiliateColumns}
+                    loading={loadingData}
+                    pageSize={100}
                     sx={{
                         "& .MuiDataGrid-columnHeaders": {
                             backgroundColor: "#031b32",
@@ -197,8 +210,7 @@ export const UserList = () => {
                         },
                     }}
                 />
-
             </Box>
         </>
-    );
+    )
 }

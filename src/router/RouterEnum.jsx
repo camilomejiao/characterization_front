@@ -25,9 +25,15 @@ export const RouterEnum = {
     PQRSObservations: 'pqrs-observation/:id',
 
     //Affiliates
+    AffiliatesReport: 'affiliates-report',
     AffiliatesList: 'affiliates-list',
-    BulkAffiliates: 'affiliates-bulk',
     AffiliatesCreate: 'affiliates-create',
     AffiliatesUpdate: 'affiliates-update/:id',
-    AffiliatesObservation: 'affiliates-observation/:id'
+    BulkAffiliates: 'affiliates-bulk',
+    AffiliateHistory: 'affiliate-history/:id',
+
+    //Listados Censales
+    SpecialPopulationList: 'special-population-list',
+    SpecialPopulationCreate: 'special-population-create',
+    SpecialPopulationUpdate: 'special-population-update/:id',
 }

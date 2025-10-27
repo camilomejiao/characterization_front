@@ -24,6 +24,10 @@ import { PQRSObservation } from "../components/layout/private/pqrs/notifications
 import {AffiliateList} from "../components/layout/private/affiliate/list/AffiliateList";
 import {AffiliateForm} from "../components/layout/private/affiliate/form/AffiliateForm";
 import {BulkAffiliates} from "../components/layout/private/affiliate/bulk/BulkAffiliates";
+import {SpecialPopulationList} from "../components/layout/private/special_population/list/SpecialPopulationList";
+import {SpecialPopulationForm} from "../components/layout/private/special_population/form/SpecialPopulationForm";
+import {AffiliateHistory} from "../components/layout/private/affiliate/affiliate_history/AffiliateHistory";
+import {Report} from "../components/layout/private/affiliate/report/Report";
 
 export const Routing = () => {
     return (
@@ -52,11 +56,18 @@ export const Routing = () => {
                         <Route path={ RouterEnum.PQRSUpdate } element={ <PQRSForm /> } />
                         <Route path={ RouterEnum.PQRSObservations } element={ <PQRSObservation /> } />
 
-                        {/* PQRS */}
+                        {/* Afiliados */}
+                        <Route path={ RouterEnum.AffiliatesReport } element={ <Report /> }   />
                         <Route path={ RouterEnum.AffiliatesList } element={ <AffiliateList /> }   />
                         <Route path={ RouterEnum.AffiliatesCreate } element={ <AffiliateForm /> } />
                         <Route path={ RouterEnum.AffiliatesUpdate } element={ <AffiliateForm /> } />
                         <Route path={ RouterEnum.BulkAffiliates } element={ <BulkAffiliates /> }   />
+                        <Route path={ RouterEnum.AffiliateHistory } element={ <AffiliateHistory /> }   />
+
+                        {/* Listados Censales */}
+                        <Route path={ RouterEnum.SpecialPopulationList } element={ <SpecialPopulationList /> }   />
+                        <Route path={ RouterEnum.SpecialPopulationCreate } element={ <SpecialPopulationForm /> }   />
+                        <Route path={ RouterEnum.SpecialPopulationUpdate } element={ <SpecialPopulationForm /> }   />
 
                         {/* Logout */}
                         <Route path={ RouterEnum.Logout } element={ <Logout /> }  />

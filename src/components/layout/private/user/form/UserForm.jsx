@@ -24,11 +24,11 @@ const validationSchema = Yup.object({
     birthdate: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha de nacimiento es obligatoria"),
     sex_id: Yup.string().required("El sexo es obligatorio"),
     gender_id: Yup.string().required("El género es obligatorio"),
-    phone_number: Yup.string().required("El número de teléfono es obligatorio"),
+    phone_number: Yup.string().notRequired(),
     department_id: Yup.string().required("El departamento es obligatorio"),
     municipality_id: Yup.string().required("El municipio es obligatorio"),
     neighborhood: Yup.string().required("El barrio es obligatorio"),
-    address: Yup.string().required("La dirección es obligatoria"),
+    address: Yup.string().notRequired(),
     disability_type_id: Yup.string().required("La discapacidad es obligatoria"),
     area_id: Yup.string().required("El área es obligatoria"),
     country_id: Yup.string().required("El pais es obligatorio"),
@@ -288,8 +288,10 @@ export const UserForm = () => {
                                    label="Pais" {...formik.getFieldProps("country_id")}
                                    error={formik.touched.country_id && Boolean(formik.errors.country_id)}
                                    helperText={formik.touched.country_id && formik.errors.country_id}>
-                            {country.map((a) => (
-                                <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
+                            {country.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -302,8 +304,10 @@ export const UserForm = () => {
                                    onBlur={formik.handleBlur}
                                    error={formik.touched.department_id && Boolean(formik.errors.department_id)}
                                    helperText={formik.touched.department_id && formik.errors.department_id}>
-                            {departments.map((dep) => (
-                                <MenuItem key={dep.id} value={dep.id}>{dep.name}</MenuItem>
+                            {departments.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -314,8 +318,10 @@ export const UserForm = () => {
                                    disabled={isMunicipalityDisabled}
                                    error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
                                    helperText={formik.touched.municipality_id && formik.errors.municipality_id}>
-                            {municipalities.map((m) => (
-                                <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>
+                            {municipalities.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -339,8 +345,10 @@ export const UserForm = () => {
                                    label="Discapacidad" {...formik.getFieldProps("disability_type_id")}
                                    error={formik.touched.disability_type_id && Boolean(formik.errors.disability_type_id)}
                                    helperText={formik.touched.disability_type_id && formik.errors.disability_type_id}>
-                            {disabilityType.map((d) => (
-                                <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
+                            {disabilityType.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -350,8 +358,10 @@ export const UserForm = () => {
                                    label="Sexo" {...formik.getFieldProps("sex_id")}
                                    error={formik.touched.sex_id && Boolean(formik.errors.sex_id)}
                                    helperText={formik.touched.sex_id && formik.errors.sex_id}>
-                            {sex.map((g) => (
-                                <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
+                            {sex.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -361,8 +371,10 @@ export const UserForm = () => {
                                    label="Género" {...formik.getFieldProps("gender_id")}
                                    error={formik.touched.gender_id && Boolean(formik.errors.gender_id)}
                                    helperText={formik.touched.gender_id && formik.errors.gender_id}>
-                            {gender.map((g) => (
-                                <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
+                            {gender.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -372,8 +384,10 @@ export const UserForm = () => {
                                    label="Área" {...formik.getFieldProps("area_id")}
                                    error={formik.touched.area_id && Boolean(formik.errors.area_id)}
                                    helperText={formik.touched.area_id && formik.errors.area_id}>
-                            {area.map((a) => (
-                                <MenuItem key={a.id} value={a.id}>{a.name}</MenuItem>
+                            {area.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>

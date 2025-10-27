@@ -1,8 +1,7 @@
-import {useNavigate, useParams} from "react-router-dom";
-import React, {useEffect, useState} from "react";
-import { Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { Col, Row } from "react-bootstrap";
-import {useFormik} from "formik";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, MenuItem, TextField } from "@mui/material";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 
 //Component
@@ -401,6 +400,7 @@ export const AffiliateForm = () => {
                                 />
                             </div>
                         </div>
+
                         <div className="text-end mt-4">
                             <Button
                                 type="submit"
@@ -418,8 +418,8 @@ export const AffiliateForm = () => {
                     </form>
                 </div>
             )}
-            <SearchUser showModal={showModal} onUserFound={handleUserSearch} />
 
+            <SearchUser showModal={showModal} onUserFound={handleUserSearch} />
         </>
     )
 }

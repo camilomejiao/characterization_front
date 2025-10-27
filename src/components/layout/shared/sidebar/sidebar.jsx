@@ -6,8 +6,8 @@ import {
 } from "@mui/material";
 import {
     ExpandLess, ExpandMore, Menu as MenuIcon, MoreVert,
-    Home as HomeIcon, People as PeopleIcon, GridOn, PersonAdd,
-    Assignment, Add, Sync
+    Home as HomeIcon, People as PeopleIcon, PersonAdd,
+    Assignment, Add, Sync, ListAlt, ReceiptLong, Analytics
 } from "@mui/icons-material";
 
 const NAV_WIDTH_EXPANDED = 240;
@@ -107,7 +107,7 @@ export const Sidebar = ({
                             onClick={() => navigate("/admin/user-list")}
                             selected={isActive("/admin/user-list")}
                         >
-                            <ListItemIcon><GridOn /></ListItemIcon>
+                            <ListItemIcon><ListAlt /></ListItemIcon>
                             <ListItemText primary="Lista de usuarios" />
                         </ListItemButton>
                         <ListItemButton
@@ -138,7 +138,7 @@ export const Sidebar = ({
                             onClick={() => navigate("/admin/pqrs-list")}
                             selected={isActive("/admin/pqrs-list")}
                         >
-                            <ListItemIcon><GridOn /></ListItemIcon>
+                            <ListItemIcon><ListAlt /></ListItemIcon>
                             <ListItemText primary="Lista de PQRS" />
                         </ListItemButton>
                         <ListItemButton
@@ -166,10 +166,10 @@ export const Sidebar = ({
                     <List component="div" disablePadding>
                         <ListItemButton
                             sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-list")}
-                            selected={isActive("/admin/affiliates-list")}
+                            onClick={() => navigate("/admin/affiliates-report")}
+                            selected={isActive("/admin/affiliates-report")}
                         >
-                            <ListItemIcon><GridOn /></ListItemIcon>
+                            <ListItemIcon><Analytics /></ListItemIcon>
                             <ListItemText primary="Reporte" />
                         </ListItemButton>
                         <ListItemButton
@@ -177,7 +177,7 @@ export const Sidebar = ({
                             onClick={() => navigate("/admin/affiliates-list")}
                             selected={isActive("/admin/affiliates-list")}
                         >
-                            <ListItemIcon><GridOn /></ListItemIcon>
+                            <ListItemIcon><ListAlt /></ListItemIcon>
                             <ListItemText primary="Lista de afiliados" />
                         </ListItemButton>
                         <ListItemButton
@@ -198,10 +198,10 @@ export const Sidebar = ({
                         </ListItemButton>
                         <ListItemButton
                             sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-list")}
-                            selected={isActive("/admin/affiliates-list")}
+                            onClick={() => navigate("/admin/affiliate-history")}
+                            selected={isActive("/admin/affiliate-history")}
                         >
-                            <ListItemIcon><GridOn /></ListItemIcon>
+                            <ListItemIcon><ReceiptLong /></ListItemIcon>
                             <ListItemText primary="Historial de afiliado" />
                         </ListItemButton>
                     </List>
@@ -221,11 +221,19 @@ export const Sidebar = ({
                     <List component="div" disablePadding>
                         <ListItemButton
                             sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-list")}
-                            selected={isActive("/admin/affiliates-list")}
+                            onClick={() => navigate("/admin/special-population-list")}
+                            selected={isActive("/admin/special-population-list")}
                         >
-                            <ListItemIcon><GridOn /></ListItemIcon>
+                            <ListItemIcon><ListAlt /></ListItemIcon>
                             <ListItemText primary="Listado" />
+                        </ListItemButton>
+                        <ListItemButton
+                            sx={{ pl: 4, ...commonItemSx }}
+                            onClick={() => navigate("/admin/special-population-create")}
+                            selected={isActive("/admin/special-population-create")}
+                        >
+                            <ListItemIcon><Add /></ListItemIcon>
+                            <ListItemText primary="Registrar población Especial" />
                         </ListItemButton>
                     </List>
                 </Collapse>

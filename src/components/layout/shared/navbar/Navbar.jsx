@@ -54,7 +54,7 @@ export const Navbar = ({ user, isSidebarOpen, handleDrawerToggle, isMobile }) =>
                         </IconButton>
                     )}
                     <Typography variant="h6" noWrap sx={{ color: "#40A581" }}>
-                        JM
+                        JM-SIGES
                     </Typography>
                 </Box>
 
