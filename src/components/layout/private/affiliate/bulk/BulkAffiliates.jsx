@@ -67,16 +67,16 @@ const OPTIONAL_COMMON = [
 ];
 
 //Helpers
-const normalizeHeader = (s) =>
-    (s || "")
+const normalizeHeader = (value) =>
+    (value || "")
         .toString()
         .trim()
         .toUpperCase()
         .replace(/\s+/g, " ")
         .replace(/\t+/g, " ");
 
-const isEmptyValue = (v) =>
-    v === undefined || v === null || String(v).trim() === "";
+const isEmptyValue = (value) =>
+    value === undefined || value === null || String(value).trim() === "";
 
 const hasAnyRequiredValue = (row, requiredCols) =>
     requiredCols.some((col) => !isEmptyValue(row[col]));
@@ -101,9 +101,9 @@ const toISO = (ddmmyyyy) => {
     return `${String(yyyy).padStart(4, "0")}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
 };
 
-const toNum = (s) => {
-    if (s === undefined || s === null) return undefined;
-    const txt = String(s).trim();
+const toNum = (value) => {
+    if (value === undefined || value === null) return undefined;
+    const txt = String(value).trim();
     if (txt === "") return undefined;
     if (!/^\d+$/.test(txt)) return undefined; // solo dígitos
     const n = Number(txt);
@@ -131,13 +131,20 @@ const getRegimeFilePrefix = (regimens, selectedId) => {
 
 //GRUPO + SUBGRUPO (si subgrupo = 1 dígito, le agrega 0 delante)
 const buildGroupSubgroup = (val) => {
-    const g = (val("GRUPO") || "").trim();
-    const sRaw = (val("SUBGRUPO") || "").trim();
-    if (!g && !sRaw) return undefined;
-    if (!g && sRaw) return undefined;  //si solo llega subgrupo, lo ignoramos (ajusta si quieres)
-    const s = sRaw.length === 1 ? `0${sRaw}` : sRaw;
-    return `${g}${s}`;
+    const group = (val("GRUPO") || "").trim();
+    const subgroup = (val("SUBGRUPO") || "").trim();
+    if (!group && !subgroup) return undefined;
+    if (!group && subgroup) return undefined;  //si solo llega subgrupo, lo ignoramos (ajusta si quieres)
+    const sub = subgroup.length === 1 ? `0${subgroup}` : subgroup;
+    return `${group}${sub}`;
 };
+
+//Depto + Muni ()
+const buildMuni = (val) => {
+    const depto = (val("CODIGO_DPTO") || "").trim();
+    const muni = (val("CODIGO_MUN") || "").trim();
+    return `${depto}${muni}`;
+}
 
 
 export const BulkAffiliates = () => {
@@ -250,7 +257,7 @@ export const BulkAffiliates = () => {
             sex: val("SEXO") || undefined,
             countryCod: val("PAIS") || undefined,
             departmentCod: toNum(val("CODIGO_DPTO")) || undefined,
-            municipalityCod: toNum(val("CODIGO_MUN")) || undefined,
+            municipalityCod: buildMuni(val) || undefined,
             area: val("ZONA") || undefined,
             neighborhood: val("BARRIO O VEREDA") || undefined,
             address: val("DIRECCION") || undefined,
