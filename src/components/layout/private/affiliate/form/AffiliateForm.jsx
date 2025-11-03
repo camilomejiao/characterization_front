@@ -16,6 +16,11 @@ import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 import { commonServices } from "../../../../../helpers/services/CommonServices";
 import { affiliateServices } from "../../../../../helpers/services/AffiliateServices";
 
+//Helpers
+
+const toUndefIfEmpty = (v) =>
+    v === '' || v === null || v === undefined ? undefined : v;
+
 //
 const validationSchema = Yup.object({
     populationTypeId: Yup.string().required("Campo requerido"),
@@ -32,7 +37,15 @@ const validationSchema = Yup.object({
     stateId: Yup.string().required("Campo requerido"),
     sisbenNumber: Yup.number().optional(),
     formNumber: Yup.number().optional(),
-    dateOfAffiliated: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").optional(),
+    dateOfAffiliated: Yup.string()
+        .transform(toUndefIfEmpty)
+        .test('is-iso-or-undefined', 'Debe ser una fecha válida', (v) =>
+            v === undefined || /^\d{4}-\d{2}-\d{2}$/.test(v)
+        )
+        .test('not-in-future', 'La fecha no puede ser en el futuro', (v) =>
+            !v || new Date(v) <= new Date()
+        )
+        .optional(),
     observations: Yup.string().max(500, "Máximo 500 caracteres").optional(),
 });
 
@@ -108,8 +121,10 @@ export const AffiliateForm = () => {
                 const payload = {
                     ...values,
                     regimeId: 1,
-                    userId: userData.id
+                    userId: userData.id,
+                    dateOfAffiliated: values.dateOfAffiliated ?? null
                 };
+
                 let response;
                 if (id) {
                     response = await affiliateServices.update(id, payload);
@@ -120,9 +135,18 @@ export const AffiliateForm = () => {
                 if (response.status === ResponseStatusEnum.OK || response.status === ResponseStatusEnum.CREATE) {
                     AlertComponent.success("Afiliado guardado exitosamente");
                     navigate("/admin/affiliates-list");
-                } else {
-                    AlertComponent.warning(response.data?.errors?.[0]?.title, response?.data?.errors?.[0]?.source?.pointer[0]?.errors);
+                    return;
                 }
+
+                if(response.status === ResponseStatusEnum.CONFLICT) {
+                    AlertComponent.warning('Error', 'El usuario ya se encuentra registrado como afiliado');
+                    return;
+                }
+
+                AlertComponent.warning(
+                    response.data?.errors?.[0]?.title,
+                    response?.data?.errors?.[0]?.source?.pointer[0]?.errors
+                );
             } catch (error) {
                 AlertComponent.error("Error al crear el afiliado");
             }

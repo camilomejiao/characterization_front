@@ -55,12 +55,14 @@ class AuthService {
      * @param {object} decodeToken - Datos decodificados del token.
      */
     saveToLocalStorage(tokens, decodeToken) {
+        console.log(tokens);
         localStorage.setItem("token", tokens?.accessToken || "");
         localStorage.setItem("rol_id", tokens?.user?.role?.id || "");
-        localStorage.setItem("department_id", tokens?.user?.department?.id || "");
-        localStorage.setItem("department_name", tokens?.user?.department?.name || "");
-        localStorage.setItem("municipality_id", tokens?.user?.municipality?.id || "");
-        localStorage.setItem("municipality_name", tokens?.user?.municipality?.name || "");
+        localStorage.setItem("organization_id", tokens?.user?.organization || "");
+        localStorage.setItem("department_id", tokens?.user?.organization_info?.department?.id || "");
+        localStorage.setItem("department_name", tokens?.user?.organization_info?.department?.name || "");
+        localStorage.setItem("municipality_id", tokens?.user?.organization_info?.municipality?.id || "");
+        localStorage.setItem("municipality_name", tokens?.user?.organization_info?.municipality?.name || "");
     }
 }
 

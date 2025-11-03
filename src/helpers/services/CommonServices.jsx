@@ -121,6 +121,11 @@ class CommonServices {
         const url = this.buildUrl(`countries`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
+
+    async getRegimen() {
+        const url = this.buildUrl(`regime`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
 }
 
 export const commonServices = new CommonServices();

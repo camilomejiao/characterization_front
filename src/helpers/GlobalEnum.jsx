@@ -9,6 +9,8 @@ export const ResponseStatusEnum = {
     FORBIDDEN: 403,
     NOT_FOUND: 404,
     METHOD_NOT_ALLOWED: 405,
+    CONFLICT: 409,
+    Unprocessable: 422,
     INTERNAL_SERVER_ERROR: 500,
 }
 
@@ -28,3 +30,9 @@ export const DefaultsSelectEnum = {
     department: 25,
     municipality: 526,
 };
+
+export const RegimenEnum = {
+    SUB: 1,
+    CONT: 2,
+    ESP: 3
+}
