@@ -146,6 +146,10 @@ const buildMuni = (val) => {
     return `${depto}${muni}`;
 }
 
+const buildLevel = (val) => {
+    const level = (val("NIVEL_SISBEN") || "").trim();
+    return level === "N" ? 4 : level;
+}
 
 export const BulkAffiliates = () => {
 
@@ -267,7 +271,7 @@ export const BulkAffiliates = () => {
             // affiliate
             eps: val("EPS") || undefined,
             populationTypeId: toNum(val("TIPO_POBLACION")) || undefined,
-            level: val("NIVEL_SISBEN") || undefined,
+            level: buildLevel(val),
             state: val("ESTADO") || undefined,
             dateOfAffiliated: toISO(val("FECHA AFILIACION")) || undefined,
             groupSubgroup: buildGroupSubgroup(val),
