@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
-import { Col, Row } from "react-bootstrap";
+import {Col, Row, Spinner} from "react-bootstrap";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -58,6 +58,7 @@ export const PQRSForm = () => {
     const [municipalities, setMunicipalities] = useState([]);
     const [reason, setReason] = useState([]);
     const [eps, setEps] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     //
     const fetchOptions = async () => {
@@ -83,6 +84,7 @@ export const PQRSForm = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
+                setIsLoading(true);
                 const formData = new FormData();
                 formData.append("pqrsTypeId", values.pqrs_type_id);
                 formData.append("applicationStatusId", values.application_status_id);
@@ -105,6 +107,8 @@ export const PQRSForm = () => {
                 }
             } catch (err) {
                 AlertComponent.error("Error al procesar la solicitud");
+            } finally {
+                setIsLoading(false);
             }
         },
     });
@@ -130,6 +134,7 @@ export const PQRSForm = () => {
     //
     const fetchPQRSData = async (id) => {
         try {
+            setIsLoading(true);
             const { data, status } = await pqrsServices.getById(id);
             if (status === ResponseStatusEnum.OK) {
                 setUserData(data.user);
@@ -151,6 +156,8 @@ export const PQRSForm = () => {
             }
         } catch(error) {
             console.log(error, '');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -180,6 +187,13 @@ export const PQRSForm = () => {
 
                     {/* Informacion del usuario */}
                     <UserInformation data={userData} />
+
+                    {isLoading && (
+                        <div className="text-center spinner-container">
+                            <Spinner animation="border" variant="success" />
+                            <span>Cargando...</span>
+                        </div>
+                    )}
 
                     {/* Form */}
                     <form onSubmit={formik.handleSubmit} className="mt-4">
@@ -250,7 +264,12 @@ export const PQRSForm = () => {
                                     fullWidth
                                     error={formik.touched.eps_id && Boolean(formik.errors.eps_id)}>
                                     <InputLabel>EPS</InputLabel>
-                                    <Select {...formik.getFieldProps("eps_id")}>{eps.map(opt => <MenuItem key={opt.id} value={opt.id}>{opt.name}</MenuItem>)}</Select>
+                                    <Select {...formik.getFieldProps("eps_id")}>
+                                        {eps.map(opt =>
+                                            <MenuItem key={opt.id} value={opt.id}>
+                                                {opt?.name} - {opt?.cod}
+                                            </MenuItem>)}
+                                    </Select>
                                 </FormControl>
                             </Col>
                         </Row>
@@ -306,7 +325,11 @@ export const PQRSForm = () => {
                         </FormControl>
 
                         <div className="text-end">
-                            <Button type="submit" variant="contained" color="primary">
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                disabled={isLoading} >
                                 {id ? "Actualizar" : "Crear"}
                             </Button>
                         </div>

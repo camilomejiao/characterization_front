@@ -25,7 +25,7 @@ export const PQRSList = () => {
     const [searchText, setSearchText] = useState("");
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [isReadyToPrintReposrt, setIsReadyToPrintReposrt] = useState(false);
+    const [isReadyToPrintReport, setIsReadyToPrintReport] = useState(false);
 
     const getPqrsList = async () => {
         try {
@@ -149,12 +149,12 @@ export const PQRSList = () => {
 
     //
     const generateReport = async (id) => {
-        setIsLoading(true);
         try {
+            setIsLoading(true);
             const {data, status} = await pqrsServices.getById(id);
             if(status === ResponseStatusEnum.OK) {
                 setUserData(data);
-                setIsReadyToPrintReposrt(true);
+                setIsReadyToPrintReport(true);
             }
         } catch (error) {
             console.error("Error al obtener datos del usuario:", error);
@@ -193,11 +193,11 @@ export const PQRSList = () => {
     }
 
     useEffect(() => {
-        if(isReadyToPrintReposrt) {
+        if(isReadyToPrintReport) {
             handlePDFPrint();
-            setIsReadyToPrintReposrt(false);
+            setIsReadyToPrintReport(false);
         }
-    }, [isReadyToPrintReposrt]);
+    }, [isReadyToPrintReport]);
 
     useEffect(() => {
         getPqrsList();
@@ -220,8 +220,12 @@ export const PQRSList = () => {
                     {/* Botón para redirigir a "Crear" */}
                     <Button
                         variant="contained"
-                        color="primary"
                         onClick={() => navigate("/admin/pqrs-create")}
+                        sx={{
+                            backgroundColor: "#031b32",
+                            color: "#fff",
+                            "&:hover": { backgroundColor: "#21569a" },
+                        }}
                     >
                         Crear Nuevo
                     </Button>
@@ -240,7 +244,7 @@ export const PQRSList = () => {
                     pageSize={100}
                     sx={{
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#031b32",
+                            backgroundColor: "#102844",
                             color: "white",
                             fontSize: "14px",
                         },
@@ -251,7 +255,7 @@ export const PQRSList = () => {
                             alignItems: "center",
                         },
                         "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#031b32 !important",
+                            backgroundColor: "#102844",
                             color: "white !important",
                         },
                         "& .MuiDataGrid-cell": {
@@ -270,7 +274,7 @@ export const PQRSList = () => {
 
             {/* Aquí renderizas el componente pero lo ocultas */}
             <div style={{display: 'none'}}>
-                {isReadyToPrintReposrt && (
+                {isReadyToPrintReport && (
                     <div ref={PqrsReportRef}>
                         <Format1 data={userData} />
                     </div>

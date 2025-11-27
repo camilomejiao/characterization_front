@@ -12,28 +12,8 @@ import { commonServices } from "../../../../../helpers/services/CommonServices";
 import { userServices } from "../../../../../helpers/services/UserServices";
 
 //Enum
-import {DefaultsSelectEnum, ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
-
-const validationSchema = Yup.object({
-    first_name: Yup.string().required("El primer nombre es obligatorio"),
-    middle_name: Yup.string(),
-    first_last_name: Yup.string().required("El primer apellido es obligatorio"),
-    middle_last_name: Yup.string(),
-    identification_type_id: Yup.string().required("El tipo de documento es obligatorio"),
-    identification_number: Yup.number().required("El número de identificación es obligatorio"),
-    birthdate: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha de nacimiento es obligatoria"),
-    sex_id: Yup.string().required("El sexo es obligatorio"),
-    gender_id: Yup.string().required("El género es obligatorio"),
-    phone_number: Yup.string().notRequired(),
-    department_id: Yup.string().required("El departamento es obligatorio"),
-    municipality_id: Yup.string().required("El municipio es obligatorio"),
-    neighborhood: Yup.string().required("El barrio es obligatorio"),
-    address: Yup.string().notRequired(),
-    disability_type_id: Yup.string().required("La discapacidad es obligatoria"),
-    area_id: Yup.string().required("El área es obligatoria"),
-    country_id: Yup.string().required("El pais es obligatorio"),
-    email: Yup.string().trim().email("Formato de email inválido").transform(v => (v === '' ? undefined : v)).notRequired(),
-});
+import { DefaultsSelectEnum, ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
+import {Spinner} from "react-bootstrap";
 
 const initialValues = {
     first_name: "",
@@ -52,9 +32,28 @@ const initialValues = {
     address: "",
     disability_type_id: "",
     sex_id: "",
-    gender_id: "",
     area_id: "",
 };
+
+const validationSchema = Yup.object({
+    first_name: Yup.string().required("El primer nombre es obligatorio"),
+    middle_name: Yup.string(),
+    first_last_name: Yup.string().required("El primer apellido es obligatorio"),
+    middle_last_name: Yup.string(),
+    identification_type_id: Yup.string().required("El tipo de documento es obligatorio"),
+    identification_number: Yup.number().required("El número de identificación es obligatorio"),
+    birthdate: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha de nacimiento es obligatoria"),
+    sex_id: Yup.string().required("El sexo es obligatorio"),
+    phone_number: Yup.string().notRequired(),
+    department_id: Yup.string().required("El departamento es obligatorio"),
+    municipality_id: Yup.string().required("El municipio es obligatorio"),
+    neighborhood: Yup.string().required("El barrio es obligatorio"),
+    address: Yup.string().notRequired(),
+    disability_type_id: Yup.string().required("La discapacidad es obligatoria"),
+    area_id: Yup.string().required("El área es obligatoria"),
+    country_id: Yup.string().required("El pais es obligatorio"),
+    email: Yup.string().trim().email("Formato de email inválido").transform(v => (v === '' ? undefined : v)).notRequired(),
+});
 
 export const UserForm = () => {
     const navigate = useNavigate();
@@ -66,9 +65,9 @@ export const UserForm = () => {
     const [identificationType, setIdentificationType] = useState([]);
     const [disabilityType, setDisabilityType] = useState([]);
     const [sex, setSex] = useState([]);
-    const [gender, setGender] = useState([]);
     const [area, setArea] = useState([]);
     const [country, setCountry] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     //
     const formik = useFormik({
@@ -76,6 +75,7 @@ export const UserForm = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
+                setIsLoading(true);
                 const formattedValues = {
                     ...values,
                     email: values.email?.trim() || undefined
@@ -93,6 +93,8 @@ export const UserForm = () => {
             } catch (error) {
                 console.error("Error al enviar el formulario:", error);
                 AlertComponent.error("Hubo un error al procesar la solicitud");
+            } finally {
+                setIsLoading(false);
             }
         },
     });
@@ -100,6 +102,7 @@ export const UserForm = () => {
     //
     const fetchUserData = async (id) => {
         try {
+            setIsLoading(true);
             const { data, status } = await userServices.getById(id);
             if (status === ResponseStatusEnum.OK) {
                 formik.setValues({
@@ -119,7 +122,6 @@ export const UserForm = () => {
                     municipality_id: data?.municipality?.id ?? "",
                     disability_type_id: data?.disabilityType?.id ?? "",
                     sex_id: data?.sex?.id ?? "",
-                    gender_id: data?.gender?.id ?? "",
                     area_id: data?.area?.id ?? "",
                     country_id: data?.country?.id ?? "",
                 });
@@ -131,6 +133,8 @@ export const UserForm = () => {
         } catch (error) {
             console.error("Error al obtener datos del usuario:", error);
             AlertComponent.warning("No se pudieron cargar los datos del usuario.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -147,8 +151,7 @@ export const UserForm = () => {
 
         await load(() => commonServices.getIdentificationType(), setIdentificationType);
         await load(() => commonServices.getDisabilityType(), setDisabilityType);
-        await load(() => commonServices.sexGender(), setSex);
-        await load(() => commonServices.getGender(), setGender);
+        await load(() => commonServices.sex(), setSex);
         await load(() => commonServices.getArea(), setArea);
         await load(() => depaMuniServices.getDepartments(), setDepartments);
         await load(() => commonServices.getCountries(), setCountry);
@@ -223,6 +226,15 @@ export const UserForm = () => {
                     Volver al listado
                 </Button>
             </div>
+
+            {isLoading && (
+                <div className="text-center spinner-container">
+                    <Spinner animation="border" variant="success" />
+                    <span>Cargando...</span>
+                </div>
+            )}
+
+            {/* Form */}
             <form onSubmit={formik.handleSubmit} className="user-form">
                 <div className="row g-3">
                     <div className="col-md-6">
@@ -262,7 +274,11 @@ export const UserForm = () => {
                                    error={formik.touched.identification_type_id && Boolean(formik.errors.identification_type_id)}
                                    helperText={formik.touched.identification_type_id && formik.errors.identification_type_id}>
                             {identificationType.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>
+                                <MenuItem
+                                    key={item.id}
+                                    value={item.id}>
+                                    {item.id} - {item.name}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </div>
@@ -368,19 +384,6 @@ export const UserForm = () => {
                     <div className="col-md-6">
                         <TextField select
                                    fullWidth
-                                   label="Género" {...formik.getFieldProps("gender_id")}
-                                   error={formik.touched.gender_id && Boolean(formik.errors.gender_id)}
-                                   helperText={formik.touched.gender_id && formik.errors.gender_id}>
-                            {gender.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </div>
-                    <div className="col-md-6">
-                        <TextField select
-                                   fullWidth
                                    label="Área" {...formik.getFieldProps("area_id")}
                                    error={formik.touched.area_id && Boolean(formik.errors.area_id)}
                                    helperText={formik.touched.area_id && formik.errors.area_id}>
@@ -416,6 +419,7 @@ export const UserForm = () => {
                             color: "#fff",
                             "&:hover": { backgroundColor: "#3f8872" },
                         }}
+                        disabled={isLoading}
                     >
                         {id ? "Actualizar" : "Crear"}
                     </Button>

@@ -1,31 +1,171 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useMemo } from "react";
 import {
-    Drawer, List, ListItemButton, ListItemIcon, ListItemText, Collapse,
-    IconButton, Divider, Box, useTheme, useMediaQuery
+    Drawer,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Collapse,
+    IconButton,
+    Divider,
+    Box,
+    useTheme,
+    useMediaQuery,
 } from "@mui/material";
 import {
-    ExpandLess, ExpandMore, Menu as MenuIcon, MoreVert,
-    Home as HomeIcon, People as PeopleIcon, PersonAdd,
-    Assignment, Add, Sync, ListAlt, ReceiptLong, Analytics
+    ExpandLess,
+    ExpandMore,
+    Menu as MenuIcon,
+    MoreVert,
+    Home as HomeIcon,
+    People as PeopleIcon,
+    PersonAdd,
+    Assignment,
+    Add,
+    Sync,
+    ListAlt,
+    ReceiptLong,
+    Analytics,
 } from "@mui/icons-material";
+
+//Enum
+import { RolesEnum } from "../../../../helpers/GlobalEnum";
 
 const NAV_WIDTH_EXPANDED = 240;
 const NAV_WIDTH_COLLAPSED = 64;
-const DARK_BG = "#031b32";// fondo principal
+const DARK_BG = "#073664";
 const DARK_BG_HOVER = "rgba(255,255,255,0.06)";
 const DARK_BG_ACTIVE = "rgba(255,255,255,0.12)";
 const TEXT_COLOR = "#fff";
 const DIVIDER_COLOR = "rgba(255,255,255,0.12)";
 
+/**
+ * Menú base con TODAS las secciones posibles.
+ * Cada sección tiene:
+ *  - key: identificador único
+ *  - type: "item" (simple) o "collapse" (con hijos)
+ *  - label, icon
+ *  - path (para item simple) o children (para collapse)
+ */
+const baseMenu = [
+    {
+        key: "home",
+        type: "item",
+        label: "Inicio",
+        icon: HomeIcon,
+        path: "/admin/administrator-list",
+    },
+    {
+        key: "user",
+        type: "collapse",
+        label: "Inscripciones",
+        icon: PeopleIcon,
+        children: [
+            {
+                label: "Lista de usuarios",
+                path: "/admin/user-list",
+                icon: ListAlt,
+            },
+            {
+                label: "Crear usuario",
+                path: "/admin/user-create",
+                icon: PersonAdd,
+            },
+        ],
+    },
+    {
+        key: "pqrs",
+        type: "collapse",
+        label: "Pqrs",
+        icon: Assignment,
+        children: [
+            {
+                label: "Lista de PQRS",
+                path: "/admin/pqrs-list",
+                icon: ListAlt,
+            },
+            {
+                label: "Crear PQRS",
+                path: "/admin/pqrs-create",
+                icon: Add,
+            },
+        ],
+    },
+    {
+        key: "affiliates",
+        type: "collapse",
+        label: "Afiliados",
+        icon: Assignment,
+        children: [
+            {
+                label: "Reporte",
+                path: "/admin/affiliates-report",
+                icon: Analytics,
+            },
+            {
+                label: "Lista de afiliados",
+                path: "/admin/affiliates-list",
+                icon: ListAlt,
+            },
+            {
+                label: "Registrar afiliado",
+                path: "/admin/affiliates-create",
+                icon: Add,
+            },
+            {
+                label: "Proceso masivo",
+                path: "/admin/affiliates-bulk",
+                icon: Sync,
+            },
+            {
+                label: "Historial de afiliado",
+                path: "/admin/affiliate-history",
+                icon: ReceiptLong,
+            },
+        ],
+    },
+    {
+        key: "censales",
+        type: "collapse",
+        label: "Registros Censales",
+        icon: Assignment,
+        children: [
+            {
+                label: "Listado",
+                path: "/admin/special-population-list",
+                icon: ListAlt,
+            },
+            {
+                label: "Registrar población Especial",
+                path: "/admin/special-population-create",
+                icon: Add,
+            },
+        ],
+    },
+];
+
+/**
+ * Config por rol: qué secciones del baseMenu ve cada rol.
+ * Solo ponemos los keys de baseMenu.
+ */
+const roleMenuMap = {
+    [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "affiliates", "censales"],
+    [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales"],
+    [RolesEnum.PQRS]: ["user", "pqrs"],
+    [RolesEnum.AFFILIATES]: ["user", "affiliates"],
+    [RolesEnum.AUDITOR]: ["user", "pqrs", "affiliates", "censales", "affiliates"],
+};
+
 export const Sidebar = ({
-    isOpen,
-    setIsOpen,
-    mobileOpen,
-    handleDrawerToggle,
-    paperSx,
-    headerBg
-}) => {
+                            isOpen,
+                            setIsOpen,
+                            mobileOpen,
+                            handleDrawerToggle,
+                            paperSx,
+                            headerBg,
+                            userAuth,
+                        }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const navigate = useNavigate();
@@ -33,8 +173,11 @@ export const Sidebar = ({
 
     const [expandedSections, setExpandedSections] = useState({});
 
-    const toggleSection = (section) => {
-        setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
+    const toggleSection = (sectionKey) => {
+        setExpandedSections((prev) => ({
+            ...prev,
+            [sectionKey]: !prev[sectionKey],
+        }));
     };
 
     const isActive = useMemo(
@@ -45,8 +188,91 @@ export const Sidebar = ({
     const commonItemSx = {
         color: "inherit",
         "& .MuiListItemIcon-root": { color: "inherit", minWidth: 36 },
-        "& .MuiListItemText-primary": { fontWeight: 600 },  // similar a la captura
-        "&:hover": { backgroundColor: DARK_BG_HOVER }
+        "& .MuiListItemText-primary": { fontWeight: 600 },
+        "&:hover": { backgroundColor: DARK_BG_HOVER },
+    };
+
+    const role = userAuth?.id;
+    const allowedKeys = roleMenuMap[role];
+
+    const menuSections = useMemo(
+        () => baseMenu.filter((sec) => allowedKeys.includes(sec.key)),
+        [allowedKeys]
+    );
+
+    const renderItem = (item) => {
+        const Icon = item.icon;
+        const selected = isActive(item.path);
+
+        return (
+            <ListItemButton
+                key={item.path}
+                sx={{
+                    ...commonItemSx,
+                    pl: 4,
+                    "&.Mui-selected": { backgroundColor: DARK_BG_ACTIVE },
+                    "&.Mui-selected:hover": { backgroundColor: DARK_BG_ACTIVE },
+                }}
+                onClick={() => navigate(item.path)}
+                selected={selected}
+            >
+                <ListItemIcon>
+                    <Icon />
+                </ListItemIcon>
+                {isOpen && <ListItemText primary={item.label} />}
+            </ListItemButton>
+        );
+    };
+
+    const renderSection = (section) => {
+        const Icon = section.icon;
+
+        if (section.type === "item") {
+            const selected = isActive(section.path);
+
+            return (
+                <ListItemButton
+                    key={section.key}
+                    onClick={() => navigate(section.path)}
+                    selected={selected}
+                    sx={{
+                        ...commonItemSx,
+                        "&.Mui-selected": { backgroundColor: DARK_BG_ACTIVE },
+                        "&.Mui-selected:hover": { backgroundColor: DARK_BG_ACTIVE },
+                    }}
+                >
+                    <ListItemIcon>
+                        <Icon />
+                    </ListItemIcon>
+                    {isOpen && <ListItemText primary={section.label} />}
+                </ListItemButton>
+            );
+        }
+
+        // type === "collapse"
+        const sectionExpanded = expandedSections[section.key];
+
+        return (
+            <div key={section.key}>
+                <ListItemButton onClick={() => toggleSection(section.key)} sx={commonItemSx}>
+                    <ListItemIcon>
+                        <Icon />
+                    </ListItemIcon>
+                    {isOpen && (
+                        <Box display="flex" alignItems="center" width="100%">
+                            <ListItemText primary={section.label} />
+                            {sectionExpanded ? <ExpandLess /> : <ExpandMore />}
+                        </Box>
+                    )}
+                </ListItemButton>
+
+                <Collapse in={sectionExpanded && isOpen} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {section.children?.map((child) => renderItem(child))}
+                    </List>
+                </Collapse>
+            </div>
+        );
     };
 
     const drawerContent = (
@@ -63,7 +289,7 @@ export const Sidebar = ({
                     backgroundImage: headerBg ? `url(${headerBg})` : undefined,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
-                    borderBottom: `1px solid ${DIVIDER_COLOR}`
+                    borderBottom: `1px solid ${DIVIDER_COLOR}`,
                 }}
             >
                 <Box display="flex" justifyContent="flex-end" p={1}>
@@ -76,167 +302,7 @@ export const Sidebar = ({
             <Divider sx={{ borderColor: DIVIDER_COLOR }} />
 
             <List sx={{ py: 1 }}>
-                {/* Inicio */}
-                <ListItemButton
-                    onClick={() => navigate("/admin/administrator-list")}
-                    selected={isActive("/admin/administrator-list")}
-                    sx={{
-                        ...commonItemSx,
-                        "&.Mui-selected": { backgroundColor: DARK_BG_ACTIVE },
-                        "&.Mui-selected:hover": { backgroundColor: DARK_BG_ACTIVE }
-                    }}
-                >
-                    <ListItemIcon><HomeIcon /></ListItemIcon>
-                    {isOpen && <ListItemText primary="Inicio" />}
-                </ListItemButton>
-
-                {/* Users */}
-                <ListItemButton onClick={() => toggleSection("user")} sx={commonItemSx}>
-                    <ListItemIcon><PeopleIcon /></ListItemIcon>
-                    {isOpen && (
-                        <Box display="flex" alignItems="center" width="100%">
-                            <ListItemText primary="Inscripciones" />
-                            {expandedSections.user ? <ExpandLess /> : <ExpandMore />}
-                        </Box>
-                    )}
-                </ListItemButton>
-                <Collapse in={expandedSections.user && isOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/user-list")}
-                            selected={isActive("/admin/user-list")}
-                        >
-                            <ListItemIcon><ListAlt /></ListItemIcon>
-                            <ListItemText primary="Lista de usuarios" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/user-create")}
-                            selected={isActive("/admin/user-create")}
-                        >
-                            <ListItemIcon><PersonAdd /></ListItemIcon>
-                            <ListItemText primary="Crear usuario" />
-                        </ListItemButton>
-                    </List>
-                </Collapse>
-
-                {/* PQRS */}
-                <ListItemButton onClick={() => toggleSection("pqrs")} sx={commonItemSx}>
-                    <ListItemIcon><Assignment /></ListItemIcon>
-                    {isOpen && (
-                        <Box display="flex" alignItems="center" width="100%">
-                            <ListItemText primary="Pqrs" />
-                            {expandedSections.pqrs ? <ExpandLess /> : <ExpandMore />}
-                        </Box>
-                    )}
-                </ListItemButton>
-                <Collapse in={expandedSections.pqrs && isOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/pqrs-list")}
-                            selected={isActive("/admin/pqrs-list")}
-                        >
-                            <ListItemIcon><ListAlt /></ListItemIcon>
-                            <ListItemText primary="Lista de PQRS" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/pqrs-create")}
-                            selected={isActive("/admin/pqrs-create")}
-                        >
-                            <ListItemIcon><Add /></ListItemIcon>
-                            <ListItemText primary="Crear PQRS" />
-                        </ListItemButton>
-                    </List>
-                </Collapse>
-
-                {/* Afiliados */}
-                <ListItemButton onClick={() => toggleSection("affiliates")} sx={commonItemSx}>
-                    <ListItemIcon><Assignment /></ListItemIcon>
-                    {isOpen && (
-                        <Box display="flex" alignItems="center" width="100%">
-                            <ListItemText primary="Afiliados" />
-                            {expandedSections.affiliates ? <ExpandLess /> : <ExpandMore />}
-                        </Box>
-                    )}
-                </ListItemButton>
-                <Collapse in={expandedSections.affiliates && isOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-report")}
-                            selected={isActive("/admin/affiliates-report")}
-                        >
-                            <ListItemIcon><Analytics /></ListItemIcon>
-                            <ListItemText primary="Reporte" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-list")}
-                            selected={isActive("/admin/affiliates-list")}
-                        >
-                            <ListItemIcon><ListAlt /></ListItemIcon>
-                            <ListItemText primary="Lista de afiliados" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-create")}
-                            selected={isActive("/admin/affiliates-create")}
-                        >
-                            <ListItemIcon><Add /></ListItemIcon>
-                            <ListItemText primary="Registrar afiliado" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliates-bulk")}
-                            selected={isActive("/admin/affiliates-bulk")}
-                        >
-                            <ListItemIcon><Sync /></ListItemIcon>
-                            <ListItemText primary="Proceso masivo" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/affiliate-history")}
-                            selected={isActive("/admin/affiliate-history")}
-                        >
-                            <ListItemIcon><ReceiptLong /></ListItemIcon>
-                            <ListItemText primary="Historial de afiliado" />
-                        </ListItemButton>
-                    </List>
-                </Collapse>
-
-                {/* Listados Censales */}
-                <ListItemButton onClick={() => toggleSection("censales")} sx={commonItemSx}>
-                    <ListItemIcon><Assignment /></ListItemIcon>
-                    {isOpen && (
-                        <Box display="flex" alignItems="center" width="100%">
-                            <ListItemText primary="Registros Censales" />
-                            {expandedSections.censales ? <ExpandLess /> : <ExpandMore />}
-                        </Box>
-                    )}
-                </ListItemButton>
-                <Collapse in={expandedSections.censales && isOpen} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/special-population-list")}
-                            selected={isActive("/admin/special-population-list")}
-                        >
-                            <ListItemIcon><ListAlt /></ListItemIcon>
-                            <ListItemText primary="Listado" />
-                        </ListItemButton>
-                        <ListItemButton
-                            sx={{ pl: 4, ...commonItemSx }}
-                            onClick={() => navigate("/admin/special-population-create")}
-                            selected={isActive("/admin/special-population-create")}
-                        >
-                            <ListItemIcon><Add /></ListItemIcon>
-                            <ListItemText primary="Registrar población Especial" />
-                        </ListItemButton>
-                    </List>
-                </Collapse>
+                {menuSections.map((section) => renderSection(section))}
             </List>
         </>
     );
@@ -255,8 +321,8 @@ export const Sidebar = ({
                     bgcolor: DARK_BG,
                     color: TEXT_COLOR,
                     borderRight: "none",
-                    ...paperSx
-                }
+                    ...paperSx,
+                },
             }}
         >
             {drawerContent}

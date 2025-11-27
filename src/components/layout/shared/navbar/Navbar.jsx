@@ -9,13 +9,12 @@ import {
     MenuItem,
     Box,
     useTheme,
-    useMediaQuery
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 
-export const Navbar = ({ user, isSidebarOpen, handleDrawerToggle, isMobile }) => {
+export const Navbar = ({ userAuth, isSidebarOpen, handleDrawerToggle, isMobile }) => {
     const navigate = useNavigate();
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -69,7 +68,7 @@ export const Navbar = ({ user, isSidebarOpen, handleDrawerToggle, isMobile }) =>
                                 fontSize: { sm: "0.9rem", md: "1rem" },
                             }}
                         >
-                            Hola, {user.userName || user.email}
+                            Hola, {userAuth.userName || userAuth.email}
                         </Typography>
                     </IconButton>
 

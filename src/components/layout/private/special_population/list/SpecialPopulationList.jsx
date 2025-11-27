@@ -1,25 +1,31 @@
-import {useEffect, useRef, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {Box, Button, IconButton, Stack, TextField} from "@mui/material";
-import {FaPencilAlt, FaRegFile} from "react-icons/fa";
-import {Spinner} from "react-bootstrap";
-import {DataGrid} from "@mui/x-data-grid";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Box, Button, IconButton, Stack, TextField } from "@mui/material";
+import { FaPencilAlt, FaRegFile } from "react-icons/fa";
+import { Spinner } from "react-bootstrap";
+import { DataGrid } from "@mui/x-data-grid";
+import printJS from "print-js";
 
+//Util
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
-
-import {ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
-import {specialPopulationServices} from "../../../../../helpers/services/SpecialPopulationServices";
-
+//Enum
+import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
+//Services
+import { specialPopulationServices } from "../../../../../helpers/services/SpecialPopulationServices";
+//
+import { SpecialPopulationReport } from "../special-population-report/SpecialPopulationReport";
 
 export const SpecialPopulationList = () => {
 
     const navigate = useNavigate();
-    const AffiliateReportRef = useRef();
+    const SpecialPopulationReportRef = useRef();
 
     const [specialPopulationList, setSpecialPopulationList] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [loadingData, setLoadingData] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
+    const [userData, setUserData] = useState(null);
+    const [isReadyToPrintReport, setIsReadyToPrintReport] = useState(false);
 
     const getSpecialPopulationList = async () => {
         setLoadingData(true);
@@ -120,7 +126,7 @@ export const SpecialPopulationList = () => {
                 <Stack direction="row" spacing={1}>
                     <IconButton
                         color="secondary"
-                        onClick={() => showAffiliateDetail(params.row.id)}
+                        onClick={() => generateReport(params.row.id)}
                     >
                         <FaRegFile/>
                     </IconButton>
@@ -139,9 +145,56 @@ export const SpecialPopulationList = () => {
         navigate(`/admin/special-population-update/${id}`);
     }
 
-    const showAffiliateDetail = (id) => {
-        navigate(`/admin/special-population-update/${id}`);
+    const generateReport = async (id) => {
+        setIsLoading(true);
+        try {
+            const {data, status} = await specialPopulationServices.getById(id);
+            if(status === ResponseStatusEnum.OK) {
+                setUserData(data);
+                setIsReadyToPrintReport(true);
+            }
+        } catch (error) {
+            console.error("Error al obtener datos del usuario:", error);
+            AlertComponent.warning("No se pudieron cargar los datos del usuario.");
+        } finally {
+            setIsLoading(false);
+        }
     }
+
+    const handlePDFPrint = () => {
+        const printContent = `
+            <html>
+                <head>
+                  <style>           
+                    body {
+                      font-family: Arial, sans-serif;
+                      margin: 20px;
+                      font-size: 14px;
+                    }
+                    .page-break {
+                        page-break-after: always;
+                    }
+                  </style>
+                </head>
+                <body>
+                  <!-- Inyectamos el HTML del componente -->
+                  ${SpecialPopulationReportRef.current.innerHTML} 
+                </body>
+            </html>`;
+
+        printJS({
+            printable: printContent,
+            type: 'raw-html',
+            documentTitle: 'Reporte Pobacion Especial',
+        });
+    };
+
+    useEffect(() => {
+        if(isReadyToPrintReport) {
+            handlePDFPrint();
+            setIsReadyToPrintReport(false);
+        }
+    }, [isReadyToPrintReport]);
 
     useEffect(() => {
         getSpecialPopulationList();
@@ -164,7 +217,11 @@ export const SpecialPopulationList = () => {
                     {/* Botón para redirigir a "Crear" */}
                     <Button
                         variant="contained"
-                        color="primary"
+                        sx={{
+                            backgroundColor: "#031b32",
+                            color: "#fff",
+                            "&:hover": { backgroundColor: "#21569a" },
+                        }}
                         onClick={() => navigate("/admin/special-population-create")}
                     >
                         Crear Nuevo
@@ -185,7 +242,7 @@ export const SpecialPopulationList = () => {
                     pageSize={100}
                     sx={{
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#031b32",
+                            backgroundColor: "#102844",
                             color: "white",
                             fontSize: "14px",
                         },
@@ -196,7 +253,7 @@ export const SpecialPopulationList = () => {
                             alignItems: "center",
                         },
                         "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#031b32 !important",
+                            backgroundColor: "#102844",
                             color: "white !important",
                         },
                         "& .MuiDataGrid-cell": {
@@ -211,6 +268,15 @@ export const SpecialPopulationList = () => {
                     }}
                 />
             </Box>
+
+            {/* Aquí renderizas el componente pero lo ocultas */}
+            <div style={{display: 'none'}}>
+                {isReadyToPrintReport && (
+                    <div ref={SpecialPopulationReportRef}>
+                        <SpecialPopulationReport data={userData} />
+                    </div>
+                )}
+            </div>
         </>
     )
 }

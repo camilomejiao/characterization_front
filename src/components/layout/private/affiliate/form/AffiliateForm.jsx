@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, MenuItem, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { Spinner } from "react-bootstrap";
 
 //Component
 import { UserInformation } from "../../../shared/user-information/UserInformation";
 import { SearchUser } from "../../../shared/modal/search-user/SearchUser";
+//Helpers
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 
 //Enum
@@ -16,10 +18,27 @@ import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 import { commonServices } from "../../../../../helpers/services/CommonServices";
 import { affiliateServices } from "../../../../../helpers/services/AffiliateServices";
 
-//Helpers
-
 const toUndefIfEmpty = (v) =>
     v === '' || v === null || v === undefined ? undefined : v;
+
+//
+const initialValues = {
+    populationTypeId: "",
+    epsId: "",
+    ipsPrimaryId: "",
+    ipsDentalId: "",
+    affiliateTypeId: "",
+    methodologyId: "",
+    levelId: "",
+    membershipClassId: "",
+    ethnicityId: "",
+    groupSubgroupId: "",
+    affiliatedStateId: "",
+    sisbenNumber: "",
+    formNumber: "",
+    dateOfAffiliated: "",
+    observations: "",
+};
 
 //
 const validationSchema = Yup.object({
@@ -32,9 +51,8 @@ const validationSchema = Yup.object({
     levelId: Yup.string().required("Campo requerido"),
     membershipClassId: Yup.string().required("Campo requerido"),
     ethnicityId: Yup.string().required("Campo requerido"),
-    communityId: Yup.number().optional(),
     groupSubgroupId: Yup.number().required("Campo requerido"),
-    stateId: Yup.string().required("Campo requerido"),
+    affiliatedStateId: Yup.string().required("Campo requerido"),
     sisbenNumber: Yup.number().optional(),
     formNumber: Yup.number().optional(),
     dateOfAffiliated: Yup.string()
@@ -48,26 +66,6 @@ const validationSchema = Yup.object({
         .optional(),
     observations: Yup.string().max(500, "Máximo 500 caracteres").optional(),
 });
-
-//
-const initialValues = {
-    populationTypeId: "",
-    epsId: "",
-    ipsPrimaryId: "",
-    ipsDentalId: "",
-    affiliateTypeId: "",
-    methodologyId: "",
-    levelId: "",
-    membershipClassId: "",
-    ethnicityId: "",
-    communityId: "",
-    groupSubgroupId: "",
-    stateId: "",
-    sisbenNumber: "",
-    formNumber: "",
-    dateOfAffiliated: "",
-    observations: "",
-};
 
 export const AffiliateForm = () => {
     const navigate = useNavigate();
@@ -84,9 +82,9 @@ export const AffiliateForm = () => {
     const [level, setLevel] = useState([]);
     const [membershipClass, setMembershipClass] = useState([]);
     const [ethnicity, setEthnicity] = useState([]);
-    const [community, setCommunity] = useState([]);
     const [groupSubgroup, setGroupSubgroup] = useState([]);
     const [state, setState] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchOptions = async () => {
         const load = async (fn, set) => {
@@ -107,7 +105,6 @@ export const AffiliateForm = () => {
         await load(() => commonServices.getlevel(), setLevel);
         await load(() => commonServices.getMembershipClass(), setMembershipClass);
         await load(() => commonServices.getEthnicity(), setEthnicity);
-        await load(() => commonServices.getCommunity(), setCommunity);
         await load(() => commonServices.getGroupAndSubgroup(), setGroupSubgroup);
         await load(() => commonServices.getAffiliatedState(), setState);
     }
@@ -118,6 +115,7 @@ export const AffiliateForm = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
+                setIsLoading(true);
                 const payload = {
                     ...values,
                     regimeId: 1,
@@ -149,6 +147,8 @@ export const AffiliateForm = () => {
                 );
             } catch (error) {
                 AlertComponent.error("Error al crear el afiliado");
+            } finally {
+                setIsLoading(false);
             }
         },
     });
@@ -156,6 +156,7 @@ export const AffiliateForm = () => {
     //
     const fetchAffilateData = async (id) => {
         try {
+            setIsLoading(true);
             const {data, status} = await affiliateServices.getById(id);
             if (status === ResponseStatusEnum.OK) {
                 setUserData(data.user);
@@ -169,9 +170,8 @@ export const AffiliateForm = () => {
                     levelId: data?.level?.id,
                     membershipClassId: data?.membershipClass?.id,
                     ethnicityId: data?.ethnicity?.id,
-                    communityId: data?.community?.id,
                     groupSubgroupId: data?.groupSubgroup?.id,
-                    stateId: data?.state?.id,
+                    affiliatedStateId: data?.affiliatedState?.id,
                     sisbenNumber: data?.sisbenNumber ?? "",
                     formNumber: data?.formNumber ?? "",
                     dateOfAffiliated: data?.dateOfAffiliated ?? "",
@@ -180,6 +180,8 @@ export const AffiliateForm = () => {
             }
         } catch (error) {
             console.log(error, '');
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -197,7 +199,6 @@ export const AffiliateForm = () => {
         }
     }, []);
 
-
     return (
         <>
             {userData && (
@@ -211,6 +212,13 @@ export const AffiliateForm = () => {
                     {/* Informacion del usuario */}
                     <UserInformation data={userData} />
 
+                    {isLoading && (
+                        <div className="text-center spinner-container">
+                            <Spinner animation="border" variant="success" />
+                            <span>Cargando...</span>
+                        </div>
+                    )}
+
                     {/* Form */}
                     <form onSubmit={formik.handleSubmit} className="mt-4">
                         <div className="row g-3">
@@ -221,8 +229,10 @@ export const AffiliateForm = () => {
                                            error={formik.touched.populationTypeId && Boolean(formik.errors.populationTypeId)}
                                            helperText={formik.touched.populationTypeId && formik.errors.populationTypeId}>
                                     {populationType.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.name}
+                                        <MenuItem
+                                            key={item.id}
+                                            value={item.id}>
+                                            {item.id} - {item.name}
                                         </MenuItem>
                                     ))}
                                 </TextField>
@@ -301,6 +311,20 @@ export const AffiliateForm = () => {
                             <div className="col-md-6">
                                 <TextField select
                                            fullWidth
+                                           label="Grupo/Subgrupo" {...formik.getFieldProps("groupSubgroupId")}
+                                           error={formik.touched.groupSubgroupId && Boolean(formik.errors.groupSubgroupId)}
+                                           helperText={formik.touched.groupSubgroupId && formik.errors.groupSubgroupId}>
+                                    {groupSubgroup.map((item) => (
+                                        <MenuItem key={item.id} value={item.id}>
+                                            {item.group} - {item.subgroup}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+
+                            <div className="col-md-6">
+                                <TextField select
+                                           fullWidth
                                            label="Nivel" {...formik.getFieldProps("levelId")}
                                            error={formik.touched.levelId && Boolean(formik.errors.levelId)}
                                            helperText={formik.touched.levelId && formik.errors.levelId}>
@@ -343,37 +367,9 @@ export const AffiliateForm = () => {
                             <div className="col-md-6">
                                 <TextField select
                                            fullWidth
-                                           label="Comunidad" {...formik.getFieldProps("communityId")}
-                                           error={formik.touched.communityId && Boolean(formik.errors.communityId)}
-                                           helperText={formik.touched.communityId && formik.errors.communityId}>
-                                    {community.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.name}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </div>
-
-                            <div className="col-md-6">
-                                <TextField select
-                                           fullWidth
-                                           label="Grupo/Subgrupo" {...formik.getFieldProps("groupSubgroupId")}
-                                           error={formik.touched.groupSubgroupId && Boolean(formik.errors.groupSubgroupId)}
-                                           helperText={formik.touched.groupSubgroupId && formik.errors.groupSubgroupId}>
-                                    {groupSubgroup.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.group} - {item.subgroup}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </div>
-
-                            <div className="col-md-6">
-                                <TextField select
-                                           fullWidth
                                            label="Estado" {...formik.getFieldProps("stateId")}
-                                           error={formik.touched.stateId && Boolean(formik.errors.stateId)}
-                                           helperText={formik.touched.stateId && formik.errors.stateId}>
+                                           error={formik.touched.affiliatedStateId && Boolean(formik.errors.affiliatedStateId)}
+                                           helperText={formik.touched.affiliatedStateId && formik.errors.affiliatedStateId}>
                                     {state.map((item) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             {item.cod} - {item.description}
@@ -435,6 +431,7 @@ export const AffiliateForm = () => {
                                     color: "#fff",
                                     "&:hover": { backgroundColor: "#3f8872" },
                                 }}
+                                disabled={isLoading}
                             >
                                 {id ? "Actualizar" : "Crear"}
                             </Button>

@@ -146,10 +146,18 @@ const buildMuni = (val) => {
     return `${depto}${muni}`;
 }
 
+//
 const buildLevel = (val) => {
     const level = (val("NIVEL_SISBEN") || "").trim();
-    return level === "N" ? 4 : level;
+    return level === "N" ? 4 : Number(level);
 }
+
+//
+const ALLOWED_POPULATION_IDS = [
+    1, 2, 4, 5, 6, 8, 9, 10,
+    11, 12, 13, 14, 15, 16,
+    17, 22, 23, 24, 25, 27,
+];
 
 export const BulkAffiliates = () => {
 
@@ -239,6 +247,33 @@ export const BulkAffiliates = () => {
             const lmaTxt = String(rowKnown["LMA"]).trim();
             if (!/^\d+$/.test(lmaTxt)) {
                 errors.push(`Fila ${rowNumber}: LMA debe ser numérico`);
+            }
+        }
+
+        // TIPO_POBLACION: numérico y dentro de los IDs permitidos
+        if (!isEmptyValue(rowKnown["TIPO_POBLACION"])) {
+            const txt = String(rowKnown["TIPO_POBLACION"]).trim();
+
+            if (!/^\d+$/.test(txt)) {
+                errors.push(`Fila ${rowNumber}: TIPO_POBLACION debe ser numérico`);
+            } else {
+                const n = Number(txt);
+
+                if (!ALLOWED_POPULATION_IDS.includes(n)) {
+                    errors.push(
+                        `Fila ${rowNumber}: TIPO_POBLACION (${n}) no es válido. IDs permitidos: ${ALLOWED_POPULATION_IDS.join(", ")}`
+                    );
+                }
+            }
+        }
+
+        //ZONA
+        if (!isEmptyValue(rowKnown["ZONA"])) {
+            const td = String(rowKnown["ZONA"]).trim();
+            if (/^\d+$/.test(td)) {
+                errors.push(`Fila ${rowNumber}: ZONA no debe ser numérico (usa códigos como U,R).`);
+            } else if (!/^[A-Za-z]{1,5}$/.test(td)) {
+                errors.push(`Fila ${rowNumber}: ZONA con formato inválido (solo una letra, 1 caracteres).`);
             }
         }
 
@@ -365,7 +400,7 @@ export const BulkAffiliates = () => {
         for (let i = 0; i < rows.length; i += batchSize) {
             const batch = rows.slice(i, i + batchSize);
             const payload = { ...meta, rows: batch };
-            await affiliateServices.bulk(payload);
+            return await affiliateServices.bulk(payload);
             // si tu backend devuelve summary por batch, acumúlalo aquí
         }
     };
@@ -409,10 +444,11 @@ export const BulkAffiliates = () => {
                     period,
                 };
 
-                await sendInBatches(parsedRows, meta, 500);
+                const r = await sendInBatches(parsedRows, meta, 500);
+                console.log(r);
 
                 AlertComponent.success(`Carga masiva realizada correctamente (${parsedRows.length} registros enviados)`);
-                navigate("/admin/affiliates-list");
+                //navigate("/admin/affiliates-list");
             } catch (error) {
                 console.error(error);
                 const lines = String(error?.message || "Error al procesar la solicitud").split("\n");

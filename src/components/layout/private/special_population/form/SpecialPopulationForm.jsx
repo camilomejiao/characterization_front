@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import {Button, MenuItem, TextField} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Button, MenuItem, TextField } from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { Spinner } from "react-bootstrap";
 
 //Component
 import { UserInformation } from "../../../shared/user-information/UserInformation";
@@ -16,6 +17,17 @@ import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 import { commonServices } from "../../../../../helpers/services/CommonServices";
 import { specialPopulationServices } from "../../../../../helpers/services/SpecialPopulationServices";
 
+
+//
+const initialValues = {
+    populationTypeId: "",
+    ethnicityId: "",
+    hasEpsAffiliate: "",
+    epsId: "",
+    affiliatedStateId: "",
+    observations: "",
+}
+
 //
 const validationSchema = Yup.object({
     populationTypeId: Yup.string().required("Campo requerido"),
@@ -26,19 +38,11 @@ const validationSchema = Yup.object({
         otherwise: (schema) => schema.notRequired(),
     }),
     ethnicityId: Yup.string().required("Campo requerido"),
-    communityId: Yup.number().optional(),
+    affiliatedStateId: Yup.string().required("Campo requerido"),
     observations: Yup.string().max(500, "Máximo 500 caracteres").optional(),
 });
 
-//
-const initialValues = {
-    populationTypeId: "",
-    ethnicityId: "",
-    communityId: "",
-    hasEpsAffiliate: "",
-    epsId: "",
-    observations: "",
-}
+
 
 export const SpecialPopulationForm = () => {
     const navigate = useNavigate();
@@ -48,8 +52,9 @@ export const SpecialPopulationForm = () => {
     const [userData, setUserData] = useState(null);
     const [populationType, setPopulationType] = useState([]);
     const [ethnicity, setEthnicity] = useState([]);
-    const [community, setCommunity] = useState([]);
     const [eps, setEps] = useState([]);
+    const [state, setState] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const fetchOptions = async () => {
         const load = async (fn, set) => {
@@ -64,7 +69,7 @@ export const SpecialPopulationForm = () => {
         await load(() => commonServices.getPopulationType(), setPopulationType);
         await load(() => commonServices.getEps(), setEps);
         await load(() => commonServices.getEthnicity(), setEthnicity);
-        await load(() => commonServices.getCommunity(), setCommunity);
+        await load(() => commonServices.getAffiliatedState(), setState);
     }
 
     //
@@ -73,9 +78,11 @@ export const SpecialPopulationForm = () => {
         validationSchema,
         onSubmit: async (values) => {
             try {
+                setIsLoading(true);
                 const payload = {
                     ...values,
                     userId: userData.id,
+                    affiliatedStateId: Number(values.affiliatedStateId),
                     hasEpsAffiliate: Number(values.hasEpsAffiliate)
                 };
                 let response;
@@ -87,12 +94,14 @@ export const SpecialPopulationForm = () => {
 
                 if (response.status === ResponseStatusEnum.OK || response.status === ResponseStatusEnum.CREATE) {
                     AlertComponent.success("Afiliado guardado exitosamente");
-                    //navigate("/admin/affiliates-list");
+                    navigate("/admin/special-population-list");
                 } else {
                     AlertComponent.warning(response.data?.errors?.[0]?.title, response?.data?.errors?.[0]?.source?.pointer[0]?.errors);
                 }
             } catch (error) {
                 AlertComponent.error("Error al crear el afiliado");
+            } finally {
+                setIsLoading(false);
             }
         },
     });
@@ -100,6 +109,7 @@ export const SpecialPopulationForm = () => {
     //
     const fetchSpecialPopulationUserData = async (id) => {
         try {
+            setIsLoading(true);
             const {data, status} = await specialPopulationServices.getById(id);
             if (status === ResponseStatusEnum.OK) {
                 setUserData(data.user);
@@ -108,12 +118,14 @@ export const SpecialPopulationForm = () => {
                     hasEpsAffiliate: data?.hasEpsAffiliate === false ? 0 : 1,
                     epsId: data?.eps?.id,
                     ethnicityId: data?.ethnicity?.id,
-                    communityId: data?.community?.id,
+                    affiliatedStateId: data?.affiliatedState?.id,
                     observations: data?.observations ?? "",
                 });
             }
         } catch (error) {
             console.log(error, '');
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -136,13 +148,20 @@ export const SpecialPopulationForm = () => {
             {userData && (
                 <div className="container py-3">
                     <div className="d-flex justify-content-end mb-2">
-                        <Button variant="contained" color="primary" onClick={() => navigate("/admin/affiliates-list")}>
+                        <Button variant="contained" color="primary" onClick={() => navigate("/admin/special-population-list")}>
                             Volver al listado
                         </Button>
                     </div>
 
                     {/* Informacion del usuario */}
                     <UserInformation data={userData} />
+
+                    {isLoading && (
+                        <div className="text-center spinner-container">
+                            <Spinner animation="border" variant="success" />
+                            <span>Cargando...</span>
+                        </div>
+                    )}
 
                     {/* Form */}
                     <form onSubmit={formik.handleSubmit} className="mt-4">
@@ -204,12 +223,12 @@ export const SpecialPopulationForm = () => {
                             <div className="col-md-6">
                                 <TextField select
                                            fullWidth
-                                           label="Etnia" {...formik.getFieldProps("ethnicityId")}
-                                           error={formik.touched.ethnicityId && Boolean(formik.errors.ethnicityId)}
-                                           helperText={formik.touched.ethnicityId && formik.errors.ethnicityId}>
-                                    {ethnicity.map((item) => (
+                                           label="Estado" {...formik.getFieldProps("affiliatedStateId")}
+                                           error={formik.touched.affiliatedStateId && Boolean(formik.errors.affiliatedStateId)}
+                                           helperText={formik.touched.affiliatedStateId && formik.errors.affiliatedStateId}>
+                                    {state.map((item) => (
                                         <MenuItem key={item.id} value={item.id}>
-                                            {item.name}
+                                            {item.cod} - {item.description}
                                         </MenuItem>
                                     ))}
                                 </TextField>
@@ -218,10 +237,10 @@ export const SpecialPopulationForm = () => {
                             <div className="col-md-6">
                                 <TextField select
                                            fullWidth
-                                           label="Comunidad" {...formik.getFieldProps("communityId")}
-                                           error={formik.touched.communityId && Boolean(formik.errors.communityId)}
-                                           helperText={formik.touched.communityId && formik.errors.communityId}>
-                                    {community.map((item) => (
+                                           label="Etnia" {...formik.getFieldProps("ethnicityId")}
+                                           error={formik.touched.ethnicityId && Boolean(formik.errors.ethnicityId)}
+                                           helperText={formik.touched.ethnicityId && formik.errors.ethnicityId}>
+                                    {ethnicity.map((item) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             {item.name}
                                         </MenuItem>
@@ -253,6 +272,7 @@ export const SpecialPopulationForm = () => {
                                         color: "#fff",
                                         "&:hover": { backgroundColor: "#3f8872" },
                                     }}
+                                    disabled={isLoading}
                                 >
                                     {id ? "Actualizar" : "Crear"}
                                 </Button>

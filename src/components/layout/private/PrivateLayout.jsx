@@ -29,19 +29,20 @@ export const PrivateLayout = () => {
             <CssBaseline />
 
             <Navbar
-                user={auth}
+                userAuth={auth}
                 isSidebarOpen={isSidebarOpen}
-                isMobile={isMobile}
                 handleDrawerToggle={handleDrawerToggle}
+                isMobile={isMobile}
             />
 
             <Sidebar
-                headerBg={"/assets/tu-header-azul.png"}
-                paperSx={{ bgcolor: "#031b32", color: "#fff" }}
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
                 mobileOpen={mobileOpen}
                 handleDrawerToggle={handleDrawerToggle}
+                paperSx={{ bgcolor: "#102844", color: "#fff" }}
+                headerBg={"/assets/tu-header-azul.png"}
+                userAuth={auth}
             />
 
             <Box

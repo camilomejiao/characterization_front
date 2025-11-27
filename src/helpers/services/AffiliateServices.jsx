@@ -43,6 +43,11 @@ class AffiliateServices {
         });
     }
 
+    async getUserInformationByIdentificationNumber(identificationNumber) {
+        const url = this.buildUrl(`identification/${identificationNumber}`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
+
     async bulk(data) {
         const url = this.buildUrl(`bulk`)
         return authTokenService.fetchWithAuth(url, {

@@ -26,13 +26,8 @@ class CommonServices {
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
-    async sexGender() {
+    async sex() {
         const url = this.buildUrl(`sex`);
-        return authTokenService.fetchWithAuth(url, { method: "GET" });
-    }
-
-    async getGender() {
-        const url = this.buildUrl(`gender`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
@@ -84,11 +79,6 @@ class CommonServices {
 
     async getAffiliatedState() {
         const url = this.buildUrl(`affiliated-state`);
-        return authTokenService.fetchWithAuth(url, { method: "GET" });
-    }
-
-    async getCommunity() {
-        const url = this.buildUrl(`community`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 

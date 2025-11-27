@@ -15,8 +15,11 @@ export const ResponseStatusEnum = {
 }
 
 export const RolesEnum = {
-    ADMIN: 1,
-    SUPPLIER: 2,
+    SUPER_ADMIN: 1,
+    ADMIN: 2,
+    PQRS: 3,
+    AFFILIATES: 4,
+    AUDITOR: 5,
 }
 
 export const PqrsStatusEnum = {

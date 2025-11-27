@@ -30,7 +30,7 @@ export const RouterEnum = {
     AffiliatesCreate: 'affiliates-create',
     AffiliatesUpdate: 'affiliates-update/:id',
     BulkAffiliates: 'affiliates-bulk',
-    AffiliateHistory: 'affiliate-history/:id',
+    AffiliateHistory: 'affiliate-history',
 
     //Listados Censales
     SpecialPopulationList: 'special-population-list',

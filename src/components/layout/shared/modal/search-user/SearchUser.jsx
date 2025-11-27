@@ -97,7 +97,7 @@ export const SearchUser = ({ showModal, onUserFound }) => {
                             color: "#fff",
                             "&:hover": { backgroundColor: "#2c2c2c" },
                         }}
-                        onClick={() => navigate("/admin/pqrs-list")}
+                        onClick={() => navigate("/admin/user-list")}
                     >
                         Cancelar
                     </Button>

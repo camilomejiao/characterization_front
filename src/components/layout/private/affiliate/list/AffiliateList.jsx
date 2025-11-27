@@ -168,7 +168,11 @@ export const AffiliateList = () => {
                     {/* Botón para redirigir a "Crear" */}
                     <Button
                         variant="contained"
-                        color="primary"
+                        sx={{
+                            backgroundColor: "#031b32",
+                            color: "#fff",
+                            "&:hover": { backgroundColor: "#21569a" },
+                        }}
                         onClick={() => navigate("/admin/affiliates-create")}
                     >
                         Crear Nuevo
@@ -189,7 +193,7 @@ export const AffiliateList = () => {
                     pageSize={100}
                     sx={{
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#031b32",
+                            backgroundColor: "#102844",
                             color: "white",
                             fontSize: "14px",
                         },
@@ -200,7 +204,7 @@ export const AffiliateList = () => {
                             alignItems: "center",
                         },
                         "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#031b32 !important",
+                            backgroundColor: "#102844",
                             color: "white !important",
                         },
                         "& .MuiDataGrid-cell": {

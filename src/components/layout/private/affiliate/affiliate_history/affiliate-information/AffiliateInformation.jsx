@@ -1,7 +1,7 @@
-import { Card, Row, Col } from "react-bootstrap";
-import { FiUser } from "react-icons/fi";
+import {Card, Col, Row} from "react-bootstrap";
+import {FiUser} from "react-icons/fi";
 
-export const UserInformation = ({ data }) => {
+export const AffiliateInformation = ({data}) => {
     return (
         <Card className="shadow-sm rounded-4 overflow-hidden">
             {/* Encabezado */}
@@ -39,46 +39,79 @@ export const UserInformation = ({ data }) => {
                     <Col md={10}>
                         <Row className="mb-2">
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Nombre:</strong> {data?.firstName} {data?.firstLastName}
+                                <strong>Regimen:</strong> {data?.regime?.name}
                             </Col>
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Tipo de Documento:</strong> {data?.identificationType?.name}
-                            </Col>
-                        </Row>
-
-                        <Row className="mb-2">
-                            <Col md={6} className="py-2 border-bottom">
-                                <strong>Documento:</strong> {data?.identificationNumber}
-                            </Col>
-                            <Col md={6} className="py-2 border-bottom">
-                                <strong>Discapacidad:</strong> {data?.disabilityType?.name || "Ninguna"}
+                                <strong>Estado de afiliación:</strong> {data?.affiliatedState?.description}
                             </Col>
                         </Row>
 
                         <Row className="mb-2">
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Sexo:</strong> {data?.sex?.name}
+                                <strong>Tipo de población:</strong> {data?.populationType?.name}
                             </Col>
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Barrio:</strong> {data?.neighborhood}
+                                <strong>EPS:</strong> {data?.eps?.name}
                             </Col>
                         </Row>
 
                         <Row className="mb-2">
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Área:</strong> {data?.area?.name}
+                                <strong>IPS Primaria:</strong> {data?.ipsPrimary?.name || "No registra"}
                             </Col>
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Email:</strong> {data?.email ?? 'NO REGISTRA'}
+                                <strong>IPS Odontologica:</strong> {data?.ipsDental?.name || "No registra"}
                             </Col>
                         </Row>
 
-                        <Row>
+                        <Row className="mb-2">
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Dirección:</strong> {data?.address}
+                                <strong>Tipo de afiliado:</strong> {data?.affiliateType?.name || "No registra"}
                             </Col>
                             <Col md={6} className="py-2 border-bottom">
-                                <strong>Teléfono:</strong> {data?.phoneNumber}
+                                <strong>Metodologia:</strong> {data?.methodology?.name}
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-2">
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Grupo y Subgrupo:</strong> {data?.groupSubgroup?.subgroup}
+                            </Col>
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Nivel:</strong> {data?.level?.name ?? 'NO REGISTRA'}
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-2">
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Clase de afiliación:</strong> {data?.membershipClass?.name}
+                            </Col>
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Estado de afiliacion:</strong> {data?.affiliateType?.name}
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-2">
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Numero del formulario:</strong> {data?.formNumber}
+                            </Col>
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Etnia:</strong> {data?.ethnicity?.name}
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-2">
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Fecha de afiliacion:</strong> {data?.dateOfAffiliated}
+                            </Col>
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Numero de la ficha del sisben:</strong> {data?.sisbenNumber}
+                            </Col>
+                        </Row>
+
+                        <Row className="mb-2">
+                            <Col md={6} className="py-2 border-bottom">
+                                <strong>Observaciones:</strong> {data?.observations}
                             </Col>
                         </Row>
                     </Col>
@@ -86,4 +119,4 @@ export const UserInformation = ({ data }) => {
             </Card.Body>
         </Card>
     );
-};
+}
