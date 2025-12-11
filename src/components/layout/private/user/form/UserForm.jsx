@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import {TextField, MenuItem, Button } from "@mui/material";
+import {Spinner} from "react-bootstrap";
 
+//
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 
 //Services
@@ -12,8 +14,7 @@ import { commonServices } from "../../../../../helpers/services/CommonServices";
 import { userServices } from "../../../../../helpers/services/UserServices";
 
 //Enum
-import { DefaultsSelectEnum, ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
-import {Spinner} from "react-bootstrap";
+import { DefaultsSelectUserFormEnum, ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
 const initialValues = {
     first_name: "",
@@ -33,6 +34,7 @@ const initialValues = {
     disability_type_id: "",
     sex_id: "",
     area_id: "",
+    ethnicity_id: "",
 };
 
 const validationSchema = Yup.object({
@@ -53,6 +55,7 @@ const validationSchema = Yup.object({
     area_id: Yup.string().required("El área es obligatoria"),
     country_id: Yup.string().required("El pais es obligatorio"),
     email: Yup.string().trim().email("Formato de email inválido").transform(v => (v === '' ? undefined : v)).notRequired(),
+    ethnicity_id: Yup.string().required("Campo requerido"),
 });
 
 export const UserForm = () => {
@@ -67,6 +70,7 @@ export const UserForm = () => {
     const [sex, setSex] = useState([]);
     const [area, setArea] = useState([]);
     const [country, setCountry] = useState([]);
+    const [ethnicity, setEthnicity] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     //
@@ -124,6 +128,7 @@ export const UserForm = () => {
                     sex_id: data?.sex?.id ?? "",
                     area_id: data?.area?.id ?? "",
                     country_id: data?.country?.id ?? "",
+                    ethnicity_id: data?.ethnicity?.id,
                 });
                 if (data?.department?.id) {
                     fetchMunicipalities(data?.department?.id);
@@ -155,6 +160,7 @@ export const UserForm = () => {
         await load(() => commonServices.getArea(), setArea);
         await load(() => depaMuniServices.getDepartments(), setDepartments);
         await load(() => commonServices.getCountries(), setCountry);
+        await load(() => commonServices.getEthnicity(), setEthnicity);
     };
 
     //
@@ -183,8 +189,8 @@ export const UserForm = () => {
 
     // --------------- Colocar municipio por defecto si existe ---------------
     const trySetDefaultMunicipality = (list) => {
-        const exists = list.some((m) => m.id === DefaultsSelectEnum.municipality);
-        formik.setFieldValue("municipality_id", exists ? DefaultsSelectEnum.municipality : "");
+        const exists = list.some((m) => m.id === DefaultsSelectUserFormEnum.municipality);
+        formik.setFieldValue("municipality_id", exists ? DefaultsSelectUserFormEnum.municipality : "");
     };
 
     // --------------- Método genérico para seleccionar depto ---------------
@@ -204,9 +210,13 @@ export const UserForm = () => {
             await fetchUserData(id);
             return;
         }
-        // Metodo CREAR: país y depto por defecto, y setear municipio por defecto si existe
-        formik.setFieldValue("country_id", DefaultsSelectEnum.country);
-        await selectDepartment(DefaultsSelectEnum.department, { setMunicipalityDefault: true });
+
+        //Campos por defecto al cargar la pagina
+        formik.setFieldValue("identification_type_id", DefaultsSelectUserFormEnum.identification_type);
+        formik.setFieldValue("country_id", DefaultsSelectUserFormEnum.country);
+        await selectDepartment(DefaultsSelectUserFormEnum.department, { setMunicipalityDefault: true });
+        formik.setFieldValue("ethnicity_id", DefaultsSelectUserFormEnum.ethnicity);
+        formik.setFieldValue("disability_type_id", DefaultsSelectUserFormEnum.disability_type);
     };
 
     useEffect(() => {
@@ -407,6 +417,19 @@ export const UserForm = () => {
                             label="Email" {...formik.getFieldProps("email")}
                             error={formik.touched.email && Boolean(formik.errors.email)}
                             helperText={formik.touched.email && formik.errors.email} />
+                    </div>
+                    <div className="col-md-6">
+                        <TextField select
+                                   fullWidth
+                                   label="Etnia" {...formik.getFieldProps("ethnicity_id")}
+                                   error={formik.touched.ethnicity_id && Boolean(formik.errors.ethnicity_id)}
+                                   helperText={formik.touched.ethnicity_id && formik.errors.ethnicity_id}>
+                            {ethnicity.map((item) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
                     </div>
                 </div>
                 <div className="text-end mt-4">

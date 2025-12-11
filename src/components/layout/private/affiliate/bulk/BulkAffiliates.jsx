@@ -21,7 +21,6 @@ import { commonServices } from "../../../../../helpers/services/CommonServices";
 import {RegimenEnum, ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
 import useAuth from "../../../../../hooks/useAuth";
 
-// TODO: trae estos datos de tu contexto de auth
 const getCurrentUser = () => ({
     id: 4,            // system_user ID
     organizationId: 2 // organization ID
@@ -154,9 +153,25 @@ const buildLevel = (val) => {
 
 //
 const ALLOWED_POPULATION_IDS = [
-    1, 2, 4, 5, 6, 8, 9, 10,
-    11, 12, 13, 14, 15, 16,
-    17, 22, 23, 24, 25, 27,
+    1, 2, 4, 5, 6, 8, 9, 10, 11,
+    12, 13, 14, 15, 16, 17, 22,
+    23, 24, 25, 27, 28, 29, 30,
+    31, 32, 33, 34, 35
+];
+
+//
+const IDENTIFICATION_TYPE = [
+    'AS', 'CC', 'CD', 'CE', 'CN',
+    'PA', 'PE', 'RC', 'SC', 'TI', 'PPT'
+];
+
+//
+const AREA_TYPE = [
+    'U', 'R', 'RD', 'CP', 'CM',
+];
+
+const STATUS_TYPE = [
+    'AF', 'AC', 'RE'
 ];
 
 export const BulkAffiliates = () => {
@@ -202,8 +217,16 @@ export const BulkAffiliates = () => {
             const td = String(rowKnown["TIPO_DOCUMENTO"]).trim();
             if (/^\d+$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: TIPO_DOCUMENTO no debe ser numérico (usa códigos como CC, TI, CE, PA).`);
-            } else if (!/^[A-Za-z]{1,5}$/.test(td)) {
+            }
+
+            if (!/^[A-Za-z]{1,5}$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: TIPO_DOCUMENTO con formato inválido (solo letras, 2 caracteres).`);
+            }
+
+            if (!IDENTIFICATION_TYPE.includes(td)) {
+                errors.push(
+                    `Fila ${rowNumber}: TIPO_DOCUMENTO (${td}) no es válido. Códigos permitidos: ${IDENTIFICATION_TYPE.join(", ")}`
+                );
             }
         }
 
@@ -221,8 +244,16 @@ export const BulkAffiliates = () => {
             const td = String(rowKnown["ESTADO"]).trim();
             if (/^\d+$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: ESTADO no debe ser numérico (usa códigos como AC, AF,RE).`);
-            } else if (!/^[A-Za-z]{1,5}$/.test(td)) {
+            }
+
+            if (!/^[A-Za-z]{1,5}$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: ESTADO con formato inválido (solo una letra, 2 caracteres).`);
+            }
+
+            if (!STATUS_TYPE.includes(td)) {
+                errors.push(
+                    `Fila ${rowNumber}: ESTADO (${td}) no es válido. Códigos permitidos: ${STATUS_TYPE.join(", ")}`
+                );
             }
         }
 
@@ -242,11 +273,16 @@ export const BulkAffiliates = () => {
             if (!iso) errors.push(`Fila ${rowNumber}: FECHA_NACIMIENTO con formato inválido (esperado dd/mm/yyyy)`);
         }
 
-        // LMA si viene, debe ser numérico
+        // LMA si viene, debe ser numérico (entero o decimal)
         if (!isEmptyValue(rowKnown["LMA"])) {
-            const lmaTxt = String(rowKnown["LMA"]).trim();
-            if (!/^\d+$/.test(lmaTxt)) {
-                errors.push(`Fila ${rowNumber}: LMA debe ser numérico`);
+            let lmaTxt = String(rowKnown["LMA"]).trim();
+
+            lmaTxt = lmaTxt.replace(",", ".");
+
+            if (!/^\d+(\.\d+)?$/.test(lmaTxt)) {
+                errors.push(
+                    `Fila ${rowNumber}: LMA debe ser numérico (entero o decimal, ej: 70746.9)`
+                );
             }
         }
 
@@ -271,9 +307,17 @@ export const BulkAffiliates = () => {
         if (!isEmptyValue(rowKnown["ZONA"])) {
             const td = String(rowKnown["ZONA"]).trim();
             if (/^\d+$/.test(td)) {
-                errors.push(`Fila ${rowNumber}: ZONA no debe ser numérico (usa códigos como U,R).`);
-            } else if (!/^[A-Za-z]{1,5}$/.test(td)) {
+                errors.push(`Fila ${rowNumber}: ZONA no debe ser numérico. Códigos permitidos: ${AREA_TYPE.join(", ")}`);
+            }
+
+            if (!/^[A-Za-z]{1,5}$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: ZONA con formato inválido (solo una letra, 1 caracteres).`);
+            }
+
+            if (!AREA_TYPE.includes(td)) {
+                errors.push(
+                    `Fila ${rowNumber}: ZONA (${td}) no es válido. Códigos permitidos: ${AREA_TYPE.join(", ")}`
+                );
             }
         }
 
@@ -405,18 +449,52 @@ export const BulkAffiliates = () => {
         }
     };
 
+    //
+    const getAllowedPeriods = () => {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth() + 1;
+
+        const currentPeriod = String(currentYear) + String(currentMonth).padStart(2, "0");
+
+        let prevYear = currentYear;
+        let prevMonth = currentMonth - 1;
+        if (prevMonth === 0) {
+            prevMonth = 12;
+            prevYear = currentYear - 1;
+        }
+        const prevPeriod = String(prevYear) + String(prevMonth).padStart(2, "0");
+
+        return { currentPeriod, prevPeriod };
+    };
+
+    //
+    const isPeriodInAllowedWindow = (period) => {
+        if (!/^\d{6}$/.test(period)) return false;
+        const { prevPeriod } = getAllowedPeriods();
+        return period === prevPeriod; // solo mes anterior
+    };
+
     const formik = useFormik({
         initialValues,
         validationSchema,
         onSubmit: async (values) => {
-            console.log(values);
             try {
                 setLoading(true);
                 if (!values.attachment) return;
 
                 //Nombre de archivo y período (AAAAMM)
                 const { base: fileName, period } = getFileBaseAndPeriod(values.attachment);
-                const expectedPrefix = getRegimeFilePrefix(regimens, values.regime); // e.g. "MS" o "MC"
+
+                // 🔹 Validar que el periodo sea mes actual o mes anterior
+                const { prevPeriod } = getAllowedPeriods();
+                if (!isPeriodInAllowedWindow(period)) {
+                    AlertComponent.warning(`El periodo del archivo (${period}) no es válido. Solo se permiten archivos del periodo inmediatamente anterior: ${prevPeriod}.`);
+                    setLoading(false);
+                    return;
+                }
+
+                const expectedPrefix = getRegimeFilePrefix(regimens, values.regime);
                 if (!expectedPrefix) {
                     AlertComponent.warning("No se pudo identificar el prefijo del régimen seleccionado.");
                     setLoading(false);

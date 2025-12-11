@@ -21,7 +21,6 @@ import { specialPopulationServices } from "../../../../../helpers/services/Speci
 //
 const initialValues = {
     populationTypeId: "",
-    ethnicityId: "",
     hasEpsAffiliate: "",
     epsId: "",
     affiliatedStateId: "",
@@ -37,7 +36,6 @@ const validationSchema = Yup.object({
         then: (schema) => schema.required("Campo requerido"),
         otherwise: (schema) => schema.notRequired(),
     }),
-    ethnicityId: Yup.string().required("Campo requerido"),
     affiliatedStateId: Yup.string().required("Campo requerido"),
     observations: Yup.string().max(500, "Máximo 500 caracteres").optional(),
 });
@@ -117,7 +115,6 @@ export const SpecialPopulationForm = () => {
                     populationTypeId: data?.populationType?.id,
                     hasEpsAffiliate: data?.hasEpsAffiliate === false ? 0 : 1,
                     epsId: data?.eps?.id,
-                    ethnicityId: data?.ethnicity?.id,
                     affiliatedStateId: data?.affiliatedState?.id,
                     observations: data?.observations ?? "",
                 });
@@ -229,20 +226,6 @@ export const SpecialPopulationForm = () => {
                                     {state.map((item) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             {item.cod} - {item.description}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </div>
-
-                            <div className="col-md-6">
-                                <TextField select
-                                           fullWidth
-                                           label="Etnia" {...formik.getFieldProps("ethnicityId")}
-                                           error={formik.touched.ethnicityId && Boolean(formik.errors.ethnicityId)}
-                                           helperText={formik.touched.ethnicityId && formik.errors.ethnicityId}>
-                                    {ethnicity.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.name}
                                         </MenuItem>
                                     ))}
                                 </TextField>

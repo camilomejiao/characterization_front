@@ -12,7 +12,7 @@ import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 //Services
 import { specialPopulationServices } from "../../../../../helpers/services/SpecialPopulationServices";
-//
+//Components
 import { SpecialPopulationReport } from "../special-population-report/SpecialPopulationReport";
 
 export const SpecialPopulationList = () => {

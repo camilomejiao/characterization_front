@@ -28,10 +28,13 @@ export const PqrsStatusEnum = {
     CLOSED: 3
 }
 
-export const DefaultsSelectEnum = {
+export const DefaultsSelectUserFormEnum = {
     country: 43,
     department: 25,
     municipality: 526,
+    ethnicity: 1,
+    disability_type: 1,
+    identification_type: 2
 };
 
 export const RegimenEnum = {

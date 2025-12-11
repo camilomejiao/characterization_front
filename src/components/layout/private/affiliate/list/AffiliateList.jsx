@@ -1,13 +1,15 @@
 import {useNavigate} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
-import {affiliateServices} from "../../../../../helpers/services/AffiliateServices";
-import {ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
 import {Box, Button, IconButton, Stack, TextField} from "@mui/material";
-import {Spinner} from "react-bootstrap";
 import {DataGrid} from "@mui/x-data-grid";
-import {FaPencilAlt, FaRegFile, FaTrash} from "react-icons/fa";
-import AlertComponent from "../../../../../helpers/alert/AlertComponent";
+import {FaPencilAlt, FaRegFile} from "react-icons/fa";
 
+//
+import AlertComponent from "../../../../../helpers/alert/AlertComponent";
+//
+import { affiliateServices } from "../../../../../helpers/services/AffiliateServices";
+//
+import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
 export const AffiliateList = () => {
 
@@ -19,11 +21,14 @@ export const AffiliateList = () => {
     const [loadingData, setLoadingData] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [isReadyToPrintReposrt, setIsReadyToPrintReposrt] = useState(false);
+    const [informationLoadingText, setInformationLoadingText] = useState("");
 
     const getAffiliateList = async () => {
         setLoadingData(true);
         try {
             setIsLoading(true);
+            setInformationLoadingText("Cargando informacion...");
+
             const {data, status} = await affiliateServices.getList();
             if(status === ResponseStatusEnum.OK) {
                 setAffiliateList(await normalizeRows(data));
@@ -37,6 +42,7 @@ export const AffiliateList = () => {
         } finally {
             setLoadingData(false);
             setIsLoading(false);
+            setInformationLoadingText("Cargando informacion...");
         }
     }
 
@@ -180,9 +186,8 @@ export const AffiliateList = () => {
                 </Stack>
 
                 {isLoading && (
-                    <div className="text-center spinner-container">
-                        <Spinner animation="border" variant="success" />
-                        <span>Cargando...</span>
+                    <div className="overlay">
+                        <div className="loader">{informationLoadingText}</div>
                     </div>
                 )}
 

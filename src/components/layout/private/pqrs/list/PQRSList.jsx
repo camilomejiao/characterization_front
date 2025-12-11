@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, IconButton, Stack, TextField, Box } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { FaFilePdf, FaPencilAlt, FaRegFile, FaTrash } from "react-icons/fa";
+import { FaFilePdf, FaPencilAlt, FaRegFile } from "react-icons/fa";
+
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
-import { Spinner } from "react-bootstrap";
 import printJS from "print-js";
 
 //Componets
@@ -26,9 +26,13 @@ export const PQRSList = () => {
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isReadyToPrintReport, setIsReadyToPrintReport] = useState(false);
+    const [informationLoadingText, setInformationLoadingText] = useState("");
 
     const getPqrsList = async () => {
         try {
+            setIsLoading(true);
+            setInformationLoadingText("Cargando informacion...");
+
             const {data, status} = await pqrsServices.getList();
             console.log(data);
             if(status === ResponseStatusEnum.OK) {
@@ -40,6 +44,9 @@ export const PQRSList = () => {
             }
         } catch (error) {
             console.log(`Error en Admin List ${error}`);
+        } finally {
+            setIsLoading(false);
+            setInformationLoadingText("");
         }
     }
 
@@ -232,9 +239,8 @@ export const PQRSList = () => {
                 </Stack>
 
                 {isLoading && (
-                    <div className="text-center spinner-container">
-                        <Spinner animation="border" variant="success" />
-                        <span>Cargando...</span>
+                    <div className="overlay">
+                        <div className="loader">{informationLoadingText}</div>
                     </div>
                 )}
 

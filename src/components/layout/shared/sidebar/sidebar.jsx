@@ -99,11 +99,6 @@ const baseMenu = [
         icon: Assignment,
         children: [
             {
-                label: "Reporte",
-                path: "/admin/affiliates-report",
-                icon: Analytics,
-            },
-            {
                 label: "Lista de afiliados",
                 path: "/admin/affiliates-list",
                 icon: ListAlt,
@@ -117,11 +112,6 @@ const baseMenu = [
                 label: "Proceso masivo",
                 path: "/admin/affiliates-bulk",
                 icon: Sync,
-            },
-            {
-                label: "Historial de afiliado",
-                path: "/admin/affiliate-history",
-                icon: ReceiptLong,
             },
         ],
     },
@@ -143,6 +133,24 @@ const baseMenu = [
             },
         ],
     },
+    {
+        key: "reportes",
+        type: "collapse",
+        label: "Reportes",
+        icon: Assignment,
+        children: [
+            {
+                label: "Reporte",
+                path: "/admin/affiliates-report",
+                icon: Analytics,
+            },
+            {
+                label: "Historial de afiliado",
+                path: "/admin/affiliate-history",
+                icon: ReceiptLong,
+            },
+        ],
+    },
 ];
 
 /**
@@ -150,22 +158,22 @@ const baseMenu = [
  * Solo ponemos los keys de baseMenu.
  */
 const roleMenuMap = {
-    [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "affiliates", "censales"],
-    [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales"],
+    [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "affiliates", "censales", "reportes"],
+    [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales", "reportes"],
     [RolesEnum.PQRS]: ["user", "pqrs"],
     [RolesEnum.AFFILIATES]: ["user", "affiliates"],
-    [RolesEnum.AUDITOR]: ["user", "pqrs", "affiliates", "censales", "affiliates"],
+    [RolesEnum.AUDITOR]: ["user", "pqrs", "affiliates", "censales", "affiliates", "reportes"],
 };
 
 export const Sidebar = ({
-                            isOpen,
-                            setIsOpen,
-                            mobileOpen,
-                            handleDrawerToggle,
-                            paperSx,
-                            headerBg,
-                            userAuth,
-                        }) => {
+                        isOpen,
+                        setIsOpen,
+                        mobileOpen,
+                        handleDrawerToggle,
+                        paperSx,
+                        headerBg,
+                        userAuth,
+                    }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const navigate = useNavigate();

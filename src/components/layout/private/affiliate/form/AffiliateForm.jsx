@@ -8,6 +8,7 @@ import { Spinner } from "react-bootstrap";
 //Component
 import { UserInformation } from "../../../shared/user-information/UserInformation";
 import { SearchUser } from "../../../shared/modal/search-user/SearchUser";
+
 //Helpers
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 
@@ -31,7 +32,6 @@ const initialValues = {
     methodologyId: "",
     levelId: "",
     membershipClassId: "",
-    ethnicityId: "",
     groupSubgroupId: "",
     affiliatedStateId: "",
     sisbenNumber: "",
@@ -50,7 +50,6 @@ const validationSchema = Yup.object({
     methodologyId: Yup.string().required("Campo requerido"),
     levelId: Yup.string().required("Campo requerido"),
     membershipClassId: Yup.string().required("Campo requerido"),
-    ethnicityId: Yup.string().required("Campo requerido"),
     groupSubgroupId: Yup.number().required("Campo requerido"),
     affiliatedStateId: Yup.string().required("Campo requerido"),
     sisbenNumber: Yup.number().optional(),
@@ -81,7 +80,6 @@ export const AffiliateForm = () => {
     const [metodology, setMetodology] = useState([]);
     const [level, setLevel] = useState([]);
     const [membershipClass, setMembershipClass] = useState([]);
-    const [ethnicity, setEthnicity] = useState([]);
     const [groupSubgroup, setGroupSubgroup] = useState([]);
     const [state, setState] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -104,7 +102,6 @@ export const AffiliateForm = () => {
         await load(() => commonServices.getMethodology(), setMetodology);
         await load(() => commonServices.getlevel(), setLevel);
         await load(() => commonServices.getMembershipClass(), setMembershipClass);
-        await load(() => commonServices.getEthnicity(), setEthnicity);
         await load(() => commonServices.getGroupAndSubgroup(), setGroupSubgroup);
         await load(() => commonServices.getAffiliatedState(), setState);
     }
@@ -169,7 +166,6 @@ export const AffiliateForm = () => {
                     methodologyId: data?.methodology?.id,
                     levelId: data?.level?.id,
                     membershipClassId: data?.membershipClass?.id,
-                    ethnicityId: data?.ethnicity?.id,
                     groupSubgroupId: data?.groupSubgroup?.id,
                     affiliatedStateId: data?.affiliatedState?.id,
                     sisbenNumber: data?.sisbenNumber ?? "",
@@ -343,20 +339,6 @@ export const AffiliateForm = () => {
                                            error={formik.touched.membershipClassId && Boolean(formik.errors.membershipClassId)}
                                            helperText={formik.touched.membershipClassId && formik.errors.membershipClassId}>
                                     {membershipClass.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.name}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </div>
-
-                            <div className="col-md-6">
-                                <TextField select
-                                           fullWidth
-                                           label="Etnia" {...formik.getFieldProps("ethnicityId")}
-                                           error={formik.touched.ethnicityId && Boolean(formik.errors.ethnicityId)}
-                                           helperText={formik.touched.ethnicityId && formik.errors.ethnicityId}>
-                                    {ethnicity.map((item) => (
                                         <MenuItem key={item.id} value={item.id}>
                                             {item.name}
                                         </MenuItem>

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconButton, Button, Stack, TextField, Box } from "@mui/material";
 
+import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 //Enum
 import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
@@ -18,9 +18,14 @@ export const UserList = () => {
 
     const [userList, setUserList] = useState([]);
     const [searchText, setSearchText] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [informationLoadingText, setInformationLoadingText] = useState("");
 
     const getUserList = async () => {
         try {
+            setLoading(true);
+            setInformationLoadingText("Cargando informacion...");
+
             const {data, status} = await userServices.getList();
             if(status === ResponseStatusEnum.OK) {
                 setUserList(await normalizeRows(data));
@@ -31,6 +36,9 @@ export const UserList = () => {
             }
         } catch (error) {
             console.log(`Error en Admin List ${error}`);
+        } finally {
+            setLoading(false);
+            setInformationLoadingText("");
         }
     };
 
@@ -165,6 +173,12 @@ export const UserList = () => {
                         Crear Nuevo
                     </Button>
                 </Stack>
+
+                {loading && (
+                    <div className="overlay">
+                        <div className="loader">{informationLoadingText}</div>
+                    </div>
+                )}
 
                 <DataGrid
                     rows={filteredRows}

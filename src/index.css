@@ -3,3 +3,21 @@ html, body, #root {
     margin: 0;
     padding: 0;
 }
+
+/* Overlay de carga a pantalla completa */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.loader {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}

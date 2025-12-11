@@ -8,8 +8,10 @@ import { useFormik } from "formik";
 //
 import { UserInformation } from "../../../shared/user-information/UserInformation";
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
+
 //
 import { affiliateServices } from "../../../../../helpers/services/AffiliateServices";
+
 //
 import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 import {AffiliateInformation} from "./affiliate-information/AffiliateInformation";
@@ -322,9 +324,9 @@ export const AffiliateHistory = () => {
                             variant="h6"
                             sx={{ mb: 2, fontWeight: 600, color: "#374151" }}
                         >
-                            Información de cambios del usuario
+                            Información de LMA
                         </Typography>
-                        <AffiliateChangesInformation data={userData} />
+                        <LMAInformation data={userData?.lma} />
                     </Box>
                 )}
 
@@ -334,12 +336,11 @@ export const AffiliateHistory = () => {
                             variant="h6"
                             sx={{ mb: 2, fontWeight: 600, color: "#374151" }}
                         >
-                            Información de LMA
+                            Información de cambios del usuario
                         </Typography>
-                        <LMAInformation data={userData} />
+                        <AffiliateChangesInformation data={userData?.history} />
                     </Box>
                 )}
-
 
             </div>
 

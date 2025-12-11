@@ -1,11 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { administratorServices } from "../../../../../helpers/services/AdministratorServices";
-import { ResponseStatusEnum, RolesEnum } from "../../../../../helpers/GlobalEnum";
-import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 import { DataGrid } from "@mui/x-data-grid";
 import { TextField, Button, IconButton, Box, Stack } from "@mui/material";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
+
+//
+import AlertComponent from "../../../../../helpers/alert/AlertComponent";
+
+//
+import { administratorServices } from "../../../../../helpers/services/AdministratorServices";
+import { ResponseStatusEnum, RolesEnum } from "../../../../../helpers/GlobalEnum";
 
 export const AdministratorList = () => {
 
@@ -13,10 +17,14 @@ export const AdministratorList = () => {
 
     const [adminList, setAdminList] = useState([]);
     const [searchText, setSearchText] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [informationLoadingText, setInformationLoadingText] = useState("");
 
     // Function to fetch the list of administrators
     const getAdminList = async () => {
         try {
+            setLoading(true);
+            setInformationLoadingText("Cargando informacion...");
             const { data, status } = await administratorServices.getList();
             if (status === ResponseStatusEnum.OK) {
                 setAdminList(data);
@@ -25,6 +33,9 @@ export const AdministratorList = () => {
             }
         } catch (error) {
             console.error(`Error en Admin List ${error}`);
+        } finally {
+            setLoading(false);
+            setInformationLoadingText("");
         }
     };
 
@@ -148,6 +159,12 @@ export const AdministratorList = () => {
                         Crear Nuevo
                     </Button>
                 </Stack>
+
+                {loading && (
+                    <div className="overlay">
+                        <div className="loader">{informationLoadingText}</div>
+                    </div>
+                )}
 
                 <DataGrid
                     rows={filteredRows}

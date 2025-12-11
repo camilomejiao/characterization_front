@@ -55,6 +55,11 @@ class AffiliateServices {
             body: JSON.stringify(data),
         });
     }
+
+    async reportGrafics(month, year) {
+        const url = this.buildUrl(`report-information-graphics/${month}/${year}`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
 }
 
 export const affiliateServices = new AffiliateServices();
