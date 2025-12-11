@@ -16,6 +16,7 @@ export const AuthProvider = ({children}) => {
     const authUser = async() => {
         //Sacar datos del usuario identificado
         const token = localStorage.getItem('token');
+        const organization = localStorage.getItem('organization_id');
         const user = await decodeToken(token);
         const userId = user?.id;
 
@@ -32,6 +33,7 @@ export const AuthProvider = ({children}) => {
                     rol_id: user?.role,
                     email: user?.email,
                     userName: user?.name,
+                    organization: organization,
                 });
             } catch (error) {
                 console.error("Error parsing user data:", error);

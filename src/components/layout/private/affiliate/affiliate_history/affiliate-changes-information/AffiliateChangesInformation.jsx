@@ -42,8 +42,11 @@ export const AffiliateChangesInformation = ({data}) => {
                         <Col md={10}>
                             {data.map((descriptions) => (
                                 <Row key={descriptions.id} className="mb-2">
-                                    <Col md={6} className="py-2 border-bottom">
-                                        <strong>Cambios:</strong> {descriptions.description}
+                                    <Col md={9} className="py-2 border-bottom">
+                                        <strong>Cambios:</strong> {descriptions?.description}
+                                    </Col>
+                                    <Col md={3} className="py-2 border-bottom">
+                                        <strong>Fecha:</strong> {descriptions?.created_at?.split('T')[0]}
                                     </Col>
                                 </Row>
                             ))}

@@ -55,7 +55,7 @@ class AuthService {
      * @param {object} decodeToken - Datos decodificados del token.
      */
     saveToLocalStorage(tokens, decodeToken) {
-        console.log(tokens);
+        //console.log(tokens);
         localStorage.setItem("token", tokens?.accessToken || "");
         localStorage.setItem("rol_id", tokens?.user?.role?.id || "");
         localStorage.setItem("organization_id", tokens?.user?.organization || "");

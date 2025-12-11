@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { useFormik } from "formik";
@@ -20,11 +20,6 @@ import { affiliateServices } from "../../../../../helpers/services/AffiliateServ
 import { commonServices } from "../../../../../helpers/services/CommonServices";
 import {RegimenEnum, ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
 import useAuth from "../../../../../hooks/useAuth";
-
-const getCurrentUser = () => ({
-    id: 4,            // system_user ID
-    organizationId: 2 // organization ID
-});
 
 // Prefijo permitido: MS202510 | MSCM202510 | MC202510 | MCCM202510
 const FILE_NAME_RE = /^(MS(CM)?|MC(CM)?)\d{6}$/;
@@ -176,15 +171,12 @@ const STATUS_TYPE = [
 
 export const BulkAffiliates = () => {
 
-    const { auth } = useAuth() //Reforzar el auth
+    const { auth } = useAuth();
 
     const navigate = useNavigate();
     const [regimens, setRegimens] = useState([]);
     const [parseErrors, setParseErrors] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    //
-    const user = useMemo(getCurrentUser, []);
 
     //
     const getRemigens = async () => {
@@ -441,13 +433,48 @@ export const BulkAffiliates = () => {
 
     // Envío en lotes al backend
     const sendInBatches = async (rows, meta, batchSize = 250) => {
+        let hasErrors = false;
+        let totalSent = 0;
+        const errorMessages = [];
+
         for (let i = 0; i < rows.length; i += batchSize) {
             const batch = rows.slice(i, i + batchSize);
             const payload = { ...meta, rows: batch };
-            return await affiliateServices.bulk(payload);
-            // si tu backend devuelve summary por batch, acumúlalo aquí
+
+            try {
+                const { data } = await affiliateServices.bulk(payload);
+
+
+                if (Array.isArray(data?.errors) && data.errors.length) {
+                    hasErrors = true;
+                    data.errors.forEach((err) => {
+                        errorMessages.push(formatValidationError(err));
+                    });
+                    break;
+                }
+
+                totalSent += batch.length;
+            } catch (error) {
+                hasErrors = true;
+
+                const apiErrors = error?.response?.data?.errors;
+                if (Array.isArray(apiErrors) && apiErrors.length) {
+                    apiErrors.forEach((err) => {
+                        errorMessages.push(formatValidationError(err));
+                    });
+                } else {
+                    errorMessages.push(
+                        error?.message || "Error inesperado al enviar los registros."
+                    );
+                }
+
+                break;
+            }
         }
+
+        return { hasErrors, totalSent, errorMessages };
     };
+
 
     //
     const getAllowedPeriods = () => {
@@ -483,13 +510,13 @@ export const BulkAffiliates = () => {
                 setLoading(true);
                 if (!values.attachment) return;
 
-                //Nombre de archivo y período (AAAAMM)
                 const { base: fileName, period } = getFileBaseAndPeriod(values.attachment);
 
-                // 🔹 Validar que el periodo sea mes actual o mes anterior
                 const { prevPeriod } = getAllowedPeriods();
                 if (!isPeriodInAllowedWindow(period)) {
-                    AlertComponent.warning(`El periodo del archivo (${period}) no es válido. Solo se permiten archivos del periodo inmediatamente anterior: ${prevPeriod}.`);
+                    AlertComponent.warning(
+                        `El periodo del archivo (${period}) no es válido. Solo se permiten archivos del periodo inmediatamente anterior: ${prevPeriod}.`
+                    );
                     setLoading(false);
                     return;
                 }
@@ -500,43 +527,96 @@ export const BulkAffiliates = () => {
                     setLoading(false);
                     return;
                 }
+
                 if (!fileName.toUpperCase().startsWith(expectedPrefix)) {
-                    AlertComponent.warning(`El régimen no coincide con el nombre del archivo (${expectedPrefix} + AAAAMM).`);
+                    AlertComponent.warning(
+                        `El régimen no coincide con el nombre del archivo (${expectedPrefix} + AAAAMM).`
+                    );
                     setLoading(false);
                     return;
                 }
 
-                const parsedRows = await processCSV(values.attachment, expectedPrefix === "MS" ? RegimenEnum.SUB : RegimenEnum.CONT);
+                const parsedRows = await processCSV(
+                    values.attachment,
+                    expectedPrefix === "MS" ? RegimenEnum.SUB : RegimenEnum.CONT
+                );
+
                 if (!parsedRows.length) {
                     AlertComponent.warning("No hay filas válidas para procesar.");
                     setLoading(false);
                     return;
                 }
 
-                //payload para el backend
                 const meta = {
-                    organizationId: user.organizationId,
-                    userId: user.id,
+                    organizationId: Number(auth?.organization),
+                    userId: auth?.id,
                     fileName,
                     regime: values.regime,
                     period,
                 };
 
-                const r = await sendInBatches(parsedRows, meta, 500);
-                console.log(r);
+                const { hasErrors, totalSent, errorMessages } = await sendInBatches(
+                    parsedRows,
+                    meta,
+                    500
+                );
 
-                AlertComponent.success(`Carga masiva realizada correctamente (${parsedRows.length} registros enviados)`);
-                //navigate("/admin/affiliates-list");
+                if (hasErrors) {
+                    setParseErrors(errorMessages);
+                    AlertComponent.error(
+                        `Se encontraron ${errorMessages.length} error(es) de validación. Revisa el detalle debajo.`
+                    );
+                    return;
+                }
+
+                AlertComponent.success(
+                    `Carga masiva realizada correctamente (${totalSent} registros enviados)`
+                );
             } catch (error) {
                 console.error(error);
                 const lines = String(error?.message || "Error al procesar la solicitud").split("\n");
                 setParseErrors(lines);
-                AlertComponent.error(`Se encontraron ${lines.length} error(es) en el archivo. Revisa el detalle debajo.`);
+                AlertComponent.error(
+                    `Se encontraron ${lines.length} error(es) al procesar la solicitud. Revisa el detalle debajo.`
+                );
             } finally {
                 setLoading(false);
             }
         },
     });
+
+    // Recibe un item del array `errors` del backend
+    const formatValidationError = (err) => {
+        if (!err || typeof err !== "object") return String(err);
+
+        const { status, title, detail, source } = err;
+
+        let finalDetail = detail;
+
+        // Intentar leer JSON dentro de "detail"
+        try {
+            const parsed = JSON.parse(detail);
+            if (Array.isArray(parsed)) {
+                finalDetail = parsed
+                    .map(x => `${x.field}: ${x.errors.join(", ")}`)
+                    .join(" | ");
+            }
+        } catch (e) {}
+
+        let pointer = "";
+        if (Array.isArray(source?.pointer)) {
+            pointer =
+                " (" +
+                source.pointer
+                    .map(p => `${p.field}: ${p.errors.join(", ")}`)
+                    .join(" | ") +
+                ")";
+        }
+
+        return `[${status}] ${title}${pointer} - ${finalDetail}`;
+    };
+
+
 
     useEffect(() => {
         getRemigens();
@@ -629,9 +709,24 @@ export const BulkAffiliates = () => {
                         type="submit"
                         variant="contained"
                         color="primary"
-                        disabled={loading || parseErrors.length > 0 || !formik.values.attachment || !formik.values.regime}
+                        disabled={
+                            loading ||
+                            parseErrors.length > 0 ||
+                            !formik.values.attachment ||
+                            !formik.values.regime
+                        }
+                        style={{ marginRight: 8 }}
                     >
                         {loading ? "Cargando..." : "Enviar"}
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        onClick={() => window.location.reload()}
+                        disabled={loading}
+                    >
+                        Reinicar formulario
                     </Button>
                 </div>
             </form>
