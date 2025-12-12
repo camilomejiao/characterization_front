@@ -14,13 +14,11 @@ import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 export const AffiliateList = () => {
 
     const navigate = useNavigate();
-    const AffiliateReportRef = useRef();
 
     const [affiliateList, setAffiliateList] = useState([]);
     const [searchText, setSearchText] = useState("");
     const [loadingData, setLoadingData] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [isReadyToPrintReposrt, setIsReadyToPrintReposrt] = useState(false);
     const [informationLoadingText, setInformationLoadingText] = useState("");
 
     const getAffiliateList = async () => {
