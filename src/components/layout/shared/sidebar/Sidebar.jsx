@@ -165,7 +165,7 @@ const roleMenuMap = {
     [RolesEnum.AUDITOR]: ["user", "pqrs", "affiliates", "censales", "affiliates", "reportes"],
 };
 
-export const SSidebar = ({
+export const Sidebar = ({
                         isOpen,
                         setIsOpen,
                         mobileOpen,

@@ -3,7 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { Box, CssBaseline, Toolbar, useMediaQuery, useTheme } from "@mui/material";
 import useAuth from "../../../hooks/useAuth";
 import { Navbar } from "../shared/navbar/Navbar";
-import { SSidebar } from "../shared/sidebar/SSidebar";
+import { Sidebar } from "../shared/sidebar/Sidebar";
 
 
 const LoadingIndicator = () => <div>Cargando...</div>;
@@ -36,7 +36,7 @@ export const PrivateLayout = () => {
                 isMobile={isMobile}
             />
 
-            <SSidebar
+            <Sidebar
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
                 mobileOpen={mobileOpen}
