@@ -5,6 +5,7 @@ import useAuth from "../../../hooks/useAuth";
 import { Sidebar } from "../shared/sidebar/Sidebar";
 import { Navbar } from "../shared/navbar/Navbar";
 
+
 const LoadingIndicator = () => <div>Cargando...</div>;
 
 export const PrivateLayout = () => {
