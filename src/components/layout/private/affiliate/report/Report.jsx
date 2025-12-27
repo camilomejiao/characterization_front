@@ -117,7 +117,7 @@ export const Report = () => {
             setIsLoading(true);
             setInformationLoadingText("Cargando informacion...");
 
-            const { data, status } = await affiliateServices.reportGrafics(month, year);
+            const { data, status } = await affiliateServices.reportGraphics(month, year);
 
             if (status === ResponseStatusEnum.OK) {
                 setData(data);

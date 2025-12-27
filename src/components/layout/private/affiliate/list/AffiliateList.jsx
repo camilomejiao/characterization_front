@@ -127,12 +127,6 @@ export const AffiliateList = () => {
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
                     <IconButton
-                        color="secondary"
-                        onClick={() => showAffiliateDetail(params.row.id)}
-                    >
-                        <FaRegFile/>
-                    </IconButton>
-                    <IconButton
                         color="warning"
                         onClick={() => handleEdit(params.row.id)}
                     >
@@ -145,10 +139,6 @@ export const AffiliateList = () => {
 
     const handleEdit = (id) => {
         navigate(`/admin/affiliates-update/${id}`);
-    }
-
-    const showAffiliateDetail = (id) => {
-        navigate(`/admin/pqrs-observation/${id}`);
     }
 
     useEffect(() => {

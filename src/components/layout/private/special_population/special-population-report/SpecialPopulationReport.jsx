@@ -164,8 +164,8 @@ export const SpecialPopulationReport = ({ data }) => {
                     <tr>
                         <td style={styles.paragraphCell}>
                             Por medio del presente se certifica que el señor {fullName} identificado
-                            con la C.C {data?.user?.identificationNumber}, quien consultado el sistema
-                            de UNIDAD DE VICTIMAS.
+                            con la C.C {data?.user?.identificationNumber}, quien consultado
+                            en nuestros sistemas de información.
                         </td>
                     </tr>
                     <tr>

@@ -157,7 +157,7 @@ const ALLOWED_POPULATION_IDS = [
 //
 const IDENTIFICATION_TYPE = [
     'AS', 'CC', 'CD', 'CE', 'CN',
-    'PA', 'PE', 'RC', 'SC', 'TI', 'PPT'
+    'PA', 'PE', 'RC', 'SC', 'TI', 'PT'
 ];
 
 //
@@ -370,7 +370,7 @@ export const BulkAffiliates = () => {
                 worker: false,
                 fastMode: true,
                 skipEmptyLines: "greedy",
-                delimiter: ";",
+                //delimiter: ";",
                 transformHeader: normalizeHeader,
                 step: (results, parser) => {
                     try {

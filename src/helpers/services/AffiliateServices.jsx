@@ -56,7 +56,7 @@ class AffiliateServices {
         });
     }
 
-    async reportGrafics(month, year) {
+    async reportGraphics(month, year) {
         const url = this.buildUrl(`report-information-graphics/${month}/${year}`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }

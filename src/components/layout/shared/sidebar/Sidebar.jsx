@@ -108,6 +108,24 @@ const baseMenu = [
                 path: "/admin/affiliates-create",
                 icon: Add,
             },
+        ],
+    },
+    {
+        key: "membership_module",
+        type: "collapse",
+        label: "Afiliados",
+        icon: Assignment,
+        children: [
+            {
+                label: "Lista de afiliados",
+                path: "/admin/affiliates-list",
+                icon: ListAlt,
+            },
+            {
+                label: "Registrar afiliado",
+                path: "/admin/affiliates-create",
+                icon: Add,
+            },
             {
                 label: "Proceso masivo",
                 path: "/admin/affiliates-bulk",
@@ -162,7 +180,7 @@ const roleMenuMap = {
     [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales", "reportes"],
     [RolesEnum.PQRS]: ["user", "pqrs"],
     [RolesEnum.AFFILIATES]: ["user", "affiliates"],
-    [RolesEnum.AUDITOR]: ["user", "pqrs", "affiliates", "censales", "affiliates", "reportes"],
+    [RolesEnum.AUDITOR]: ["user", "pqrs", "censales", "membership_module", "reportes"],
 };
 
 export const Sidebar = ({

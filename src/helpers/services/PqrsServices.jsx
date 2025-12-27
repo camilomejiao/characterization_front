@@ -53,6 +53,11 @@ class PqrsServices {
         const url = this.buildUrl(`${id}/`);
         return authTokenService.fetchWithAuth(url, { method: "DELETE" });
     }
+
+    async reportGraphics(month = "", year = "") {
+        const url = this.buildUrl(`report-information-graphics/${month}/${year}`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
 }
 
 export const pqrsServices = new PqrsServices();
