@@ -558,7 +558,7 @@ export const BulkAffiliates = () => {
                 const { hasErrors, totalSent, errorMessages } = await sendInBatches(
                     parsedRows,
                     meta,
-                    500
+                    250
                 );
 
                 if (hasErrors) {
