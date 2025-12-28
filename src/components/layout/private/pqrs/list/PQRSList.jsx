@@ -1,6 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
-import { Button, IconButton, Stack, TextField, Box } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import {
+    Button,
+    IconButton,
+    Stack,
+    TextField,
+    Box,
+    Card,
+    CardHeader,
+    CardContent,
+    Grid,
+    FormControl, InputLabel, Select, MenuItem
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { FaFilePdf, FaPencilAlt, FaRegFile } from "react-icons/fa";
 
@@ -16,6 +27,11 @@ import { ResponseStatusEnum} from "../../../../../helpers/GlobalEnum";
 //Services
 import { pqrsServices} from "../../../../../helpers/services/PqrsServices";
 
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
+
 export const PQRSList = () => {
 
     const navigate = useNavigate();
@@ -27,6 +43,9 @@ export const PQRSList = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isReadyToPrintReport, setIsReadyToPrintReport] = useState(false);
     const [informationLoadingText, setInformationLoadingText] = useState("");
+
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
 
     const getPqrsList = async () => {
         try {
@@ -199,6 +218,34 @@ export const PQRSList = () => {
         });
     }
 
+    const handleSearch = async () => {
+        if (!startDate || !endDate) {
+            return AlertComponent.warning("Seleccione fecha inicial y fecha final");
+        }
+
+        if (startDate.isAfter(endDate, "day")) {
+            return AlertComponent.warning("La fecha inicial no puede ser mayor que la fecha final");
+        }
+
+        try {
+            setIsLoading(true);
+            setInformationLoadingText("Cargando informacion...");
+
+            const payload = {
+                startDate: startDate.format("YYYY-MM-DD"),
+                endDate: endDate.format("YYYY-MM-DD"),
+            };
+
+        } catch (error) {
+            console.error(error);
+            AlertComponent.error("Ocurrió un error al descargar el reporte");
+
+        } finally {
+            setIsLoading(false);
+            setInformationLoadingText("");
+        }
+    }
+
     useEffect(() => {
         if(isReadyToPrintReport) {
             handlePDFPrint();
@@ -213,7 +260,74 @@ export const PQRSList = () => {
     return (
         <>
             <Box>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+
+                {/* Card de filtros */}
+                <Card elevation={4} sx={{ borderRadius: 2, mb: 3, maxWidth: "100%" }}>
+                    <CardHeader
+                        title="Reporteador de Información"
+                        subheader="Seleccione el periodo para obtener las estadísticas"
+                        sx={{
+                            "& .MuiCardHeader-title": { fontWeight: 600, fontSize: "1.2rem" },
+                            "& .MuiCardHeader-subheader": {
+                                fontSize: "0.9rem",
+                                color: "#6b7280",
+                            },
+                        }}
+                    />
+                    {/* Card de filtros */}
+                    <CardContent>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <Grid container spacing={2} alignItems="center">
+                                {/* FECHA INICIAL */}
+                                <Grid item xs={12} md={4}>
+                                    <DatePicker
+                                        label="Fecha inicial"
+                                        value={startDate}
+                                        onChange={(newValue) => setStartDate(newValue)}
+                                        maxDate={endDate || undefined}
+                                        slotProps={{
+                                            textField: { fullWidth: true },
+                                        }}
+                                    />
+                                </Grid>
+
+                                {/* FECHA FINAL */}
+                                <Grid item xs={12} md={4}>
+                                    <DatePicker
+                                        label="Fecha final"
+                                        value={endDate}
+                                        onChange={(newValue) => setEndDate(newValue)}
+                                        minDate={startDate || undefined}
+                                        slotProps={{
+                                            textField: { fullWidth: true },
+                                        }}
+                                    />
+                                </Grid>
+
+                                {/* BOTÓN BUSCAR */}
+                                <Grid item xs={12} md={4}>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        disabled={isLoading}
+                                        onClick={handleSearch}
+                                        sx={{
+                                            backgroundColor: "#2d8165",
+                                            color: "#fff",
+                                            height: "56px",
+                                            fontWeight: 600,
+                                            "&:hover": { backgroundColor: "#256b54" },
+                                        }}
+                                    >
+                                        {isLoading ? "Cargando..." : "Descargar"}
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </LocalizationProvider>
+                    </CardContent>
+                </Card>
+
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mt={5} mb={2}>
                     {/* Input de búsqueda */}
                     <TextField
                         label="Buscar..."

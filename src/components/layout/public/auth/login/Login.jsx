@@ -8,8 +8,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import './Login.css';
 
 //img
-import imageLogin from '../../../../../assets/image/login/principal-image.jpg';
-import imageLoginForm from '../../../../../assets/image/login/login-image-1.jpg';
+import imageLogin from '../../../../../assets/image/login/img-login.png';
+import imageLoginForm from '../../../../../assets/image/login/image.png';
 import userInput from '../../../../../assets/image/login/user.png';
 import lockInput from '../../../../../assets/image/login/lock.png';
 
@@ -52,7 +52,7 @@ export const Login = () => {
 
         //console.log(respServicesLogin);
         if(!respServicesLogin.accessToken && !respServicesLogin.user) {
-            AlertComponent.error('Oops...', respServicesLogin?.errors[0]?.detail);
+            AlertComponent.error('Oops...', 'Usuario o Contraseña incorrecta');
         } else {
             AlertComponent.success('Bien hecho!', 'Te has logueado corectamente!');
             setAuth(respServicesLogin);
@@ -133,11 +133,11 @@ export const Login = () => {
                                         <Button type="submit" className="login-button w-100 mb-3">
                                             LOGIN
                                         </Button>
-                                        <div className="d-flex justify-content-end">
+                                        {/*<div className="d-flex justify-content-end">
                                             <a href="/forgot-password" className="forgot-password-link">
                                                 ¿Olvidó su contraseña?
                                             </a>
-                                        </div>
+                                        </div>*/}
                                     </Form>
                                 )}
                             </Formik>

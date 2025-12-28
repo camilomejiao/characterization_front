@@ -44,11 +44,11 @@ const initialValues = {
 
 //Columnas requeridas por régimen
 const REQUIRED_S = [
-    "TIPO_DOCUMENTO","IDENTIFICACION","FECHA_NACIMIENTO"
+    "TIPO_DOCUMENTO","IDENTIFICACION"
 ];
 
 const REQUIRED_C = [
-    "TIPO_DOCUMENTO","IDENTIFICACION","FECHA_NACIMIENTO"
+    "TIPO_DOCUMENTO","IDENTIFICACION"
 ];
 
 //Columnas opcionales

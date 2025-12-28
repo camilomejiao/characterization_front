@@ -161,22 +161,14 @@ export const SpecialPopulationReport = ({ data }) => {
                 {/* PÁRRAFOS PRINCIPALES */}
                 <table style={styles.tableFull}>
                     <tbody>
-                    <tr>
-                        <td style={styles.paragraphCell}>
-                            Por medio del presente se certifica que el señor {fullName} identificado
-                            con la C.C {data?.user?.identificationNumber}, quien consultado
-                            en nuestros sistemas de información.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style={styles.paragraphCell}>
-                            El señor en mención, hace parte del Listado Censal del Municipio , como
-                            población especial, según lo establece el decreto 780 de 2016 en su
-                            Articulo 2.2.5.1 y acuerdo 415 del Consejo Nacional de 2009 de seguridad
-                            Social en Salud (CNSSS), Articulos 6 y 7. Por lo tanto, No es objeto de
-                            clasificación socioeconómica mediante encuesta de sisben.
-                        </td>
-                    </tr>
+                        <tr>
+                            <td style={styles.paragraphCell}>
+                                La Oficina de Aseguramiento del municipio de Puerto Salgar, Cundinamarca, certifica que:
+                                El(la) señor(a) {fullName} identificado(a) con {data?.user?.identificationType?.acronym } - {data?.user?.identificationNumber},
+                                SE ENCUENTRA INCLUIDO(A) EN EL LISTADO CENSAL DEL MUNICIPIO DE PUERTO SALGAR, en cumplimiento del
+                                decreto 780 de 2016 en su Articulo 2.2.5.1 y acuerdo 415 del Consejo Nacional de 2009 de seguridad Social en Salud (CNSSS), Artículos 6 y 7. Por lo tanto, No es objeto de clasificación socioeconómica mediante encuesta de sisben.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -203,15 +195,15 @@ export const SpecialPopulationReport = ({ data }) => {
                     <tbody>
                     <tr>
                         <td style={styles.paragraphCell}>
-                            El reporte de usuario de población especial, se cargará a través de la
-                            Plataforma de Intercambio de Información (PISIS) del Sistema Integral de
-                            Información de la Protección Social (SISPRO) del Ministerio de Salud y
-                            Protección Social.
+                            El reporte de usuario de población especial, se cargará a través de la Plataforma de Intercambio de Información
+                            (PISIS) del Sistema Integral de Información de la Protección Social (SISPRO) del Ministerio de Salud y Protección Social.
                         </td>
                     </tr>
                     <tr>
                         <td style={styles.paragraphCell}>
-                            Se expide la presente certificación a los {day} días del mes de {months[date.getMonth()]} del año {year}.
+                            La presente certificación se expide a solicitud del interesado,
+                            para los fines que estime pertinentes, en el municipio de Puerto Salgar,
+                            a los {day} días del mes de {months[date.getMonth()]} de {year}.
                         </td>
                     </tr>
                     <tr>
@@ -235,7 +227,7 @@ export const SpecialPopulationReport = ({ data }) => {
                     </tr>
                     <tr>
                         <td style={styles.centerNoBorder}>
-                            <span>COORDINADOR DE SALUD - MUNICIPIO DE PUERTO SALGAR</span>
+                            <span>TECNICO ADMINISTRATIVO - MUNICIPIO DE PUERTO SALGAR</span>
                         </td>
                     </tr>
                     </tbody>

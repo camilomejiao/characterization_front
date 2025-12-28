@@ -70,6 +70,14 @@ export const AffiliateList = () => {
     const AffiliateColumns = [
         { field: "id", headerName: "N°", width: 50 },
         {
+            field: "regime",
+            headerName: "Regimen",
+            width: 200,
+            headerAlign: "left",
+            align: "left",
+            cellClassName: "MuiDataGrid-cell-left",
+        },
+        {
             field: "name",
             headerName: "Nombre",
             width: 200,
