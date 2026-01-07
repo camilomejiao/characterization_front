@@ -184,7 +184,9 @@ const STATUS_TYPE = [
 ];
 
 const EPS = [
-    'EPS041', 'EPS037', 'EPS002', 'EPS005', 'EPS010', 'EPS022', ''
+    'CCF018', 'EPS002', 'EPS005', 'EPS008', 'EPS010', 'EPS017',
+    'EPS022', 'EPS037', 'EPS041', 'EPS091', 'EPSM03', 'EPSS33',
+    'EPSS37', 'EPSS44',
 ]
 
 export const BulkAffiliates = () => {
@@ -240,7 +242,7 @@ export const BulkAffiliates = () => {
             }
         }
 
-        //Sexo
+        //SEXO
         if (!isEmptyValue(rowKnown["SEXO"])) {
             const td = String(rowKnown["SEXO"]).trim();
             if (/^\d+$/.test(td)) {
@@ -250,6 +252,7 @@ export const BulkAffiliates = () => {
             }
         }
 
+        //ESTADO
         if (!isEmptyValue(rowKnown["ESTADO"])) {
             const td = String(rowKnown["ESTADO"]).trim();
             if (/^\d+$/.test(td)) {
@@ -327,6 +330,23 @@ export const BulkAffiliates = () => {
             if (!AREA_TYPE.includes(td)) {
                 errors.push(
                     `Fila ${rowNumber}: ZONA (${td}) no es válido. Códigos permitidos: ${AREA_TYPE.join(", ")}`
+                );
+            }
+        }
+
+        //EPS
+        if (!isEmptyValue(rowKnown["EPS"])) {
+            const epsTxt = String(rowKnown["EPS"]).trim().toUpperCase();
+
+            // 1) formato: alfanumérico 1 a 6
+            if (!/^[A-Z0-9]{1,6}$/.test(epsTxt)) {
+                errors.push(`Fila ${rowNumber}: EPS con formato inválido (solo letras y números, máximo 6). Ej: EPS002`);
+            }
+
+            // 2) catálogo permitido
+            if (!EPS.includes(epsTxt)) {
+                errors.push(
+                    `Fila ${rowNumber}: EPS (${epsTxt}) no es válido. Códigos permitidos: ${EPS.join(", ")}`
                 );
             }
         }
