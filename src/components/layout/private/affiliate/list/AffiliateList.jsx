@@ -49,6 +49,7 @@ export const AffiliateList = () => {
         return data.map((row) => {
             return {
                 id: row?.id,
+                regime: row?.regime?.name,
                 name: row?.user?.firstName + ' ' + row?.user?.middleName,
                 lastName: row?.user?.firstLastName + ' ' + row?.user?.middleLastName,
                 identificationNumber: row?.user?.identificationNumber,

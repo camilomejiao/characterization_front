@@ -22,7 +22,7 @@ import {RegimenEnum, ResponseStatusEnum} from "../../../../../helpers/GlobalEnum
 import useAuth from "../../../../../hooks/useAuth";
 
 // Prefijo permitido: MS202510 | MSCM202510 | MC202510 | MCCM202510
-const FILE_NAME_RE = /^(MS(CM)?|MC(CM)?)\d{6}$/;
+const FILE_NAME_RE = /^(MS(CM)?|MS(LMA)?|MC(CM)?)\d{6}$/;
 
 const validationSchema = Yup.object({
     regime: Yup.string().required("El Regimen es obligatorio"),
@@ -147,6 +147,20 @@ const buildLevel = (val) => {
 }
 
 //
+const toDecimal = (value) => {
+    if (value === undefined || value === null) return undefined;
+    const txt = String(value).trim();
+    if (!txt) return undefined;
+
+    const normalized = txt.replace(",", ".");
+
+    if (!/^\d+(\.\d+)?$/.test(normalized)) return undefined;
+
+    const n = Number(normalized);
+    return Number.isFinite(n) ? n : undefined;
+};
+
+//
 const ALLOWED_POPULATION_IDS = [
     1, 2, 4, 5, 6, 8, 9, 10, 11,
     12, 13, 14, 15, 16, 17, 22,
@@ -168,6 +182,10 @@ const AREA_TYPE = [
 const STATUS_TYPE = [
     'AF', 'AC', 'RE'
 ];
+
+const EPS = [
+    'EPS041', 'EPS037', 'EPS002'
+]
 
 export const BulkAffiliates = () => {
 
@@ -349,7 +367,7 @@ export const BulkAffiliates = () => {
             sisbenNumber: val("NUMERO_FICHA_SISBEN") || undefined,
 
             // LMA
-            valorLMA: toNum(val("LMA")) || undefined,
+            valorLMA: toDecimal(val("LMA")) ?? undefined,
         };
     };
 
@@ -370,7 +388,6 @@ export const BulkAffiliates = () => {
                 worker: false,
                 fastMode: true,
                 skipEmptyLines: "greedy",
-                //delimiter: ";",
                 transformHeader: normalizeHeader,
                 step: (results, parser) => {
                     try {
@@ -397,7 +414,7 @@ export const BulkAffiliates = () => {
                         const rowErrs = validateRow(rowKnown, REQUIRED, rowNumber);
                         if (rowErrs.length) {
                             errors.push(...rowErrs);
-                            return; // no agregamos esta fila
+                            return;
                         }
 
                         buffer.push(mapRowToDto(rowKnown));

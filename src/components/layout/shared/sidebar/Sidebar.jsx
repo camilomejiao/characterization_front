@@ -176,7 +176,7 @@ const baseMenu = [
  * Solo ponemos los keys de baseMenu.
  */
 const roleMenuMap = {
-    [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "affiliates", "censales", "reportes"],
+    [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "membership_module", "censales", "reportes"],
     [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales", "reportes"],
     [RolesEnum.PQRS]: ["user", "pqrs"],
     [RolesEnum.AFFILIATES]: ["user", "affiliates"],

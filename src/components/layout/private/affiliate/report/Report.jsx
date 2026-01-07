@@ -56,7 +56,7 @@ const months = [
     { id: "12", name: "Diciembre" },
 ];
 
-const years = Array.from({ length: 1 }, (_, i) => 2025 - i);
+const years = Array.from({ length: 2 }, (_, i) => 2026 - i);
 
 // ==== ESTILOS BASE (sin width fijo) ====
 const baseCardSx = {
