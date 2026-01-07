@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
     Box,
     Card,
@@ -15,8 +15,12 @@ import {
     TableBody,
     TableRow,
     TableCell,
+    Divider,
 } from "@mui/material";
+
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
+import { affiliateServices } from "../../../../../helpers/services/AffiliateServices";
+import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
 // Icons
 import PeopleIcon from "@mui/icons-material/People";
@@ -36,10 +40,7 @@ import {
     YAxis,
     Tooltip,
     Legend,
-    Cell,
 } from "recharts";
-import { affiliateServices } from "../../../../../helpers/services/AffiliateServices";
-import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
 const months = [
     { id: "01", name: "Enero" },
@@ -58,8 +59,33 @@ const months = [
 
 const years = Array.from({ length: 2 }, (_, i) => 2026 - i);
 
-// ==== ESTILOS BASE (sin width fijo) ====
+// =================== ESTILOS HOMOGÉNEOS ===================
 const baseCardSx = {
+    borderRadius: 2,
+    border: "1px solid #e5e7eb",
+    boxShadow: "0 4px 10px rgba(15,23,42,0.06)",
+    height: "100%",
+};
+
+const headerRowSx = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    mb: 1,
+};
+
+const titleSx = { fontWeight: 800, fontSize: "0.95rem", color: "#0f172a" };
+const subTitleSx = { fontWeight: 800, fontSize: "0.9rem", color: "#0f172a" };
+const chartCardSx = { ...baseCardSx, minHeight: 380 };
+
+const innerBoxSx = {
+    borderRadius: 2,
+    border: "1px solid #e5e7eb",
+    p: 2,
+    height: "100%",
+};
+
+const baseCardSx2 = {
     borderRadius: 2,
     boxShadow: "0 4px 10px rgba(15,23,42,0.08)",
     border: "1px solid #e5e7eb",
@@ -77,29 +103,37 @@ const baseCardSx = {
 
 // tarjetas chiquitas de totales
 const kpiCardSx = {
-    ...baseCardSx,
+    ...baseCardSx2,
     minHeight: 130,
 };
 
-// tablas normales (Régimen, EPS, Sexo/Género)
-const tableCardSx = {
-    ...baseCardSx,
-    minHeight: 210,
-};
+const formatMoney = (n) =>
+    new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(n ?? 0);
 
-// tablas largas (Edades, Tipo de población)
-const tallTableCardSx = {
-    ...baseCardSx,
-    minHeight: 260,
-};
+const sortDescEntries = (obj) =>
+    Object.entries(obj ?? {}).sort((a, b) => (b[1] ?? 0) - (a[1] ?? 0));
 
-// gráficas grandes
-const chartCardSx = {
-    ...baseCardSx,
-    minHeight: 340,
-};
+const topNKeys = (obj, n = 12) =>
+    sortDescEntries(obj)
+        .slice(0, n)
+        .map(([k]) => k);
 
-const barColors = ["#22c55e", "#3b82f6", "#f97316", "#a855f7", "#ef4444", "#0ea5e9"];
+const SimpleTable = ({ rows }) => (
+    <Table size="small">
+        <TableBody>
+            {rows.map(([label, value]) => (
+                <TableRow key={label}>
+                    <TableCell sx={{ fontWeight: 800, borderBottomColor: "#e5e7eb" }}>
+                        {label}
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 800, borderBottomColor: "#e5e7eb" }}>
+                        {value}
+                    </TableCell>
+                </TableRow>
+            ))}
+        </TableBody>
+    </Table>
+);
 
 export const Report = () => {
     const [month, setMonth] = useState("");
@@ -109,22 +143,17 @@ export const Report = () => {
     const [data, setData] = useState(null);
 
     const handleSearch = async () => {
-        if (!month || !year) {
-            return AlertComponent.warning("Seleccione mes y año");
-        }
+        if (!month || !year) return AlertComponent.warning("Seleccione mes y año");
 
         try {
             setIsLoading(true);
             setInformationLoadingText("Cargando informacion...");
 
-            const { data, status } = await affiliateServices.reportGraphics(month, year);
+            const { data: apiData, status } = await affiliateServices.reportGraphics(month, year);
 
-            if (status === ResponseStatusEnum.OK) {
-                setData(data);
-            } else {
-                AlertComponent.warning(
-                    "No se encontraron datos para el periodo seleccionado"
-                );
+            if (status === ResponseStatusEnum.OK) setData(apiData);
+            else {
+                AlertComponent.warning("No se encontraron datos para el periodo seleccionado");
                 setData(null);
             }
         } catch (error) {
@@ -137,29 +166,52 @@ export const Report = () => {
         }
     };
 
-    // ---- Datos para las gráficas (solo si existe data) ----
-    const ageChartData =
-        data &&
-        Object.entries(data.byAgeGroup).map(([label, value]) => ({
+    const epsSubs = data?.byEpsByRegime?.SUBSIDIADO ?? {};
+    const epsCont = data?.byEpsByRegime?.CONTRIBUTIVO ?? {};
+
+    const genderSubs = data?.byGenderByRegime?.SUBSIDIADO ?? {};
+    const genderCont = data?.byGenderByRegime?.CONTRIBUTIVO ?? {};
+
+    const ageSubs = data?.byAgeGroupByRegime?.SUBSIDIADO ?? {};
+    const ageCont = data?.byAgeGroupByRegime?.CONTRIBUTIVO ?? {};
+
+    const popSubs = data?.byPopulationTypeByRegime?.SUBSIDIADO ?? {};
+    const popCont = data?.byPopulationTypeByRegime?.CONTRIBUTIVO ?? {};
+
+    const epsSubsRows = useMemo(() => sortDescEntries(epsSubs), [data]);
+    const epsContRows = useMemo(() => sortDescEntries(epsCont), [data]);
+
+    const genderSubsRows = useMemo(() => Object.entries(genderSubs), [data]);
+    const genderContRows = useMemo(() => Object.entries(genderCont), [data]);
+
+    const ageSubsRows = useMemo(() => Object.entries(ageSubs), [data]);
+    const ageContRows = useMemo(() => Object.entries(ageCont), [data]);
+
+    const popSubsRows = useMemo(() => sortDescEntries(popSubs), [data]);
+    const popContRows = useMemo(() => sortDescEntries(popCont), [data]);
+
+    const ageChartData = useMemo(() => {
+        if (!data) return [];
+        const keys = Object.keys(ageSubs);
+        return keys.map((label) => ({
             label,
-            value,
+            SUBSIDIADO: ageSubs[label] ?? 0,
+            CONTRIBUTIVO: ageCont[label] ?? 0,
         }));
+    }, [data]);
 
-    // lo usamos ahora como data para barras de población
-    const populationBarData =
-        data &&
-        Object.entries(data.byPopulationType).map(([name, value]) => ({
+    const populationBarData = useMemo(() => {
+        if (!data) return [];
+        const keys = Array.from(new Set([...topNKeys(popSubs, 12), ...topNKeys(popCont, 12)]));
+        return keys.map((name) => ({
             name,
-            value,
+            SUBSIDIADO: popSubs[name] ?? 0,
+            CONTRIBUTIVO: popCont[name] ?? 0,
         }));
-
-    // Para la card de Tipo de población en 2 columnas
-    const populationEntries = data ? Object.entries(data.byPopulationType) : [];
-    const midIndex = Math.ceil(populationEntries.length / 2);
-    const populationLeft = populationEntries.slice(0, midIndex);
-    const populationRight = populationEntries.slice(midIndex);
+    }, [data]);
 
     return (
+        // ✅ Fondo full width
         <Box
             sx={{
                 width: "100%",
@@ -247,7 +299,6 @@ export const Report = () => {
                 </div>
             )}
 
-            {/* RESULTADOS */}
             {data && (
                 <Card
                     elevation={4}
@@ -259,7 +310,8 @@ export const Report = () => {
                         width: "100%",
                     }}
                 >
-                    {/* ========= FILA 1: Total afiliados + Gasto LMA ========= */}
+
+                    {/* ========= FILA 1: Total afiliados + Gasto LMA + Régimenes ========= */}
                     <CardContent sx={{ pt: 1, pb: 2 }}>
                         <Box
                             sx={{
@@ -267,11 +319,12 @@ export const Report = () => {
                                 gap: 2,
                                 gridTemplateColumns: {
                                     xs: "1fr",
-                                    sm: "repeat(2, minmax(0, 1fr))",
+                                    sm: "repeat(3, minmax(0, 1fr))",
                                 },
                             }}
                         >
-                            <Card sx={kpiCardSx}>
+                            {/* Total */}
+                            <Card sx={{...kpiCardSx, backgroundColor: "#ecf1fd"}}>
                                 <Box display="flex" justifyContent="space-between" alignItems="center">
                                     <Typography variant="subtitle2" color="text.secondary">
                                         Total de Afiliados
@@ -289,7 +342,8 @@ export const Report = () => {
                                 </Typography>
                             </Card>
 
-                            <Card sx={{ ...kpiCardSx, backgroundColor: "#ecfdf3" }}>
+                            {/* Detalle LMA */}
+                            <Card sx={{...kpiCardSx, backgroundColor: "#ecfdf3" }}>
                                 <Box display="flex" justifyContent="space-between" alignItems="center">
                                     <Typography variant="subtitle2" color="text.secondary">
                                         Gasto en LMA
@@ -306,24 +360,9 @@ export const Report = () => {
                                     Monto total liquidado en el periodo.
                                 </Typography>
                             </Card>
-                        </Box>
-                    </CardContent>
 
-                    {/* ========= FILA 2: Régimen, EPS, Sexo/Género ========= */}
-                    <CardContent sx={{ pt: 0, pb: 2 }}>
-                        <Box
-                            sx={{
-                                display: "grid",
-                                gap: 2,
-                                gridTemplateColumns: {
-                                    xs: "1fr",
-                                    sm: "repeat(2, minmax(0, 1fr))",
-                                    md: "repeat(3, minmax(0, 1fr))",
-                                },
-                            }}
-                        >
                             {/* Detalle por Régimen */}
-                            <Card sx={tableCardSx}>
+                            <Card sx={{...kpiCardSx, backgroundColor: "#fadbdb"}}>
                                 <Box display="flex" justifyContent="space-between" alignItems="center">
                                     <Typography variant="subtitle2" color="text.secondary">
                                         Detalle por Régimen
@@ -341,192 +380,225 @@ export const Report = () => {
                                     </TableBody>
                                 </Table>
                             </Card>
-
-                            {/* Detalle por EPS */}
-                            <Card sx={tableCardSx}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="subtitle2" color="text.secondary">
-                                        Detalle por EPS
-                                    </Typography>
-                                    <LocalHospitalIcon sx={{ color: "#2563eb" }} />
-                                </Box>
-                                <Table size="small">
-                                    <TableBody>
-                                        {Object.entries(data.byEps).map(([eps, value]) => (
-                                            <TableRow key={eps}>
-                                                <TableCell sx={{ fontWeight: 600 }}>{eps}</TableCell>
-                                                <TableCell align="right">{value}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </Card>
-
-                            {/* Sexo / Género */}
-                            <Card sx={tableCardSx}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="subtitle2" color="text.secondary">
-                                        Sexo / Género
-                                    </Typography>
-                                    <WcIcon sx={{ color: "#0891b2" }} />
-                                </Box>
-                                <Table size="small">
-                                    <TableBody>
-                                        {Object.entries(data.byGender).map(([g, value]) => (
-                                            <TableRow key={g}>
-                                                <TableCell sx={{ fontWeight: 600 }}>{g}</TableCell>
-                                                <TableCell align="right">{value}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </Card>
                         </Box>
                     </CardContent>
 
-                    {/* ========= FILA 3: Edades (izquierda) y Tipo de población (derecha, 2 columnas) ========= */}
-                    <CardContent sx={{ pt: 0, pb: 2 }}>
+                    <CardContent sx={{ pt: 1, pb: 2 }}>
                         <Box
                             sx={{
                                 display: "grid",
                                 gap: 2,
                                 gridTemplateColumns: {
                                     xs: "1fr",
-                                    md: "repeat(2, minmax(0, 1fr))",
+                                    sm: "repeat(2, minmax(0, 1fr))",
                                 },
                             }}
                         >
-                            {/* Distribución por edades */}
-                            <Card sx={tallTableCardSx}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="subtitle2" color="text.secondary">
-                                        Distribución por Edades (Res. 3280)
-                                    </Typography>
-                                    <TimelineIcon sx={{ color: "#8b5cf6" }} />
-                                </Box>
-                                <Table size="small">
-                                    <TableBody>
-                                        {Object.entries(data.byAgeGroup).map(([group, value]) => (
-                                            <TableRow key={group}>
-                                                <TableCell sx={{ fontWeight: 600 }}>{group}</TableCell>
-                                                <TableCell align="right">{value}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                            {/* ===== SEXO ===== */}
+                            <Card sx={{...kpiCardSx}}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                        <Box sx={headerRowSx}>
+                                            <Typography sx={titleSx}>Sexo / Género</Typography>
+                                            <WcIcon sx={{ color: "#0891b2" }} />
+                                        </Box>
+                                        <Divider sx={{ mb: 2 }} />
+
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={12} md={6}>
+                                                <Box sx={innerBoxSx}>
+                                                    <Typography sx={subTitleSx} gutterBottom>
+                                                        Subsidiado
+                                                    </Typography>
+                                                    <SimpleTable rows={genderSubsRows} />
+                                                </Box>
+                                            </Grid>
+
+                                            <Grid item xs={12} md={6}>
+                                                <Box sx={innerBoxSx}>
+                                                    <Typography sx={subTitleSx} gutterBottom>
+                                                        Contributivo
+                                                    </Typography>
+                                                    <SimpleTable rows={genderContRows} />
+                                                </Box>
+                                            </Grid>
+                                        </Grid>
+                                    </CardContent>
                             </Card>
 
-                            {/* Tipo de población – card de 2 columnas */}
-                            <Card sx={tallTableCardSx}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="subtitle2" color="text.secondary">
-                                        Tipo de Población
-                                    </Typography>
-                                    <Diversity3Icon sx={{ color: "#dc2626" }} />
-                                </Box>
+                            {/* ===== EPS ===== */}
+                            <Card sx={{...kpiCardSx}}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Box sx={headerRowSx}>
+                                        <Typography sx={titleSx}>Detalle por EPS</Typography>
+                                        <LocalHospitalIcon sx={{ color: "#2563eb" }} />
+                                    </Box>
+                                    <Divider sx={{ mb: 2 }} />
 
-                                <Grid container spacing={1}>
-                                    <Grid item xs={12} md={6}>
-                                        <Table size="small">
-                                            <TableBody>
-                                                {populationLeft.map(([tp, value]) => (
-                                                    <TableRow key={tp}>
-                                                        <TableCell sx={{ fontWeight: 600 }}>{tp}</TableCell>
-                                                        <TableCell align="right">{value}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} md={6}>
+                                            <Box sx={innerBoxSx}>
+                                                <Typography sx={subTitleSx} gutterBottom>
+                                                    Subsidiado
+                                                </Typography>
+                                                <SimpleTable rows={epsSubsRows} />
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            <Box sx={innerBoxSx}>
+                                                <Typography sx={subTitleSx} gutterBottom>
+                                                    Contributivo
+                                                </Typography>
+                                                <SimpleTable rows={epsContRows} />
+                                            </Box>
+                                        </Grid>
                                     </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <Table size="small">
-                                            <TableBody>
-                                                {populationRight.map(([tp, value]) => (
-                                                    <TableRow key={tp}>
-                                                        <TableCell sx={{ fontWeight: 600 }}>{tp}</TableCell>
-                                                        <TableCell align="right">{value}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </Grid>
-                                </Grid>
+                                </CardContent>
                             </Card>
                         </Box>
                     </CardContent>
 
-                    {/* ========= FILA 4: Gráfica Edades + Gráfica Tipo de Población ========= */}
-                    <CardContent sx={{ pt: 0 }}>
+                    <CardContent sx={{ pt: 1, pb: 2 }}>
                         <Box
                             sx={{
-                                display: "flex",
-                                flexDirection: { xs: "column", md: "row" },
+                                display: "grid",
                                 gap: 2,
+                                gridTemplateColumns: {
+                                    xs: "1fr",
+                                    sm: "repeat(2, minmax(0, 1fr))",
+                                },
                             }}
                         >
-                            {/* Gráfica Edades – más vistosa */}
-                            <Card sx={{ ...chartCardSx, flex: 1 }}>
-                                <Typography
-                                    variant="subtitle2"
-                                    color="text.secondary"
-                                    sx={{ mb: 1 }}
-                                >
-                                    Gráfica – Distribución por Edades
-                                </Typography>
-                                <Box sx={{ flex: 1, height: 300 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={ageChartData}>
-                                            <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar
-                                                dataKey="value"
-                                                name="Afiliados"
-                                                radius={[6, 6, 0, 0]}
-                                            >
-                                                {ageChartData.map((entry, index) => (
-                                                    <Cell
-                                                        key={entry.label}
-                                                        fill={barColors[index % barColors.length]}
-                                                    />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </Box>
+                            {/* ===== EDADES ===== */}
+                            <Card sx={{...kpiCardSx}}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Box sx={headerRowSx}>
+                                        <Typography sx={titleSx}>Distribución por Edades (Res. 3280)</Typography>
+                                        <TimelineIcon sx={{ color: "#8b5cf6" }} />
+                                    </Box>
+                                    <Divider sx={{ mb: 2 }} />
+
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} md={6}>
+                                            <Box sx={innerBoxSx}>
+                                                <Typography sx={subTitleSx} gutterBottom>
+                                                    Subsidiado
+                                                </Typography>
+                                                <SimpleTable rows={ageSubsRows} />
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            <Box sx={innerBoxSx}>
+                                                <Typography sx={subTitleSx} gutterBottom>
+                                                    Contributivo
+                                                </Typography>
+                                                <SimpleTable rows={ageContRows} />
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
                             </Card>
 
-                            {/* Gráfica Tipo de Población – barras de colores */}
-                            <Card sx={{ ...chartCardSx, flex: 1 }}>
-                                <Typography
-                                    variant="subtitle2"
-                                    color="text.secondary"
-                                    sx={{ mb: 1 }}
-                                >
-                                    Gráfica – Tipo de Población
-                                </Typography>
-                                <Box sx={{ flex: 1, height: 300 }}>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={populationBarData}>
-                                            <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                                            <YAxis />
-                                            <Tooltip />
-                                            <Legend />
-                                            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                                                {populationBarData.map((entry, index) => (
-                                                    <Cell
-                                                        key={entry.name}
-                                                        fill={barColors[index % barColors.length]}
-                                                    />
-                                                ))}
-                                            </Bar>
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </Box>
+                            {/* ===== EDADES ===== */}
+                            <Card sx={chartCardSx}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Box sx={headerRowSx}>
+                                        <Typography sx={titleSx}>Gráfica – Edades (Subsidiado vs Contributivo)</Typography>
+                                        <TimelineIcon sx={{ color: "#8b5cf6" }} />
+                                    </Box>
+                                    <Divider sx={{ mb: 2 }} />
+
+                                    <Box sx={{ height: 300 }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={ageChartData}>
+                                                <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="SUBSIDIADO" fill="#22c55e" radius={[6, 6, 0, 0]} />
+                                                <Bar dataKey="CONTRIBUTIVO" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </Box>
+                                </CardContent>
                             </Card>
                         </Box>
                     </CardContent>
+
+                    <CardContent sx={{ pt: 1, pb: 2 }}>
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gap: 2,
+                                gridTemplateColumns: {
+                                    xs: "1fr",
+                                    sm: "repeat(2, minmax(0, 1fr))",
+                                },
+                            }}
+                        >
+                            {/* ===== TIPO POBLACIÓN ===== */}
+                            <Card sx={{...kpiCardSx }}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Box sx={headerRowSx}>
+                                        <Typography sx={titleSx}>Tipo de Población</Typography>
+                                        <Diversity3Icon sx={{ color: "#dc2626" }} />
+                                    </Box>
+                                    <Divider sx={{ mb: 2 }} />
+
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} md={6}>
+                                            <Box sx={innerBoxSx}>
+                                                <Typography sx={subTitleSx} gutterBottom>
+                                                    Subsidiado
+                                                </Typography>
+                                                <Box sx={{ maxHeight: 250, overflow: "auto" }}>
+                                                    <SimpleTable rows={popSubsRows} />
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12} md={6}>
+                                            <Box sx={innerBoxSx}>
+                                                <Typography sx={subTitleSx} gutterBottom>
+                                                    Contributivo
+                                                </Typography>
+                                                <Box sx={{ maxHeight: 250, overflow: "auto" }}>
+                                                    <SimpleTable rows={popContRows} />
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                            </Card>
+
+                            <Card sx={chartCardSx}>
+                                <CardContent sx={{ p: 2.5 }}>
+                                    <Box sx={headerRowSx}>
+                                        <Typography sx={titleSx}>
+                                            Gráfica – Tipo de Población (Top 12) (Subsidiado vs Contributivo)
+                                        </Typography>
+                                        <Diversity3Icon sx={{ color: "#dc2626" }} />
+                                    </Box>
+                                    <Divider sx={{ mb: 2 }} />
+
+                                    <Box sx={{ height: 300 }}>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={populationBarData}>
+                                                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="SUBSIDIADO" fill="#22c55e" radius={[6, 6, 0, 0]} />
+                                                <Bar dataKey="CONTRIBUTIVO" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                    </CardContent>
+
                 </Card>
             )}
         </Box>

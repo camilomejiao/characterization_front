@@ -54,8 +54,8 @@ class PqrsServices {
         return authTokenService.fetchWithAuth(url, { method: "DELETE" });
     }
 
-    async reportGraphics(month = "", year = "") {
-        const url = this.buildUrl(`report-information-graphics/${month}/${year}`);
+    async reportPqrsExcel(start, end) {
+        const url = this.buildUrl(`report-information-pqrs/${start}/${end}`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 }

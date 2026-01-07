@@ -184,7 +184,7 @@ const STATUS_TYPE = [
 ];
 
 const EPS = [
-    'EPS041', 'EPS037', 'EPS002'
+    'EPS041', 'EPS037', 'EPS002', 'EPS005', 'EPS010', 'EPS022', ''
 ]
 
 export const BulkAffiliates = () => {

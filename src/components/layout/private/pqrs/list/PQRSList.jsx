@@ -9,8 +9,7 @@ import {
     Card,
     CardHeader,
     CardContent,
-    Grid,
-    FormControl, InputLabel, Select, MenuItem
+    Grid
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { FaFilePdf, FaPencilAlt, FaRegFile } from "react-icons/fa";
@@ -231,11 +230,20 @@ export const PQRSList = () => {
             setIsLoading(true);
             setInformationLoadingText("Cargando informacion...");
 
-            const payload = {
-                startDate: startDate.format("YYYY-MM-DD"),
-                endDate: endDate.format("YYYY-MM-DD"),
-            };
+            let start = startDate.format("YYYY-MM-DD");
+            let end = endDate.format("YYYY-MM-DD");
 
+            const {data, blob, status} = await pqrsServices.reportPqrsExcel(start, end);
+            console.log(status);
+
+            if (status === ResponseStatusEnum.OK) {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `reporte_pqrs_${start}_a_${end}.xlsx`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
         } catch (error) {
             console.error(error);
             AlertComponent.error("Ocurrió un error al descargar el reporte");

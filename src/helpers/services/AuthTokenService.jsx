@@ -35,6 +35,11 @@ class AuthTokenService {
             return { blob: await response.blob(), status: response.status };
         }
 
+        // EXCEL
+        if (contentType && (contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || contentType.includes('application/vnd.ms-excel'))) {
+            return { blob: await response.blob(), status: response.status };
+        }
+
         // Si no es PDF, intenta parsear como JSON
         try {
             return { data: await response.json(), status: response.status,  statusText: response.statusText };
