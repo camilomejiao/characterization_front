@@ -11,19 +11,19 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 //
 import AlertComponent from "../../../../../helpers/alert/AlertComponent";
 
-//
+//Services
 import { administratorServices } from "../../../../../helpers/services/AdministratorServices";
-import { depaMuniServices } from "../../../../../helpers/services/DepaMuniServices";
+import { commonServices } from "../../../../../helpers/services/CommonServices";
+
+//Enum
 import { ResponseStatusEnum } from "../../../../../helpers/GlobalEnum";
 
 const validationSchema = Yup.object({
     name: Yup.string().required("El nombre es obligatorio"),
     email: Yup.string().email("Formato de email inv\u00e1lido").required("El email es obligatorio"),
     password: Yup.string().min(6, "M\u00ednimo 6 caracteres").required("La contrase\u00f1a es obligatoria"),
-    organization_name: Yup.string().required("El nombre de la organizaci\u00f3n es obligatorio"),
+    organization_id: Yup.string().required("El nombre de la organizaci\u00f3n es obligatorio"),
     role_id: Yup.string().required("El rol es obligatorio"),
-    department_id: Yup.string().required("El departamento es obligatorio"),
-    municipality_id: Yup.string().required("El municipio es obligatorio"),
     active: Yup.boolean(),
 });
 
@@ -31,10 +31,8 @@ const initialValues = {
     name: "",
     email: "",
     password: "",
-    organization_name: "",
+    organization_id: "",
     role_id: "",
-    department_id: "",
-    municipality_id: "",
     active: 1,
 };
 
@@ -42,17 +40,19 @@ export const AdministratorForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [roles, setRoles] = useState([]);
-    const [departments, setDepartments] = useState([]);
-    const [municipalities, setMunicipalities] = useState([]);
-    const [isMunicipalityDisabled, setIsMunicipalityDisabled] = useState(true);
+    const [organizations, setOrganizations] = useState([]);
 
     const formik = useFormik({
         initialValues,
         validationSchema,
         onSubmit: async (values) => {
             const formattedValues = {
-                ...values,
                 active: values.active ? 1 : 0,
+                role_id: values.role_id,
+                organization_id: values.organization_id,
+                email: values.email,
+                name: values.name,
+                password: values.password
             };
             try {
                 const response = id
@@ -70,45 +70,19 @@ export const AdministratorForm = () => {
         },
     });
 
-    const handleDepartmentChange = (e) => {
-        const departmentId = e.target.value;
-        formik.setFieldValue("department_id", departmentId);
-        formik.setFieldValue("municipality_id", "");
-        if (departmentId) {
-            fetchMunicipalities(departmentId);
-            setIsMunicipalityDisabled(false);
-        } else {
-            setMunicipalities([]);
-            setIsMunicipalityDisabled(true);
-        }
-    };
+    const fetchOptions = async () => {
+        const load = async (fn, set) => {
+            try {
+                const {data, status} = await fn();
+                if (status === ResponseStatusEnum.OK) {
+                    set(data);
+                }
+            } catch {}
+        };
 
-    const fetchRoles = async () => {
-        try {
-            const { data, status } = await administratorServices.getRoles();
-            if (status === ResponseStatusEnum.OK) setRoles(data);
-        } catch {
-            AlertComponent.warning("No se pudieron cargar los roles.");
-        }
-    };
-
-    const fetchDepartments = async () => {
-        try {
-            const { data, status } = await depaMuniServices.getDepartments();
-            if (status === ResponseStatusEnum.OK) setDepartments(data);
-        } catch {
-            AlertComponent.warning("No se pudieron cargar los departamentos.");
-        }
-    };
-
-    const fetchMunicipalities = async (departmentId) => {
-        try {
-            const { data, status } = await depaMuniServices.getMunicipalities(departmentId);
-            if (status === ResponseStatusEnum.OK) setMunicipalities(data);
-        } catch {
-            AlertComponent.warning("No se pudieron cargar los municipios.");
-        }
-    };
+        await load (() => administratorServices.getRoles(), setRoles);
+        await load (() => commonServices.getOrganizations(), setOrganizations);
+    }
 
     const fetchUserData = async (id, formik) => {
         try {
@@ -116,16 +90,10 @@ export const AdministratorForm = () => {
             if (status === ResponseStatusEnum.OK) {
                 formik.setValues({
                     ...data,
-                    organization_name: data?.organizationName,
-                    department_id: data?.department?.id,
-                    municipality_id: data?.municipality?.id,
+                    organization_id: data?.organization?.id,
                     role_id: data?.role?.id,
                     active: data?.active ? 1 : 0,
                 });
-                if (data?.department?.id) {
-                    fetchMunicipalities(data.department.id);
-                    setIsMunicipalityDisabled(false);
-                }
             }
         } catch {
             AlertComponent.warning("No se pudieron cargar los datos del usuario.");
@@ -133,8 +101,7 @@ export const AdministratorForm = () => {
     };
 
     useEffect(() => {
-        fetchRoles();
-        fetchDepartments();
+        fetchOptions();
         if (id) fetchUserData(id, formik);
     }, [id]);
 
@@ -147,18 +114,14 @@ export const AdministratorForm = () => {
             </div>
 
             <Form onSubmit={formik.handleSubmit} className="row g-3">
-                {["name", "email", "password", "organization_name"].map((field) => (
+                {["name", "email", "password"].map((field) => (
                     <div className="col-md-6" key={field}>
                         <TextField
                             fullWidth
                             id={field}
                             name={field}
                             type={field === "password" ? "password" : "text"}
-                            label={
-                                field === "organization_name"
-                                    ? "Nombre de la organizaci\u00f3n"
-                                    : field.charAt(0).toUpperCase() + field.slice(1)
-                            }
+                            label={field.charAt(0).toUpperCase() + field.slice(1)}
                             value={formik.values[field]}
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
@@ -167,6 +130,25 @@ export const AdministratorForm = () => {
                         />
                     </div>
                 ))}
+
+                <div className="col-md-6">
+                    <TextField
+                        select
+                        fullWidth
+                        id="organization_id"
+                        name="organization_id"
+                        label="Organización"
+                        value={formik.values.organization_id}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        error={formik.touched.organization_id && Boolean(formik.errors.organization_id)}
+                        helperText={formik.touched.organization_id && formik.errors.organization_id}
+                    >
+                        {organizations.map((r) => (
+                            <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
+                        ))}
+                    </TextField>
+                </div>
 
                 <div className="col-md-6">
                     <TextField
@@ -181,50 +163,8 @@ export const AdministratorForm = () => {
                         error={formik.touched.role_id && Boolean(formik.errors.role_id)}
                         helperText={formik.touched.role_id && formik.errors.role_id}
                     >
-                        <MenuItem value="">Seleccione un rol</MenuItem>
                         {roles.map((r) => (
                             <MenuItem key={r.id} value={r.id}>{r.name}</MenuItem>
-                        ))}
-                    </TextField>
-                </div>
-
-                <div className="col-md-6">
-                    <TextField
-                        select
-                        fullWidth
-                        id="department_id"
-                        name="department_id"
-                        label="Departamento"
-                        value={formik.values.department_id}
-                        onChange={handleDepartmentChange}
-                        onBlur={formik.handleBlur}
-                        error={formik.touched.department_id && Boolean(formik.errors.department_id)}
-                        helperText={formik.touched.department_id && formik.errors.department_id}
-                    >
-                        <MenuItem value="">Seleccione un departamento</MenuItem>
-                        {departments.map((d) => (
-                            <MenuItem key={d.id} value={d.id}>{d.name}</MenuItem>
-                        ))}
-                    </TextField>
-                </div>
-
-                <div className="col-md-6">
-                    <TextField
-                        select
-                        fullWidth
-                        id="municipality_id"
-                        name="municipality_id"
-                        label="Municipio"
-                        value={formik.values.municipality_id}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        disabled={isMunicipalityDisabled}
-                        error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
-                        helperText={formik.touched.municipality_id && formik.errors.municipality_id}
-                    >
-                        <MenuItem value="">Seleccione un municipio</MenuItem>
-                        {municipalities.map((m) => (
-                            <MenuItem key={m.id} value={m.id}>{m.name}</MenuItem>
                         ))}
                     </TextField>
                 </div>

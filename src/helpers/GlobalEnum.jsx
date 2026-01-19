@@ -20,6 +20,7 @@ export const RolesEnum = {
     PQRS: 3,
     AFFILIATES: 4,
     AUDITOR: 5,
+    CENSALES: 6
 }
 
 export const PqrsStatusEnum = {

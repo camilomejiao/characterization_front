@@ -179,7 +179,8 @@ const roleMenuMap = {
     [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "membership_module", "censales", "reportes"],
     [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales", "reportes"],
     [RolesEnum.PQRS]: ["user", "pqrs"],
-    [RolesEnum.AFFILIATES]: ["user", "affiliates"],
+    [RolesEnum.AFFILIATES]: ["user", "pqrs", "affiliates"],
+    [RolesEnum.CENSALES]: ["user", "affiliates", "censales"],
     [RolesEnum.AUDITOR]: ["user", "pqrs", "censales", "membership_module", "reportes"],
 };
 
@@ -218,7 +219,7 @@ export const Sidebar = ({
         "&:hover": { backgroundColor: DARK_BG_HOVER },
     };
 
-    const role = userAuth?.id;
+    const role = userAuth?.rol_id?.id;
     const allowedKeys = roleMenuMap[role];
 
     const menuSections = useMemo(

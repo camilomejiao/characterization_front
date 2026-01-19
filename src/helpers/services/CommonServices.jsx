@@ -116,6 +116,16 @@ class CommonServices {
         const url = this.buildUrl(`regime`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
+
+
+    //================================
+    // Organizations
+    //================================
+
+    async getOrganizations() {
+        const url = this.buildUrl(`organization/list`);
+        return authTokenService.fetchWithAuth(url, { method: "GET" });
+    }
 }
 
 export const commonServices = new CommonServices();
