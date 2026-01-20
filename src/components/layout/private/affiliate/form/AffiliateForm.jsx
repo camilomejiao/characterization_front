@@ -349,7 +349,7 @@ export const AffiliateForm = () => {
                             <div className="col-md-6">
                                 <TextField select
                                            fullWidth
-                                           label="Estado" {...formik.getFieldProps("stateId")}
+                                           label="Estado" {...formik.getFieldProps("affiliatedStateId")}
                                            error={formik.touched.affiliatedStateId && Boolean(formik.errors.affiliatedStateId)}
                                            helperText={formik.touched.affiliatedStateId && formik.errors.affiliatedStateId}>
                                     {state.map((item) => (
