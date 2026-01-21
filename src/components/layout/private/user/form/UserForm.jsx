@@ -88,11 +88,15 @@ export const UserForm = () => {
                     ? await userServices.update(id, formattedValues)
                     : await userServices.create(formattedValues);
 
+                console.log('response: ', response);
+
                 if ([ResponseStatusEnum.OK, ResponseStatusEnum.CREATE].includes(response.status)) {
                     AlertComponent.success("Operación realizada correctamente");
                     navigate("/admin/user-list");
-                } else {
-                    AlertComponent.warning(response?.data?.errors?.[0]?.title, response?.data?.errors?.[0]?.source?.pointer[0]?.errors);
+                }
+
+                if ([ResponseStatusEnum.CONFLICT].includes(response.status)) {
+                    AlertComponent.warning('', response?.data?.errors[0]?.detail);
                 }
             } catch (error) {
                 console.error("Error al enviar el formulario:", error);
