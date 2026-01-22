@@ -95,6 +95,7 @@ const toISO = (ddmmyyyy) => {
     return `${String(yyyy).padStart(4, "0")}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
 };
 
+//
 const toNum = (value) => {
     if (value === undefined || value === null) return undefined;
     const txt = String(value).trim();
@@ -179,15 +180,17 @@ const AREA_TYPE = [
     'U', 'R', 'RD', 'CP', 'CM',
 ];
 
+//
 const STATUS_TYPE = [
-    'AF', 'AC', 'RE'
+    'AF', 'AC', 'RE', 'PL', 'SM'
 ];
 
+//
 const EPS = [
     'CCF018', 'EPS002', 'EPS005', 'EPS008', 'EPS010', 'EPS017',
     'EPS022', 'EPS037', 'EPS041', 'EPS091', 'EPSM03', 'EPSS33',
     'EPSS37', 'EPSS44',
-]
+];
 
 export const BulkAffiliates = () => {
 
@@ -293,9 +296,7 @@ export const BulkAffiliates = () => {
             lmaTxt = lmaTxt.replace(",", ".");
 
             if (!/^\d+(\.\d+)?$/.test(lmaTxt)) {
-                errors.push(
-                    `Fila ${rowNumber}: LMA debe ser numérico (entero o decimal, ej: 70746.9)`
-                );
+                errors.push(`Fila ${rowNumber}: LMA debe ser numérico (entero o decimal, ej: 70746.9)`);
             }
         }
 
