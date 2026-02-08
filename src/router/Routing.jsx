@@ -1,33 +1,33 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 //Auth
-import { AuthProvider} from "../context/AuthProvider";
+import { AuthProvider } from "../context/AuthProvider";
 
 //Enum
 import { RouterEnum } from "./RouterEnum";
 
 //Components public
-import { PublicLayout } from "../components/layout/public/PublicLayout";
-import { Login } from "../components/layout/public/auth/login/Login";
-import { PageNotFound } from "../components/layout/page404/PageNotFound";
+import { PublicLayout } from "../layout/PublicLayout";
+import { Login } from "../pages/auth/Login";
+import { PageNotFound } from "../layout/PageNotFound";
 
 //Components private
-import { PrivateLayout } from "../components/layout/private/PrivateLayout";
-import { Logout } from "../components/layout/public/auth/logout/Logout";
-import { AdministratorList } from "../components/layout/private/admin/list/AdministratorList";
-import { AdministratorForm } from "../components/layout/private/admin/form/AdministratorForm";
-import { UserList } from "../components/layout/private/user/list/UserList";
-import { UserForm } from "../components/layout/private/user/form/UserForm";
-import { PQRSList } from "../components/layout/private/pqrs/list/PQRSList";
-import { PQRSForm } from "../components/layout/private/pqrs/form/PQRSForm";
-import { PQRSObservation } from "../components/layout/private/pqrs/notifications/PQRSObservation";
-import {AffiliateList} from "../components/layout/private/affiliate/list/AffiliateList";
-import {AffiliateForm} from "../components/layout/private/affiliate/form/AffiliateForm";
-import {BulkAffiliates} from "../components/layout/private/affiliate/bulk/BulkAffiliates";
-import {SpecialPopulationList} from "../components/layout/private/special_population/list/SpecialPopulationList";
-import {SpecialPopulationForm} from "../components/layout/private/special_population/form/SpecialPopulationForm";
-import {AffiliateHistory} from "../components/layout/private/affiliate/affiliate_history/AffiliateHistory";
-import {Report} from "../components/layout/private/affiliate/report/Report";
+import { PrivateLayout } from "../layout/PrivateLayout";
+import { Logout } from "../pages/auth/Logout";
+import { AdministratorList } from "../pages/admin/list/AdministratorList";
+import { AdministratorForm } from "../pages/admin/form/AdministratorForm";
+import { UserList } from "../pages/user/list/UserList";
+import { UserForm } from "../pages/user/form/UserForm";
+import { PQRSList } from "../pages/pqrs/list/PQRSList";
+import { PQRSForm } from "../pages/pqrs/form/PQRSForm";
+import { PQRSObservation } from "../pages/pqrs/notifications/PQRSObservation";
+import { AffiliateList } from "../pages/affiliate/list/AffiliateList";
+import { AffiliateForm } from "../pages/affiliate/form/AffiliateForm";
+import { BulkAffiliates } from "../pages/affiliate/bulk/BulkAffiliates";
+import { SpecialPopulationList } from "../pages/special-population/list/SpecialPopulationList";
+import { SpecialPopulationForm } from "../pages/special-population/form/SpecialPopulationForm";
+import { AffiliateHistory } from "../pages/affiliate/affiliate_history/AffiliateHistory";
+import { Report } from "../pages/affiliate/report/Report";
 
 export const Routing = () => {
     return (
