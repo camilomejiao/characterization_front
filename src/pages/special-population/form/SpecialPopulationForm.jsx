@@ -1,6 +1,17 @@
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CircularProgress,
+    Divider,
+    MenuItem,
+    TextField,
+    Typography,
+} from "@mui/material";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
@@ -52,6 +63,11 @@ export const SpecialPopulationForm = () => {
     const [eps, setEps] = useState([]);
     const [state, setState] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const twoCol = {
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: 3,
+    };
 
     const fetchOptions = async () => {
         const load = async (fn, set) => {
@@ -163,110 +179,109 @@ export const SpecialPopulationForm = () => {
                     )}
 
                     <Box component="form" onSubmit={formik.handleSubmit} mt={3}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Tipo de Población"
-                                    {...formik.getFieldProps("populationTypeId")}
-                                    error={formik.touched.populationTypeId && Boolean(formik.errors.populationTypeId)}
-                                    helperText={formik.touched.populationTypeId && formik.errors.populationTypeId}
-                                >
-                                    {populationType.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.name}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
+                        <Card sx={{ borderRadius: 2 }}>
+                            <CardHeader
+                                title="Registro de población especial"
+                                subheader="Completa la información de afiliación y estado."
+                            />
+                            <Divider />
+                            <CardContent>
+                                <Box sx={twoCol}>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Tipo de Población"
+                                        {...formik.getFieldProps("populationTypeId")}
+                                        error={formik.touched.populationTypeId && Boolean(formik.errors.populationTypeId)}
+                                        helperText={formik.touched.populationTypeId && formik.errors.populationTypeId}
+                                    >
+                                        {populationType.map((item) => (
+                                            <MenuItem key={item.id} value={item.id}>
+                                                {item.name}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="¿Tiene EPS?"
-                                    value={formik.values.hasEpsAffiliate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        formik.setFieldValue("hasEpsAffiliate", value);
-                                        if (value === "0") formik.setFieldValue("epsId", "");
-                                    }}
-                                    error={formik.touched.hasEpsAffiliate && Boolean(formik.errors.hasEpsAffiliate)}
-                                    helperText={formik.touched.hasEpsAffiliate && formik.errors.hasEpsAffiliate}
-                                >
-                                    <MenuItem value="1">Sí</MenuItem>
-                                    <MenuItem value="0">No</MenuItem>
-                                </TextField>
-                            </Grid>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="¿Tiene EPS?"
+                                        value={formik.values.hasEpsAffiliate}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            formik.setFieldValue("hasEpsAffiliate", value);
+                                            if (value === "0") formik.setFieldValue("epsId", "");
+                                        }}
+                                        error={formik.touched.hasEpsAffiliate && Boolean(formik.errors.hasEpsAffiliate)}
+                                        helperText={formik.touched.hasEpsAffiliate && formik.errors.hasEpsAffiliate}
+                                    >
+                                        <MenuItem value="1">Sí</MenuItem>
+                                        <MenuItem value="0">No</MenuItem>
+                                    </TextField>
 
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="EPS"
-                                    {...formik.getFieldProps("epsId")}
-                                    disabled={formik.values.hasEpsAffiliate !== "1"}
-                                    error={formik.touched.epsId && Boolean(formik.errors.epsId)}
-                                    helperText={formik.touched.epsId && formik.errors.epsId}
-                                    onChange={(e) => {
-                                        formik.setFieldValue("epsId", e.target.value);
-                                    }}
-                                >
-                                    {eps.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.name} - {item.cod}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="EPS"
+                                        {...formik.getFieldProps("epsId")}
+                                        disabled={formik.values.hasEpsAffiliate !== "1"}
+                                        error={formik.touched.epsId && Boolean(formik.errors.epsId)}
+                                        helperText={formik.touched.epsId && formik.errors.epsId}
+                                        onChange={(e) => {
+                                            formik.setFieldValue("epsId", e.target.value);
+                                        }}
+                                    >
+                                        {eps.map((item) => (
+                                            <MenuItem key={item.id} value={item.id}>
+                                                {item.name} - {item.cod}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    select
-                                    fullWidth
-                                    label="Estado"
-                                    {...formik.getFieldProps("affiliatedStateId")}
-                                    error={formik.touched.affiliatedStateId && Boolean(formik.errors.affiliatedStateId)}
-                                    helperText={formik.touched.affiliatedStateId && formik.errors.affiliatedStateId}
-                                >
-                                    {state.map((item) => (
-                                        <MenuItem key={item.id} value={item.id}>
-                                            {item.cod} - {item.description}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
-                            </Grid>
+                                    <TextField
+                                        select
+                                        fullWidth
+                                        label="Estado"
+                                        {...formik.getFieldProps("affiliatedStateId")}
+                                        error={formik.touched.affiliatedStateId && Boolean(formik.errors.affiliatedStateId)}
+                                        helperText={formik.touched.affiliatedStateId && formik.errors.affiliatedStateId}
+                                    >
+                                        {state.map((item) => (
+                                            <MenuItem key={item.id} value={item.id}>
+                                                {item.cod} - {item.description}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
-                            <Grid item xs={12}>
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    minRows={4}
-                                    maxRows={8}
-                                    label="Observaciones"
-                                    {...formik.getFieldProps("observations")}
-                                    error={formik.touched.observations && Boolean(formik.errors.observations)}
-                                    helperText={formik.touched.observations && formik.errors.observations}
-                                />
-                            </Grid>
-                        </Grid>
-
-                        <Box display="flex" justifyContent="flex-end" mt={3}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                disableElevation
-                                sx={{
-                                    backgroundColor: "#2d8165",
-                                    color: "#fff",
-                                    "&:hover": { backgroundColor: "#3f8872" },
-                                }}
-                                disabled={isLoading}
-                            >
-                                {id ? "Actualizar" : "Crear"}
-                            </Button>
-                        </Box>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        minRows={4}
+                                        maxRows={8}
+                                        label="Observaciones"
+                                        placeholder="Ej: Observaciones relevantes para el registro"
+                                        {...formik.getFieldProps("observations")}
+                                        error={formik.touched.observations && Boolean(formik.errors.observations)}
+                                        helperText={formik.touched.observations && formik.errors.observations}
+                                    />
+                                </Box>
+                                <Box display="flex" justifyContent="flex-end" mt={3}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disableElevation
+                                        sx={{
+                                            backgroundColor: "#2d8165",
+                                            color: "#fff",
+                                            "&:hover": { backgroundColor: "#3f8872" },
+                                        }}
+                                        disabled={isLoading}
+                                    >
+                                        {id ? "Actualizar" : "Crear"}
+                                    </Button>
+                                </Box>
+                            </CardContent>
+                        </Card>
                     </Box>
                 </Box>
             )}

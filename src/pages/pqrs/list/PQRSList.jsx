@@ -9,8 +9,12 @@ import {
     Card,
     CardHeader,
     CardContent,
-    Grid
+    Grid,
+    InputAdornment,
+    Paper,
+    Typography,
 } from "@mui/material";
+import { Add, Search } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { FaFilePdf, FaPencilAlt, FaRegFile } from "react-icons/fa";
 
@@ -29,10 +33,9 @@ import { pqrsServices } from "../../../services/PqrsServices";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
+import { PageHeader } from "../../../components/shared/page-header/PageHeader";
 
 export const PQRSList = () => {
-
     const navigate = useNavigate();
     const PqrsReportRef = useRef();
 
@@ -51,14 +54,13 @@ export const PQRSList = () => {
             setIsLoading(true);
             setInformationLoadingText("Cargando informacion...");
 
-            const {data, status} = await pqrsServices.getList();
-            console.log(data);
-            if(status === ResponseStatusEnum.OK) {
+            const { data, status } = await pqrsServices.getList();
+            if (status === ResponseStatusEnum.OK) {
                 setPqrsList(await normalizeRows(data));
             }
 
-            if(status !== ResponseStatusEnum.OK) {
-                AlertComponent.warning('Error al obtener lista de usuarios');
+            if (status !== ResponseStatusEnum.OK) {
+                AlertComponent.warning("Error al obtener lista de usuarios");
             }
         } catch (error) {
             console.log(`Error en Admin List ${error}`);
@@ -66,24 +68,22 @@ export const PQRSList = () => {
             setIsLoading(false);
             setInformationLoadingText("");
         }
-    }
+    };
 
     const normalizeRows = async (data) => {
-        //console.log(data);
         return data.map((row) => {
             return {
                 id: row?.id,
-                name: row?.user?.firstName + ' ' + row?.user?.middleName,
-                lastName: row?.user?.firstLastName + ' ' + row?.user?.middleLastName,
+                name: row?.user?.firstName + " " + row?.user?.middleName,
+                lastName: row?.user?.firstLastName + " " + row?.user?.middleLastName,
                 identificationNumber: row?.user?.identificationNumber,
                 pqrsType: row?.pqrsType?.name,
                 applicationStatus: row?.applicationStatus?.name,
                 reason: row?.reason?.name,
             };
         });
-    }
+    };
 
-    // Filtrar los datos según el texto de búsqueda
     const filteredRows = pqrsList.filter((row) =>
         Object.values(row).some((value) =>
             String(value).toLowerCase().includes(searchText.toLowerCase())
@@ -137,47 +137,33 @@ export const PQRSList = () => {
             headerAlign: "left",
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
-                    <IconButton
-                        color="info"
-                        onClick={() =>
-                            generateReport(params.row.id)
-                        }
-                    >
+                    <IconButton color="info" onClick={() => generateReport(params.row.id)}>
                         <FaFilePdf />
                     </IconButton>
-                    <IconButton
-                        color="secondary"
-                        onClick={() => showDetail(params.row.id)}
-                    >
-                        <FaRegFile/>
+                    <IconButton color="secondary" onClick={() => showDetail(params.row.id)}>
+                        <FaRegFile />
                     </IconButton>
-                    <IconButton
-                        color="warning"
-                        onClick={() => handleEdit(params.row.id)}
-                    >
-                        <FaPencilAlt/>
+                    <IconButton color="warning" onClick={() => handleEdit(params.row.id)}>
+                        <FaPencilAlt />
                     </IconButton>
                 </Stack>
             ),
         },
     ];
 
-    //
     const handleEdit = (id) => {
         navigate(`/admin/pqrs-update/${id}`);
-    }
+    };
 
-    //
     const showDetail = (id) => {
         navigate(`/admin/pqrs-observation/${id}`);
-    }
+    };
 
-    //
     const generateReport = async (id) => {
         try {
             setIsLoading(true);
-            const {data, status} = await pqrsServices.getById(id);
-            if(status === ResponseStatusEnum.OK) {
+            const { data, status } = await pqrsServices.getById(id);
+            if (status === ResponseStatusEnum.OK) {
                 setUserData(data);
                 setIsReadyToPrintReport(true);
             }
@@ -187,7 +173,7 @@ export const PQRSList = () => {
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     const handlePDFPrint = () => {
         const printContent = `
@@ -212,10 +198,10 @@ export const PQRSList = () => {
 
         printJS({
             printable: printContent,
-            type: 'raw-html',
-            documentTitle: 'Reporte PQRS',
+            type: "raw-html",
+            documentTitle: "Reporte PQRS",
         });
-    }
+    };
 
     const handleSearch = async () => {
         if (!startDate || !endDate) {
@@ -233,9 +219,7 @@ export const PQRSList = () => {
             let start = startDate.format("YYYY-MM-DD");
             let end = endDate.format("YYYY-MM-DD");
 
-            const {data, blob, status} = await pqrsServices.reportPqrsExcel(start, end);
-            console.log(status);
-
+            const { data, blob, status } = await pqrsServices.reportPqrsExcel(start, end);
             if (status === ResponseStatusEnum.OK) {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
@@ -247,15 +231,14 @@ export const PQRSList = () => {
         } catch (error) {
             console.error(error);
             AlertComponent.error("Ocurrió un error al descargar el reporte");
-
         } finally {
             setIsLoading(false);
             setInformationLoadingText("");
         }
-    }
+    };
 
     useEffect(() => {
-        if(isReadyToPrintReport) {
+        if (isReadyToPrintReport) {
             handlePDFPrint();
             setIsReadyToPrintReport(false);
         }
@@ -263,13 +246,11 @@ export const PQRSList = () => {
 
     useEffect(() => {
         getPqrsList();
-    }, [])
+    }, []);
 
     return (
         <>
             <Box>
-
-                {/* Card de filtros */}
                 <Card elevation={4} sx={{ borderRadius: 2, mb: 3, maxWidth: "100%" }}>
                     <CardHeader
                         title="Reporteador de Información"
@@ -282,11 +263,9 @@ export const PQRSList = () => {
                             },
                         }}
                     />
-                    {/* Card de filtros */}
                     <CardContent>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <Grid container spacing={2} alignItems="center">
-                                {/* FECHA INICIAL */}
                                 <Grid item xs={12} md={4}>
                                     <DatePicker
                                         label="Fecha inicial"
@@ -299,7 +278,6 @@ export const PQRSList = () => {
                                     />
                                 </Grid>
 
-                                {/* FECHA FINAL */}
                                 <Grid item xs={12} md={4}>
                                     <DatePicker
                                         label="Fecha final"
@@ -312,7 +290,6 @@ export const PQRSList = () => {
                                     />
                                 </Grid>
 
-                                {/* BOTÓN BUSCAR */}
                                 <Grid item xs={12} md={4}>
                                     <Button
                                         fullWidth
@@ -335,81 +312,96 @@ export const PQRSList = () => {
                     </CardContent>
                 </Card>
 
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mt={5} mb={2}>
-                    {/* Input de búsqueda */}
+                <PageHeader
+                    title="PQRS"
+                    subtitle="Seguimiento, gestión y reportes con trazabilidad completa."
+                    stats={[{ label: "Total", value: pqrsList.length }]}
+                    actions={
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<Add />}
+                            onClick={() => navigate("/admin/pqrs-create")}
+                        >
+                            Crear Nuevo
+                        </Button>
+                    }
+                >
                     <TextField
-                        label="Buscar..."
-                        variant="outlined"
-                        size="small"
+                        label="Buscar PQRS"
                         value={searchText}
                         onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: "300px" }}
-                    />
-
-                    {/* Botón para redirigir a "Crear" */}
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/admin/pqrs-create")}
-                        sx={{
-                            backgroundColor: "#031b32",
-                            color: "#fff",
-                            "&:hover": { backgroundColor: "#21569a" },
+                        fullWidth
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Search sx={{ color: "rgba(255,255,255,0.9)" }} />
+                                </InputAdornment>
+                            ),
                         }}
-                    >
-                        Crear Nuevo
-                    </Button>
-                </Stack>
+                        sx={{
+                            maxWidth: 420,
+                            "& .MuiInputBase-root": {
+                                backgroundColor: "rgba(255,255,255,0.15)",
+                                color: "#fff",
+                            },
+                            "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.8)" },
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "rgba(255,255,255,0.4)",
+                            },
+                        }}
+                    />
+                </PageHeader>
 
-                {isLoading && (
-                    <div className="overlay">
-                        <div className="loader">{informationLoadingText}</div>
-                    </div>
-                )}
+                <Paper elevation={0} sx={{ p: 2, borderRadius: 4 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                        <Typography variant="subtitle1" fontWeight={700}>
+                            Listado
+                        </Typography>
+                    </Stack>
 
-                <DataGrid
-                    rows={filteredRows}
-                    columns={PqrsColumns}
-                    pageSize={100}
-                    sx={{
-                        "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#102844",
-                            color: "white",
-                            fontSize: "14px",
-                        },
-                        "& .MuiDataGrid-columnHeader": {
-                            textAlign: "center",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        },
-                        "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#102844",
-                            color: "white !important",
-                        },
-                        "& .MuiDataGrid-cell": {
-                            fontSize: "14px",
-                            textAlign: "left",
-                            justifyContent: "left",
-                            display: "flex",
-                        },
-                        "& .MuiDataGrid-row:hover": {
-                            backgroundColor: "#E8F5E9",
-                        },
-                    }}
-                />
+                    {isLoading && (
+                        <div className="overlay">
+                            <div className="loader">{informationLoadingText}</div>
+                        </div>
+                    )}
 
+                    <DataGrid
+                        rows={filteredRows}
+                        columns={PqrsColumns}
+                        pageSize={100}
+                        autoHeight
+                        getRowClassName={(params) =>
+                            params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+                        }
+                        sx={{
+                            border: "none",
+                            "& .MuiDataGrid-columnHeaders": {
+                                backgroundColor: "#0f375a",
+                                color: "white",
+                                fontSize: "14px",
+                            },
+                            "& .MuiDataGrid-columnHeaderTitle": {
+                                fontWeight: 700,
+                            },
+                            "& .MuiDataGrid-row.even": {
+                                backgroundColor: "rgba(15,55,90,0.04)",
+                            },
+                            "& .MuiDataGrid-row:hover": {
+                                backgroundColor: "rgba(47,168,126,0.08)",
+                            },
+                        }}
+                    />
+                </Paper>
             </Box>
 
-            {/* Aquí renderizas el componente pero lo ocultas */}
-            <div style={{display: 'none'}}>
+            <div style={{ display: "none" }}>
                 {isReadyToPrintReport && (
                     <div ref={PqrsReportRef}>
                         <Format1 data={userData} />
                     </div>
                 )}
             </div>
-
         </>
-    )
-
-}
+    );
+};

@@ -2,7 +2,18 @@ import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Button, Checkbox, FormControlLabel, Grid, MenuItem, TextField } from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Divider,
+    Checkbox,
+    FormControlLabel,
+    MenuItem,
+    TextField,
+} from "@mui/material";
 
 //
 import AlertComponent from "../../../helpers/alert/AlertComponent";
@@ -37,6 +48,11 @@ export const AdministratorForm = () => {
     const { id } = useParams();
     const [roles, setRoles] = useState([]);
     const [organizations, setOrganizations] = useState([]);
+    const twoCol = {
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: 3,
+    };
 
     const formik = useFormik({
         initialValues,
@@ -110,85 +126,96 @@ export const AdministratorForm = () => {
             </Box>
 
             <Box component="form" onSubmit={formik.handleSubmit}>
-                <Grid container spacing={2}>
-                    {["name", "email", "password"].map((field) => (
-                        <Grid item xs={12} md={6} key={field}>
+                <Card sx={{ borderRadius: 2 }}>
+                    <CardHeader
+                        title="Datos del administrador"
+                        subheader="Completa la información de acceso y permisos."
+                    />
+                    <Divider />
+                    <CardContent>
+                        <Box sx={twoCol}>
+                            {["name", "email", "password"].map((field) => (
+                                <TextField
+                                    key={field}
+                                    fullWidth
+                                    id={field}
+                                    name={field}
+                                    type={field === "password" ? "password" : "text"}
+                                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                                    placeholder={
+                                        field === "email"
+                                            ? "correo@dominio.com"
+                                            : field === "password"
+                                            ? "Mínimo 6 caracteres"
+                                            : "Nombre completo"
+                                    }
+                                    value={formik.values[field]}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
+                                    error={formik.touched[field] && Boolean(formik.errors[field])}
+                                    helperText={formik.touched[field] && formik.errors[field]}
+                                />
+                            ))}
+
                             <TextField
+                                select
                                 fullWidth
-                                id={field}
-                                name={field}
-                                type={field === "password" ? "password" : "text"}
-                                label={field.charAt(0).toUpperCase() + field.slice(1)}
-                                value={formik.values[field]}
+                                id="organization_id"
+                                name="organization_id"
+                                label="Organización"
+                                value={formik.values.organization_id}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                error={formik.touched[field] && Boolean(formik.errors[field])}
-                                helperText={formik.touched[field] && formik.errors[field]}
+                                error={formik.touched.organization_id && Boolean(formik.errors.organization_id)}
+                                helperText={formik.touched.organization_id && formik.errors.organization_id}
+                            >
+                                {organizations.map((r) => (
+                                    <MenuItem key={r.id} value={r.id}>
+                                        {r.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            <TextField
+                                select
+                                fullWidth
+                                id="role_id"
+                                name="role_id"
+                                label="Rol"
+                                value={formik.values.role_id}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={formik.touched.role_id && Boolean(formik.errors.role_id)}
+                                helperText={formik.touched.role_id && formik.errors.role_id}
+                            >
+                                {roles.map((r) => (
+                                    <MenuItem key={r.id} value={r.id}>
+                                        {r.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="active"
+                                        checked={formik.values.active === 1}
+                                        onChange={(e) =>
+                                            formik.setFieldValue("active", e.target.checked ? 1 : 0)
+                                        }
+                                    />
+                                }
+                                label="Activo"
                             />
-                        </Grid>
-                    ))}
+                        </Box>
 
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            id="organization_id"
-                            name="organization_id"
-                            label="Organización"
-                            value={formik.values.organization_id}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.organization_id && Boolean(formik.errors.organization_id)}
-                            helperText={formik.touched.organization_id && formik.errors.organization_id}
-                        >
-                            {organizations.map((r) => (
-                                <MenuItem key={r.id} value={r.id}>
-                                    {r.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            id="role_id"
-                            name="role_id"
-                            label="Rol"
-                            value={formik.values.role_id}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.role_id && Boolean(formik.errors.role_id)}
-                            helperText={formik.touched.role_id && formik.errors.role_id}
-                        >
-                            {roles.map((r) => (
-                                <MenuItem key={r.id} value={r.id}>
-                                    {r.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-
-                    <Grid item xs={12} md={6}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    name="active"
-                                    checked={formik.values.active === 1}
-                                    onChange={(e) => formik.setFieldValue("active", e.target.checked ? 1 : 0)}
-                                />
-                            }
-                            label="Activo"
-                        />
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <Button type="submit" variant="contained" fullWidth>
-                            {id ? "Actualizar" : "Crear"}
-                        </Button>
-                    </Grid>
-                </Grid>
+                        <Box mt={3}>
+                            <Button type="submit" variant="contained" fullWidth>
+                                {id ? "Actualizar" : "Crear"}
+                            </Button>
+                        </Box>
+                    </CardContent>
+                </Card>
             </Box>
         </Box>
     );

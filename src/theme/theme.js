@@ -34,7 +34,7 @@ export const appTheme = createTheme({
         button: { fontWeight: 700, textTransform: "none" },
     },
     shape: {
-        borderRadius: 12,
+        borderRadius: 8,
     },
     components: {
         MuiCssBaseline: {
@@ -55,14 +55,14 @@ export const appTheme = createTheme({
         MuiPaper: {
             styleOverrides: {
                 root: {
-                    borderRadius: 16,
+                    borderRadius: 10,
                 },
             },
         },
         MuiCard: {
             styleOverrides: {
                 root: {
-                    borderRadius: 16,
+                    borderRadius: 10,
                 },
             },
         },

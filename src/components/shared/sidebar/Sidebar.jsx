@@ -12,6 +12,9 @@ import {
     Box,
     useTheme,
     useMediaQuery,
+    Typography,
+    Avatar,
+    Chip,
 } from "@mui/material";
 import {
     ExpandLess,
@@ -41,7 +44,7 @@ const TEXT_COLOR = "#fff";
 const DIVIDER_COLOR = "rgba(255,255,255,0.12)";
 
 /**
- * Menú base con TODAS las secciones posibles.                                  bbbv
+ * Menú base con TODAS las secciones posibles.
  * Cada sección tiene:
  *  - key: identificador único
  *  - type: "item" (simple) o "collapse" (con hijos)
@@ -328,6 +331,28 @@ export const Sidebar = ({
 
             <Divider sx={{ borderColor: DIVIDER_COLOR }} />
 
+            <Box sx={{ px: 2, py: 2, display: "flex", alignItems: "center", gap: 1.5 }}>
+                <Avatar sx={{ bgcolor: "#2fa87e", width: 42, height: 42 }}>
+                    {(userAuth?.userName || userAuth?.email || "U")[0]?.toUpperCase()}
+                </Avatar>
+                {isOpen && (
+                    <Box>
+                        <Typography variant="subtitle2" sx={{ color: TEXT_COLOR, fontWeight: 700 }}>
+                            {userAuth?.userName || userAuth?.email || "Usuario"}
+                        </Typography>
+                        <Chip
+                            size="small"
+                            label={`Rol ${userAuth?.rol_id?.id || userAuth?.rol_id || "—"}`}
+                            sx={{
+                                mt: 0.5,
+                                backgroundColor: "rgba(255,255,255,0.15)",
+                                color: TEXT_COLOR,
+                            }}
+                        />
+                    </Box>
+                )}
+            </Box>
+
             <List sx={{ py: 1 }}>
                 {menuSections.map((section) => renderSection(section))}
             </List>
@@ -348,6 +373,7 @@ export const Sidebar = ({
                     bgcolor: DARK_BG,
                     color: TEXT_COLOR,
                     borderRight: "none",
+                    borderRadius: 0,
                     ...paperSx,
                 },
             }}

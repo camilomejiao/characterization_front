@@ -1,62 +1,83 @@
-import { Box, Card, CardContent, CardHeader, Grid, Typography } from "@mui/material";
-import { FiUser } from "react-icons/fi";
+﻿import { Box, Card, CardContent, CardHeader, Typography } from '@mui/material';
 
 export const LMAInformation = ({ data }) => {
+    const entryGrid = {
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr', lg: '1fr 1fr 1fr' },
+        gap: 2,
+    };
+
+    const infoItemSx = {
+        p: 1.25,
+        borderRadius: 2,
+        backgroundColor: 'rgba(15,55,90,0.04)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 2,
+    };
+
     return (
-        <Card sx={{ borderRadius: 4, overflow: "hidden", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
+        <Card sx={{ borderRadius: 2, overflow: 'hidden', boxShadow: '0 8px 20px rgba(0,0,0,0.08)' }}>
             <CardHeader
-                title="Información de pagos realizados"
+                title='Información de pagos realizados'
                 sx={{
-                    textAlign: "center",
-                    backgroundColor: "#031b32",
-                    color: "#fff",
-                    "& .MuiCardHeader-title": { fontWeight: 700 },
+                    textAlign: 'center',
+                    backgroundColor: '#031b32',
+                    color: '#fff',
+                    '& .MuiCardHeader-title': { fontWeight: 700 },
                 }}
             />
             <CardContent sx={{ px: 3, py: 4 }}>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={3}>
-                        <Box
-                            sx={{
-                                width: 110,
-                                height: 110,
-                                borderRadius: "50%",
-                                backgroundColor: "#f0f3f7",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                boxShadow: "0 6px 16px rgba(0,0,0,0.12)",
-                                mx: "auto",
-                            }}
-                        >
-                            <FiUser size={52} color="#041432" />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 2,
+                        mb: 3,
+                        justifyContent: { xs: 'center', md: 'flex-start' },
+                    }}
+                >
+                    <Box>
+                        <Typography variant='h6' fontWeight={700}>
+                            Historial de pagos
+                        </Typography>
+                        <Typography variant='body2' color='text.secondary'>
+                            {data?.length ?? 0} pago(s)
+                        </Typography>
+                    </Box>
+                </Box>
+
+                <Box sx={{ display: 'grid', gap: 2 }}>
+                    {data?.map((pays) => (
+                        <Box key={pays.id} sx={entryGrid}>
+                            <Box sx={infoItemSx}>
+                                <Typography variant='caption' sx={{ letterSpacing: 0.6, color: 'text.secondary' }}>
+                                    Mes
+                                </Typography>
+                                <Typography variant='body2' fontWeight={600}>
+                                    {pays.month || '-'}
+                                </Typography>
+                            </Box>
+                            <Box sx={infoItemSx}>
+                                <Typography variant='caption' sx={{ letterSpacing: 0.6, color: 'text.secondary' }}>
+                                    Año
+                                </Typography>
+                                <Typography variant='body2' fontWeight={600}>
+                                    {pays.year || '-'}
+                                </Typography>
+                            </Box>
+                            <Box sx={infoItemSx}>
+                                <Typography variant='caption' sx={{ letterSpacing: 0.6, color: 'text.secondary' }}>
+                                    Valor pagado
+                                </Typography>
+                                <Typography variant='body2' fontWeight={600}>
+                                    {pays.paid != null ? `$${pays.paid.toLocaleString()}` : '—'}
+                                </Typography>
+                            </Box>
                         </Box>
-                    </Grid>
-                    <Grid item xs={12} md={9}>
-                        <Grid container spacing={2}>
-                            {data?.map((pays) => (
-                                <Grid item xs={12} key={pays.id}>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} md={4}>
-                                            <Typography variant="subtitle2">Mes</Typography>
-                                            <Typography fontWeight={600}>{pays.month}</Typography>
-                                        </Grid>
-                                        <Grid item xs={12} md={4}>
-                                            <Typography variant="subtitle2">Año</Typography>
-                                            <Typography fontWeight={600}>{pays.year}</Typography>
-                                        </Grid>
-                                        <Grid item xs={12} md={4}>
-                                            <Typography variant="subtitle2">Valor pagado</Typography>
-                                            <Typography fontWeight={600}>
-                                                ${pays.paid?.toLocaleString()}
-                                            </Typography>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Grid>
-                </Grid>
+                    ))}
+                </Box>
             </CardContent>
         </Card>
     );

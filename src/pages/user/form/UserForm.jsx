@@ -2,17 +2,23 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import { Box, Button, CircularProgress, Grid, MenuItem, TextField, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CircularProgress,
+    Divider,
+    MenuItem,
+    TextField,
+    Typography,
+} from "@mui/material";
 
-//
 import AlertComponent from "../../../helpers/alert/AlertComponent";
-
-//Services
 import { depaMuniServices } from "../../../services/DepaMuniServices";
 import { commonServices } from "../../../services/CommonServices";
 import { userServices } from "../../../services/UserServices";
-
-//Enum
 import { DefaultsSelectUserFormEnum, ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 
 const initialValues = {
@@ -43,7 +49,9 @@ const validationSchema = Yup.object({
     middle_last_name: Yup.string(),
     identification_type_id: Yup.string().required("El tipo de documento es obligatorio"),
     identification_number: Yup.number().required("El número de identificación es obligatorio"),
-    birthdate: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha de nacimiento es obligatoria"),
+    birthdate: Yup.date()
+        .max(new Date(), "La fecha no puede ser en el futuro")
+        .required("La fecha de nacimiento es obligatoria"),
     sex_id: Yup.string().required("El sexo es obligatorio"),
     phone_number: Yup.string().notRequired(),
     department_id: Yup.string().required("El departamento es obligatorio"),
@@ -52,8 +60,12 @@ const validationSchema = Yup.object({
     address: Yup.string().notRequired(),
     disability_type_id: Yup.string().required("La discapacidad es obligatoria"),
     area_id: Yup.string().required("El área es obligatoria"),
-    country_id: Yup.string().required("El pais es obligatorio"),
-    email: Yup.string().trim().email("Formato de email inválido").transform(v => (v === '' ? undefined : v)).notRequired(),
+    country_id: Yup.string().required("El país es obligatorio"),
+    email: Yup.string()
+        .trim()
+        .email("Formato de email inválido")
+        .transform((v) => (v === "" ? undefined : v))
+        .notRequired(),
     ethnicity_id: Yup.string().required("Campo requerido"),
 });
 
@@ -71,8 +83,12 @@ export const UserForm = () => {
     const [country, setCountry] = useState([]);
     const [ethnicity, setEthnicity] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const twoCol = {
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: 3,
+    };
 
-    //
     const formik = useFormik({
         initialValues,
         validationSchema,
@@ -81,13 +97,11 @@ export const UserForm = () => {
                 setIsLoading(true);
                 const formattedValues = {
                     ...values,
-                    email: values.email?.trim() || undefined
+                    email: values.email?.trim() || undefined,
                 };
                 const response = id
                     ? await userServices.update(id, formattedValues)
                     : await userServices.create(formattedValues);
-
-                console.log('response: ', response);
 
                 if ([ResponseStatusEnum.OK, ResponseStatusEnum.CREATE].includes(response.status)) {
                     AlertComponent.success("Operación realizada correctamente");
@@ -95,7 +109,7 @@ export const UserForm = () => {
                 }
 
                 if ([ResponseStatusEnum.CONFLICT].includes(response.status)) {
-                    AlertComponent.warning('', response?.data?.errors[0]?.detail);
+                    AlertComponent.warning("", response?.data?.errors[0]?.detail);
                 }
             } catch (error) {
                 console.error("Error al enviar el formulario:", error);
@@ -106,11 +120,10 @@ export const UserForm = () => {
         },
     });
 
-    //
-    const fetchUserData = async (id) => {
+    const fetchUserData = async (userId) => {
         try {
             setIsLoading(true);
-            const { data, status } = await userServices.getById(id);
+            const { data, status } = await userServices.getById(userId);
             if (status === ResponseStatusEnum.OK) {
                 formik.setValues({
                     ...initialValues,
@@ -146,7 +159,6 @@ export const UserForm = () => {
         }
     };
 
-    //
     const fetchOptions = async () => {
         const load = async (fn, set) => {
             try {
@@ -166,7 +178,6 @@ export const UserForm = () => {
         await load(() => commonServices.getEthnicity(), setEthnicity);
     };
 
-    //
     const handleDepartmentChange = (event) => {
         const departmentId = event.target.value;
         formik.setFieldValue("department_id", departmentId);
@@ -180,9 +191,8 @@ export const UserForm = () => {
         }
     };
 
-    //
-    const fetchMunicipalities = async (id) => {
-        const { data, status } = await depaMuniServices.getMunicipalities(id);
+    const fetchMunicipalities = async (departmentId) => {
+        const { data, status } = await depaMuniServices.getMunicipalities(departmentId);
         if (status === ResponseStatusEnum.OK) {
             setMunicipalities(data);
             return data;
@@ -190,13 +200,11 @@ export const UserForm = () => {
         return [];
     };
 
-    // --------------- Colocar municipio por defecto si existe ---------------
     const trySetDefaultMunicipality = (list) => {
         const exists = list.some((m) => m.id === DefaultsSelectUserFormEnum.municipality);
         formik.setFieldValue("municipality_id", exists ? DefaultsSelectUserFormEnum.municipality : "");
     };
 
-    // --------------- Método genérico para seleccionar depto ---------------
     const selectDepartment = async (departmentId, { setMunicipalityDefault = false } = {}) => {
         formik.setFieldValue("department_id", departmentId);
         setIsMunicipalityDisabled(false);
@@ -214,7 +222,6 @@ export const UserForm = () => {
             return;
         }
 
-        //Campos por defecto al cargar la pagina
         formik.setFieldValue("identification_type_id", DefaultsSelectUserFormEnum.identification_type);
         formik.setFieldValue("country_id", DefaultsSelectUserFormEnum.country);
         await selectDepartment(DefaultsSelectUserFormEnum.department, { setMunicipalityDefault: true });
@@ -250,232 +257,254 @@ export const UserForm = () => {
             )}
 
             <form onSubmit={formik.handleSubmit}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Primer Nombre"
-                            {...formik.getFieldProps("first_name")}
-                            error={formik.touched.first_name && Boolean(formik.errors.first_name)}
-                            helperText={formik.touched.first_name && formik.errors.first_name}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Segundo Nombre"
-                            {...formik.getFieldProps("middle_name")}
-                            error={formik.touched.middle_name && Boolean(formik.errors.middle_name)}
-                            helperText={formik.touched.middle_name && formik.errors.middle_name}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Primer Apellido"
-                            {...formik.getFieldProps("first_last_name")}
-                            error={formik.touched.first_last_name && Boolean(formik.errors.first_last_name)}
-                            helperText={formik.touched.first_last_name && formik.errors.first_last_name}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Segundo Apellido"
-                            {...formik.getFieldProps("middle_last_name")}
-                            error={formik.touched.middle_last_name && Boolean(formik.errors.middle_last_name)}
-                            helperText={formik.touched.middle_last_name && formik.errors.middle_last_name}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Tipo de identificación"
-                            {...formik.getFieldProps("identification_type_id")}
-                            error={formik.touched.identification_type_id && Boolean(formik.errors.identification_type_id)}
-                            helperText={formik.touched.identification_type_id && formik.errors.identification_type_id}
-                        >
-                            {identificationType.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.id} - {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            label="Número de identificación"
-                            {...formik.getFieldProps("identification_number")}
-                            error={formik.touched.identification_number && Boolean(formik.errors.identification_number)}
-                            helperText={formik.touched.identification_number && formik.errors.identification_number}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            type="date"
-                            label="Fecha de nacimiento"
-                            InputLabelProps={{ shrink: true }}
-                            {...formik.getFieldProps("birthdate")}
-                            error={formik.touched.birthdate && Boolean(formik.errors.birthdate)}
-                            helperText={formik.touched.birthdate && formik.errors.birthdate}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="País"
-                            {...formik.getFieldProps("country_id")}
-                            error={formik.touched.country_id && Boolean(formik.errors.country_id)}
-                            helperText={formik.touched.country_id && formik.errors.country_id}
-                        >
-                            {country.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Departamento"
-                            value={formik.values.department_id}
-                            onChange={handleDepartmentChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.department_id && Boolean(formik.errors.department_id)}
-                            helperText={formik.touched.department_id && formik.errors.department_id}
-                        >
-                            {departments.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Municipio"
-                            {...formik.getFieldProps("municipality_id")}
-                            disabled={isMunicipalityDisabled}
-                            error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
-                            helperText={formik.touched.municipality_id && formik.errors.municipality_id}
-                        >
-                            {municipalities.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Barrio"
-                            {...formik.getFieldProps("neighborhood")}
-                            error={formik.touched.neighborhood && Boolean(formik.errors.neighborhood)}
-                            helperText={formik.touched.neighborhood && formik.errors.neighborhood}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Dirección"
-                            {...formik.getFieldProps("address")}
-                            error={formik.touched.address && Boolean(formik.errors.address)}
-                            helperText={formik.touched.address && formik.errors.address}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Discapacidad"
-                            {...formik.getFieldProps("disability_type_id")}
-                            error={formik.touched.disability_type_id && Boolean(formik.errors.disability_type_id)}
-                            helperText={formik.touched.disability_type_id && formik.errors.disability_type_id}
-                        >
-                            {disabilityType.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Sexo"
-                            {...formik.getFieldProps("sex_id")}
-                            error={formik.touched.sex_id && Boolean(formik.errors.sex_id)}
-                            helperText={formik.touched.sex_id && formik.errors.sex_id}
-                        >
-                            {sex.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Área"
-                            {...formik.getFieldProps("area_id")}
-                            error={formik.touched.area_id && Boolean(formik.errors.area_id)}
-                            helperText={formik.touched.area_id && formik.errors.area_id}
-                        >
-                            {area.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Número de teléfono"
-                            {...formik.getFieldProps("phone_number")}
-                            error={formik.touched.phone_number && Boolean(formik.errors.phone_number)}
-                            helperText={formik.touched.phone_number && formik.errors.phone_number}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Email"
-                            {...formik.getFieldProps("email")}
-                            error={formik.touched.email && Boolean(formik.errors.email)}
-                            helperText={formik.touched.email && formik.errors.email}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Etnia"
-                            {...formik.getFieldProps("ethnicity_id")}
-                            error={formik.touched.ethnicity_id && Boolean(formik.errors.ethnicity_id)}
-                            helperText={formik.touched.ethnicity_id && formik.errors.ethnicity_id}
-                        >
-                            {ethnicity.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
-                </Grid>
+                <Card sx={{ borderRadius: 2, mb: 3 }}>
+                    <CardHeader
+                        title="Datos personales"
+                        subheader="Completa la información básica del usuario."
+                    />
+                    <Divider />
+                    <CardContent>
+                        <Box sx={twoCol}>
+                            <TextField
+                                fullWidth
+                                label="Primer Nombre"
+                                placeholder="Ej: María"
+                                {...formik.getFieldProps("first_name")}
+                                error={formik.touched.first_name && Boolean(formik.errors.first_name)}
+                                helperText={formik.touched.first_name && formik.errors.first_name}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Segundo Nombre"
+                                placeholder="Opcional"
+                                {...formik.getFieldProps("middle_name")}
+                                error={formik.touched.middle_name && Boolean(formik.errors.middle_name)}
+                                helperText={formik.touched.middle_name && formik.errors.middle_name}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Primer Apellido"
+                                placeholder="Ej: Rodríguez"
+                                {...formik.getFieldProps("first_last_name")}
+                                error={formik.touched.first_last_name && Boolean(formik.errors.first_last_name)}
+                                helperText={formik.touched.first_last_name && formik.errors.first_last_name}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Segundo Apellido"
+                                placeholder="Opcional"
+                                {...formik.getFieldProps("middle_last_name")}
+                                error={formik.touched.middle_last_name && Boolean(formik.errors.middle_last_name)}
+                                helperText={formik.touched.middle_last_name && formik.errors.middle_last_name}
+                            />
+                            <TextField
+                                select
+                                fullWidth
+                                label="Tipo de identificación"
+                                {...formik.getFieldProps("identification_type_id")}
+                                error={
+                                    formik.touched.identification_type_id &&
+                                    Boolean(formik.errors.identification_type_id)
+                                }
+                                helperText={
+                                    formik.touched.identification_type_id &&
+                                    formik.errors.identification_type_id
+                                }
+                            >
+                                {identificationType.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.id} - {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                fullWidth
+                                type="number"
+                                label="Número de identificación"
+                                placeholder="Sin puntos ni comas"
+                                {...formik.getFieldProps("identification_number")}
+                                error={
+                                    formik.touched.identification_number &&
+                                    Boolean(formik.errors.identification_number)
+                                }
+                                helperText={
+                                    formik.touched.identification_number &&
+                                    formik.errors.identification_number
+                                }
+                            />
+                            <TextField
+                                fullWidth
+                                type="date"
+                                label="Fecha de nacimiento"
+                                InputLabelProps={{ shrink: true }}
+                                {...formik.getFieldProps("birthdate")}
+                                error={formik.touched.birthdate && Boolean(formik.errors.birthdate)}
+                                helperText={formik.touched.birthdate && formik.errors.birthdate}
+                            />
+                            <TextField
+                                select
+                                fullWidth
+                                label="Sexo"
+                                {...formik.getFieldProps("sex_id")}
+                                error={formik.touched.sex_id && Boolean(formik.errors.sex_id)}
+                                helperText={formik.touched.sex_id && formik.errors.sex_id}
+                            >
+                                {sex.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                <Card sx={{ borderRadius: 2, mb: 3 }}>
+                    <CardHeader title="Ubicación" subheader="Selecciona la ubicación del usuario." />
+                    <Divider />
+                    <CardContent>
+                        <Box sx={twoCol}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="País"
+                                {...formik.getFieldProps("country_id")}
+                                error={formik.touched.country_id && Boolean(formik.errors.country_id)}
+                                helperText={formik.touched.country_id && formik.errors.country_id}
+                            >
+                                {country.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Departamento"
+                                value={formik.values.department_id}
+                                onChange={handleDepartmentChange}
+                                onBlur={formik.handleBlur}
+                                error={formik.touched.department_id && Boolean(formik.errors.department_id)}
+                                helperText={formik.touched.department_id && formik.errors.department_id}
+                            >
+                                {departments.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Municipio"
+                                {...formik.getFieldProps("municipality_id")}
+                                disabled={isMunicipalityDisabled}
+                                error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
+                                helperText={formik.touched.municipality_id && formik.errors.municipality_id}
+                            >
+                                {municipalities.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                fullWidth
+                                label="Barrio"
+                                placeholder="Ej: San Martín"
+                                {...formik.getFieldProps("neighborhood")}
+                                error={formik.touched.neighborhood && Boolean(formik.errors.neighborhood)}
+                                helperText={formik.touched.neighborhood && formik.errors.neighborhood}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Dirección"
+                                placeholder="Ej: Calle 10 # 5-20"
+                                {...formik.getFieldProps("address")}
+                                error={formik.touched.address && Boolean(formik.errors.address)}
+                                helperText={formik.touched.address && formik.errors.address}
+                            />
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                <Card sx={{ borderRadius: 2, mb: 3 }}>
+                    <CardHeader
+                        title="Condiciones y contacto"
+                        subheader="Información adicional para contacto y clasificación."
+                    />
+                    <Divider />
+                    <CardContent>
+                        <Box sx={twoCol}>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Discapacidad"
+                                {...formik.getFieldProps("disability_type_id")}
+                                error={
+                                    formik.touched.disability_type_id &&
+                                    Boolean(formik.errors.disability_type_id)
+                                }
+                                helperText={
+                                    formik.touched.disability_type_id &&
+                                    formik.errors.disability_type_id
+                                }
+                            >
+                                {disabilityType.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                select
+                                fullWidth
+                                label="Área"
+                                {...formik.getFieldProps("area_id")}
+                                error={formik.touched.area_id && Boolean(formik.errors.area_id)}
+                                helperText={formik.touched.area_id && formik.errors.area_id}
+                            >
+                                {area.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                            <TextField
+                                fullWidth
+                                label="Número de teléfono"
+                                placeholder="Ej: 3201234567"
+                                {...formik.getFieldProps("phone_number")}
+                                error={formik.touched.phone_number && Boolean(formik.errors.phone_number)}
+                                helperText={formik.touched.phone_number && formik.errors.phone_number}
+                            />
+                            <TextField
+                                fullWidth
+                                label="Email"
+                                placeholder="Opcional"
+                                {...formik.getFieldProps("email")}
+                                error={formik.touched.email && Boolean(formik.errors.email)}
+                                helperText={formik.touched.email && formik.errors.email}
+                            />
+                            <TextField
+                                select
+                                fullWidth
+                                label="Etnia"
+                                {...formik.getFieldProps("ethnicity_id")}
+                                error={formik.touched.ethnicity_id && Boolean(formik.errors.ethnicity_id)}
+                                helperText={formik.touched.ethnicity_id && formik.errors.ethnicity_id}
+                            >
+                                {ethnicity.map((item) => (
+                                    <MenuItem key={item.id} value={item.id}>
+                                        {item.name}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
+                    </CardContent>
+                </Card>
+
                 <Box display="flex" justifyContent="flex-end" mt={3}>
                     <Button
                         type="submit"

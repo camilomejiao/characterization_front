@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from "react";
-import { useNavigate } from "react-router-dom";
-import * as Yup from "yup";
-import { useFormik } from "formik";
-import AlertComponent from "../../../helpers/alert/AlertComponent";
+import React, {useEffect, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
+import AlertComponent from '../../../helpers/alert/AlertComponent';
 import {
     Box,
     Button,
@@ -11,67 +11,66 @@ import {
     MenuItem,
     Stack,
     Chip, TextField,
-    Grid,
-} from "@mui/material";
-import { CloudUpload } from "@mui/icons-material";
-import Papa from "papaparse";
+} from '@mui/material';
+import { CloudUpload } from '@mui/icons-material';
+import Papa from 'papaparse';
 
 // Services
-import { affiliateServices } from "../../../services/AffiliateServices";
-import { commonServices } from "../../../services/CommonServices";
-import { RegimenEnum, ResponseStatusEnum } from "../../../helpers/GlobalEnum";
-import useAuth from "../../../hooks/useAuth";
+import { affiliateServices } from '../../../services/AffiliateServices';
+import { commonServices } from '../../../services/CommonServices';
+import { RegimenEnum, ResponseStatusEnum } from '../../../helpers/GlobalEnum';
+import useAuth from '../../../hooks/useAuth';
 
 // Prefijo permitido: MS202510 | MSCM202510 | MC202510 | MCCM202510
 const FILE_NAME_RE = /^(MS(CM)?|MS(LMA)?|MC(CM)?)\d{6}$/;
 
 const validationSchema = Yup.object({
-    regime: Yup.string().required("El Regimen es obligatorio"),
+    regime: Yup.string().required('El Regimen es obligatorio'),
     attachment: Yup.mixed()
         .nullable()
-        .test("fileFormat", "Solo se permiten archivos CSV (.csv)", (value) => !value || value.name.toLowerCase().endsWith(".csv"))
-        .test("fileName", "Nombre inválido: MS/MC + AAAAMM (ej: MS202510)", (value) => {
+        .test('fileFormat', 'Solo se permiten archivos CSV (.csv)', (value) => !value || value.name.toLowerCase().endsWith('.csv'))
+        .test('fileName', 'Nombre inválido: MS/MC + AAAAMM (ej: MS202510)', (value) => {
             if (!value) return true;
-            const base = value.name.replace(/\.[^/.]+$/, "");
+            const base = value.name.replace(/\.[^/.]+$/, '');
             return FILE_NAME_RE.test(base);
         })
-        .required("Archivo requerido"),
+        .required('Archivo requerido'),
 });
 
 const initialValues = {
-    regime: "",
+    regime: '',
     attachment: null,
 };
 
 //Columnas requeridas por régimen
 const REQUIRED_S = [
-    "TIPO_DOCUMENTO","IDENTIFICACION"
+    'TIPO_DOCUMENTO','IDENTIFICACION'
 ];
 
 const REQUIRED_C = [
-    "TIPO_DOCUMENTO","IDENTIFICACION"
+    'TIPO_DOCUMENTO','IDENTIFICACION'
 ];
 
 //Columnas opcionales
 const OPTIONAL_COMMON = [
-    "PRIMER_NOMBRE","SEGUNDO_NOMBRE","PRIMER_APELLIDO",
-    "SEGUNDO_APELLIDO","SEXO","PAIS","EPS","TIPO_POBLACION","NIVEL_SISBEN",
-    "CODIGO_DPTO","CODIGO_MUN","ESTADO","FECHA AFILIACION","LMA",
-    "GRUPO", "SUBGRUPO","NUMERO_FICHA_SISBEN","ZONA","BARRIO","DIRECCION",
-    "EMAIL","TELEFONO"
+    'PRIMER_NOMBRE','SEGUNDO_NOMBRE','PRIMER_APELLIDO',
+    'SEGUNDO_APELLIDO','SEXO','PAIS','EPS','TIPO_POBLACION','NIVEL_SISBEN',
+    'CODIGO_DPTO','CODIGO_MUN','ESTADO','FECHA AFILIACION','LMA',
+    'GRUPO', 'SUBGRUPO','NUMERO_FICHA_SISBEN','ZONA','BARRIO','DIRECCION',
+    'EMAIL','TELEFONO'
 ];
 
 //Helpers
 const normalizeHeader = (value) =>
-    (value || "")
+    (value || '')
         .toString()
         .trim()
         .toUpperCase()
-        .replace(/\s+/g, " ")
-        .replace(/\t+/g, " ");
+        .replace(/\s+/g, ' ')
+        .replace(/\t+/g, ' ');
 
 const isEmptyValue = (value) =>
-    value === undefined || value === null || String(value).trim() === "";
+    value === undefined || value === null || String(value).trim() === '';
 
 const hasAnyRequiredValue = (row, requiredCols) =>
     requiredCols.some((col) => !isEmptyValue(row[col]));
@@ -80,7 +79,7 @@ const hasAnyRequiredValue = (row, requiredCols) =>
 const toISO = (ddmmyyyy) => {
     if (!ddmmyyyy) return undefined;
     const raw = ddmmyyyy.toString().trim();
-    const parts = raw.includes("/") ? raw.split("/") : raw.split("-");
+    const parts = raw.includes('/') ? raw.split('/') : raw.split('-');
     if (parts.length !== 3) return undefined;
     const [d, m, y] = parts;
     if (!y || !m || !d) return undefined;
@@ -93,14 +92,14 @@ const toISO = (ddmmyyyy) => {
     if (!Number.isInteger(mm) || mm < 1 || mm > 12) return undefined;
     if (!Number.isInteger(yyyy) || yyyy < 1900) return undefined;
 
-    return `${String(yyyy).padStart(4, "0")}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+    return `${String(yyyy).padStart(4, '0')}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
 };
 
 //
 const toNum = (value) => {
     if (value === undefined || value === null) return undefined;
     const txt = String(value).trim();
-    if (txt === "") return undefined;
+    if (txt === '') return undefined;
     if (!/^\d+$/.test(txt)) return undefined; // solo dígitos
     const n = Number(txt);
     return Number.isFinite(n) ? n : undefined;
@@ -119,16 +118,16 @@ const projectKnownColumns = (row, allowedSet) => {
 const getRegimeFilePrefix = (regimens, selectedId) => {
     const item = regimens.find((r) => r.id === selectedId);
     if (!item) return null;
-    const name = (item.name || "").toUpperCase();
-    if (name.startsWith("SUB")) return "MS";
-    if (name.startsWith("CON")) return "MC";
+    const name = (item.name || '').toUpperCase();
+    if (name.startsWith('SUB')) return 'MS';
+    if (name.startsWith('CON')) return 'MC';
     return null;
 };
 
 //GRUPO + SUBGRUPO (si subgrupo = 1 dígito, le agrega 0 delante)
 const buildGroupSubgroup = (val) => {
-    const group = (val("GRUPO") || "").trim();
-    const subgroup = (val("SUBGRUPO") || "").trim();
+    const group = (val('GRUPO') || '').trim();
+    const subgroup = (val('SUBGRUPO') || '').trim();
     if (!group && !subgroup) return undefined;
     if (!group && subgroup) return undefined;  //si solo llega subgrupo, lo ignoramos (ajusta si quieres)
     const sub = subgroup.length === 1 ? `0${subgroup}` : subgroup;
@@ -137,15 +136,15 @@ const buildGroupSubgroup = (val) => {
 
 //Depto + Muni ()
 const buildMuni = (val) => {
-    const depto = (val("CODIGO_DPTO") || "").trim();
-    const muni = (val("CODIGO_MUN") || "").trim();
+    const depto = (val('CODIGO_DPTO') || '').trim();
+    const muni = (val('CODIGO_MUN') || '').trim();
     return `${depto}${muni}`;
 }
 
 //
 const buildLevel = (val) => {
-    const level = (val("NIVEL_SISBEN") || "").trim();
-    return level === "N" ? 4 : Number(level);
+    const level = (val('NIVEL_SISBEN') || '').trim();
+    return level === 'N' ? 4 : Number(level);
 }
 
 //
@@ -154,7 +153,7 @@ const toDecimal = (value) => {
     const txt = String(value).trim();
     if (!txt) return undefined;
 
-    const normalized = txt.replace(",", ".");
+    const normalized = txt.replace(',', '.');
 
     if (!/^\d+(\.\d+)?$/.test(normalized)) return undefined;
 
@@ -201,6 +200,11 @@ export const BulkAffiliates = () => {
     const [regimens, setRegimens] = useState([]);
     const [parseErrors, setParseErrors] = useState([]);
     const [loading, setLoading] = useState(false);
+    const oneCol = {
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        gap: 3,
+    };
 
     //
     const getRemigens = async () => {
@@ -224,13 +228,13 @@ export const BulkAffiliates = () => {
         // 1) obligatorios presentes
         required.forEach((col) => {
             if (isEmptyValue(rowKnown[col])) {
-                errors.push(`Fila ${rowNumber}: Campo obligatorio "${col}" vacío`);
+                errors.push(`Fila ${rowNumber}: Campo obligatorio '${col}' vacío`);
             }
         });
 
         // TIPO_DOCUMENTO: debe ser string alfabético (no números)
-        if (!isEmptyValue(rowKnown["TIPO_DOCUMENTO"])) {
-            const td = String(rowKnown["TIPO_DOCUMENTO"]).trim();
+        if (!isEmptyValue(rowKnown['TIPO_DOCUMENTO'])) {
+            const td = String(rowKnown['TIPO_DOCUMENTO']).trim();
             if (/^\d+$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: TIPO_DOCUMENTO no debe ser numérico (usa códigos como CC, TI, CE, PA).`);
             }
@@ -241,14 +245,14 @@ export const BulkAffiliates = () => {
 
             if (!IDENTIFICATION_TYPE.includes(td)) {
                 errors.push(
-                    `Fila ${rowNumber}: TIPO_DOCUMENTO (${td}) no es válido. Códigos permitidos: ${IDENTIFICATION_TYPE.join(", ")}`
+                    `Fila ${rowNumber}: TIPO_DOCUMENTO (${td}) no es válido. Códigos permitidos: ${IDENTIFICATION_TYPE.join(', ')}`
                 );
             }
         }
 
         //SEXO
-        if (!isEmptyValue(rowKnown["SEXO"])) {
-            const td = String(rowKnown["SEXO"]).trim();
+        if (!isEmptyValue(rowKnown['SEXO'])) {
+            const td = String(rowKnown['SEXO']).trim();
             if (/^\d+$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: SEXO no debe ser numérico (usa códigos como F, M).`);
             } else if (!/^[A-Za-z]{1,5}$/.test(td)) {
@@ -257,8 +261,8 @@ export const BulkAffiliates = () => {
         }
 
         //ESTADO
-        if (!isEmptyValue(rowKnown["ESTADO"])) {
-            const td = String(rowKnown["ESTADO"]).trim();
+        if (!isEmptyValue(rowKnown['ESTADO'])) {
+            const td = String(rowKnown['ESTADO']).trim();
             if (/^\d+$/.test(td)) {
                 errors.push(`Fila ${rowNumber}: ESTADO no debe ser numérico (usa códigos como AC, AF,RE).`);
             }
@@ -269,14 +273,14 @@ export const BulkAffiliates = () => {
 
             if (!STATUS_TYPE.includes(td)) {
                 errors.push(
-                    `Fila ${rowNumber}: ESTADO (${td}) no es válido. Códigos permitidos: ${STATUS_TYPE.join(", ")}`
+                    `Fila ${rowNumber}: ESTADO (${td}) no es válido. Códigos permitidos: ${STATUS_TYPE.join(', ')}`
                 );
             }
         }
 
         // IDENTIFICACION: solo numeros
-        if (!isEmptyValue(rowKnown["IDENTIFICACION"])) {
-            const idTxt = String(rowKnown["IDENTIFICACION"]).trim();
+        if (!isEmptyValue(rowKnown['IDENTIFICACION'])) {
+            const idTxt = String(rowKnown['IDENTIFICACION']).trim();
             if (!/^\d+$/.test(idTxt)) {
                 errors.push(`Fila ${rowNumber}: IDENTIFICACION debe contener solo dígitos`);
             } else if (idTxt.length < 5 || idTxt.length > 20) {
@@ -285,16 +289,16 @@ export const BulkAffiliates = () => {
         }
 
         // FECHA_NACIMIENTO válida (toISO ≠ undefined)
-        if (!isEmptyValue(rowKnown["FECHA_NACIMIENTO"])) {
-            const iso = toISO(rowKnown["FECHA_NACIMIENTO"]);
+        if (!isEmptyValue(rowKnown['FECHA_NACIMIENTO'])) {
+            const iso = toISO(rowKnown['FECHA_NACIMIENTO']);
             if (!iso) errors.push(`Fila ${rowNumber}: FECHA_NACIMIENTO con formato inválido (esperado dd/mm/yyyy)`);
         }
 
         // LMA si viene, debe ser numérico (entero o decimal)
-        if (!isEmptyValue(rowKnown["LMA"])) {
-            let lmaTxt = String(rowKnown["LMA"]).trim();
+        if (!isEmptyValue(rowKnown['LMA'])) {
+            let lmaTxt = String(rowKnown['LMA']).trim();
 
-            lmaTxt = lmaTxt.replace(",", ".");
+            lmaTxt = lmaTxt.replace(',', '.');
 
             if (!/^\d+(\.\d+)?$/.test(lmaTxt)) {
                 errors.push(`Fila ${rowNumber}: LMA debe ser numérico (entero o decimal, ej: 70746.9)`);
@@ -302,8 +306,8 @@ export const BulkAffiliates = () => {
         }
 
         // TIPO_POBLACION: numérico y dentro de los IDs permitidos
-        if (!isEmptyValue(rowKnown["TIPO_POBLACION"])) {
-            const txt = String(rowKnown["TIPO_POBLACION"]).trim();
+        if (!isEmptyValue(rowKnown['TIPO_POBLACION'])) {
+            const txt = String(rowKnown['TIPO_POBLACION']).trim();
 
             if (!/^\d+$/.test(txt)) {
                 errors.push(`Fila ${rowNumber}: TIPO_POBLACION debe ser numérico`);
@@ -312,17 +316,17 @@ export const BulkAffiliates = () => {
 
                 if (!ALLOWED_POPULATION_IDS.includes(n)) {
                     errors.push(
-                        `Fila ${rowNumber}: TIPO_POBLACION (${n}) no es válido. IDs permitidos: ${ALLOWED_POPULATION_IDS.join(", ")}`
+                        `Fila ${rowNumber}: TIPO_POBLACION (${n}) no es válido. IDs permitidos: ${ALLOWED_POPULATION_IDS.join(', ')}`
                     );
                 }
             }
         }
 
         //ZONA
-        if (!isEmptyValue(rowKnown["ZONA"])) {
-            const td = String(rowKnown["ZONA"]).trim();
+        if (!isEmptyValue(rowKnown['ZONA'])) {
+            const td = String(rowKnown['ZONA']).trim();
             if (/^\d+$/.test(td)) {
-                errors.push(`Fila ${rowNumber}: ZONA no debe ser numérico. Códigos permitidos: ${AREA_TYPE.join(", ")}`);
+                errors.push(`Fila ${rowNumber}: ZONA no debe ser numérico. Códigos permitidos: ${AREA_TYPE.join(', ')}`);
             }
 
             if (!/^[A-Za-z]{1,5}$/.test(td)) {
@@ -331,14 +335,14 @@ export const BulkAffiliates = () => {
 
             if (!AREA_TYPE.includes(td)) {
                 errors.push(
-                    `Fila ${rowNumber}: ZONA (${td}) no es válido. Códigos permitidos: ${AREA_TYPE.join(", ")}`
+                    `Fila ${rowNumber}: ZONA (${td}) no es válido. Códigos permitidos: ${AREA_TYPE.join(', ')}`
                 );
             }
         }
 
         //EPS
-        if (!isEmptyValue(rowKnown["EPS"])) {
-            const epsTxt = String(rowKnown["EPS"]).trim().toUpperCase();
+        if (!isEmptyValue(rowKnown['EPS'])) {
+            const epsTxt = String(rowKnown['EPS']).trim().toUpperCase();
 
             // 1) formato: alfanumérico 1 a 6
             if (!/^[A-Z0-9]{1,6}$/.test(epsTxt)) {
@@ -348,7 +352,7 @@ export const BulkAffiliates = () => {
             // 2) catálogo permitido
             if (!EPS.includes(epsTxt)) {
                 errors.push(
-                    `Fila ${rowNumber}: EPS (${epsTxt}) no es válido. Códigos permitidos: ${EPS.join(", ")}`
+                    `Fila ${rowNumber}: EPS (${epsTxt}) no es válido. Códigos permitidos: ${EPS.join(', ')}`
                 );
             }
         }
@@ -358,38 +362,38 @@ export const BulkAffiliates = () => {
 
     // Mapea una fila CSV → DTO del backend (usa las nuevas columnas)
     const mapRowToDto = (row) => {
-        const val = (k) => (row[k] != null ? String(row[k]).trim() : "");
+        const val = (k) => (row[k] != null ? String(row[k]).trim() : '');
 
         return {
             // comunes
-            identificationType: val("TIPO_DOCUMENTO"),
-            identificationNumber: toNum(val("IDENTIFICACION")),
-            birthdate: toISO(val("FECHA_NACIMIENTO")),
-            firstName: val("PRIMER_NOMBRE") || undefined,
-            middleName: val("SEGUNDO_NOMBRE") || undefined,
-            firstLastName: val("PRIMER_APELLIDO") || undefined,
-            middleLastName: val("SEGUNDO_APELLIDO") || undefined,
-            sex: val("SEXO") || undefined,
-            countryCod: val("PAIS") || undefined,
-            departmentCod: toNum(val("CODIGO_DPTO")) || undefined,
+            identificationType: val('TIPO_DOCUMENTO'),
+            identificationNumber: toNum(val('IDENTIFICACION')),
+            birthdate: toISO(val('FECHA_NACIMIENTO')),
+            firstName: val('PRIMER_NOMBRE') || undefined,
+            middleName: val('SEGUNDO_NOMBRE') || undefined,
+            firstLastName: val('PRIMER_APELLIDO') || undefined,
+            middleLastName: val('SEGUNDO_APELLIDO') || undefined,
+            sex: val('SEXO') || undefined,
+            countryCod: val('PAIS') || undefined,
+            departmentCod: toNum(val('CODIGO_DPTO')) || undefined,
             municipalityCod: buildMuni(val) || undefined,
-            area: val("ZONA") || undefined,
-            neighborhood: val("BARRIO O VEREDA") || undefined,
-            address: val("DIRECCION") || undefined,
-            email: val("EMAIL") || undefined,
-            phoneNumber: val("TELEFONO") || undefined,
+            area: val('ZONA') || undefined,
+            neighborhood: val('BARRIO O VEREDA') || undefined,
+            address: val('DIRECCION') || undefined,
+            email: val('EMAIL') || undefined,
+            phoneNumber: val('TELEFONO') || undefined,
 
             // affiliate
-            eps: val("EPS") || undefined,
-            populationTypeId: toNum(val("TIPO_POBLACION")) || undefined,
+            eps: val('EPS') || undefined,
+            populationTypeId: toNum(val('TIPO_POBLACION')) || undefined,
             level: buildLevel(val),
-            state: val("ESTADO") || undefined,
-            dateOfAffiliated: toISO(val("FECHA AFILIACION")) || undefined,
+            state: val('ESTADO') || undefined,
+            dateOfAffiliated: toISO(val('FECHA AFILIACION')) || undefined,
             groupSubgroup: buildGroupSubgroup(val),
-            sisbenNumber: val("NUMERO_FICHA_SISBEN") || undefined,
+            sisbenNumber: val('NUMERO_FICHA_SISBEN') || undefined,
 
             // LMA
-            valorLMA: toDecimal(val("LMA")) ?? undefined,
+            valorLMA: toDecimal(val('LMA')) ?? undefined,
         };
     };
 
@@ -409,7 +413,7 @@ export const BulkAffiliates = () => {
                 header: true,
                 worker: false,
                 fastMode: true,
-                skipEmptyLines: "greedy",
+                skipEmptyLines: 'greedy',
                 transformHeader: normalizeHeader,
                 step: (results, parser) => {
                     try {
@@ -420,7 +424,7 @@ export const BulkAffiliates = () => {
                             headers = (results.meta.fields || []).map(normalizeHeader).filter(Boolean);
                             const missing = REQUIRED.filter((k) => !headers.includes(k));
                             if (missing.length) {
-                                errors.push(`Faltan columnas requeridas: ${missing.join(", ")}`);
+                                errors.push(`Faltan columnas requeridas: ${missing.join(', ')}`);
                                 parser.abort();
                                 return;
                             }
@@ -449,13 +453,13 @@ export const BulkAffiliates = () => {
                     if (errors.length) {
                         // 👉 ahora sí guardamos en el estado para mostrar en pantalla y bloquear el submit
                         setParseErrors(errors);
-                        return reject(new Error(errors.join("\n")));
+                        return reject(new Error(errors.join('\n')));
                     }
                     setParseErrors([]); // limpio errores
                     resolve(buffer);
                 },
                 error: () => {
-                    const msg = "Error al leer el CSV.";
+                    const msg = 'Error al leer el CSV.';
                     setParseErrors([msg]);
                     reject(new Error(msg));
                 },
@@ -465,7 +469,7 @@ export const BulkAffiliates = () => {
 
     // Nombre base (sin extensión) y periodo AAAAMM
     const getFileBaseAndPeriod = (file) => {
-        const base = file.name.replace(/\.[^/.]+$/, "");
+        const base = file.name.replace(/\.[^/.]+$/, '');
         const period = base.slice(-6);
         return { base, period };
     };
@@ -503,7 +507,7 @@ export const BulkAffiliates = () => {
                     });
                 } else {
                     errorMessages.push(
-                        error?.message || "Error inesperado al enviar los registros."
+                        error?.message || 'Error inesperado al enviar los registros.'
                     );
                 }
 
@@ -521,7 +525,7 @@ export const BulkAffiliates = () => {
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth() + 1;
 
-        const currentPeriod = String(currentYear) + String(currentMonth).padStart(2, "0");
+        const currentPeriod = String(currentYear) + String(currentMonth).padStart(2, '0');
 
         let prevYear = currentYear;
         let prevMonth = currentMonth - 1;
@@ -529,7 +533,7 @@ export const BulkAffiliates = () => {
             prevMonth = 12;
             prevYear = currentYear - 1;
         }
-        const prevPeriod = String(prevYear) + String(prevMonth).padStart(2, "0");
+        const prevPeriod = String(prevYear) + String(prevMonth).padStart(2, '0');
 
         return { currentPeriod, prevPeriod };
     };
@@ -562,7 +566,7 @@ export const BulkAffiliates = () => {
 
                 const expectedPrefix = getRegimeFilePrefix(regimens, values.regime);
                 if (!expectedPrefix) {
-                    AlertComponent.warning("No se pudo identificar el prefijo del régimen seleccionado.");
+                    AlertComponent.warning('No se pudo identificar el prefijo del régimen seleccionado.');
                     setLoading(false);
                     return;
                 }
@@ -577,11 +581,11 @@ export const BulkAffiliates = () => {
 
                 const parsedRows = await processCSV(
                     values.attachment,
-                    expectedPrefix === "MS" ? RegimenEnum.SUB : RegimenEnum.CONT
+                    expectedPrefix === 'MS' ? RegimenEnum.SUB : RegimenEnum.CONT
                 );
 
                 if (!parsedRows.length) {
-                    AlertComponent.warning("No hay filas válidas para procesar.");
+                    AlertComponent.warning('No hay filas válidas para procesar.');
                     setLoading(false);
                     return;
                 }
@@ -613,7 +617,7 @@ export const BulkAffiliates = () => {
                 );
             } catch (error) {
                 console.error(error);
-                const lines = String(error?.message || "Error al procesar la solicitud").split("\n");
+                const lines = String(error?.message || 'Error al procesar la solicitud').split('\n');
                 setParseErrors(lines);
                 AlertComponent.error(
                     `Se encontraron ${lines.length} error(es) al procesar la solicitud. Revisa el detalle debajo.`
@@ -626,30 +630,30 @@ export const BulkAffiliates = () => {
 
     // Recibe un item del array `errors` del backend
     const formatValidationError = (err) => {
-        if (!err || typeof err !== "object") return String(err);
+        if (!err || typeof err !== 'object') return String(err);
 
         const { status, title, detail, source } = err;
 
         let finalDetail = detail;
 
-        // Intentar leer JSON dentro de "detail"
+        // Intentar leer JSON dentro de 'detail'
         try {
             const parsed = JSON.parse(detail);
             if (Array.isArray(parsed)) {
                 finalDetail = parsed
-                    .map(x => `${x.field}: ${x.errors.join(", ")}`)
-                    .join(" | ");
+                    .map(x => `${x.field}: ${x.errors.join(', ')}`)
+                    .join(' | ');
             }
         } catch (e) {}
 
-        let pointer = "";
+        let pointer = '';
         if (Array.isArray(source?.pointer)) {
             pointer =
-                " (" +
+                ' (' +
                 source.pointer
-                    .map(p => `${p.field}: ${p.errors.join(", ")}`)
-                    .join(" | ") +
-                ")";
+                    .map(p => `${p.field}: ${p.errors.join(', ')}`)
+                    .join(' | ') +
+                ')';
         }
 
         return `[${status}] ${title}${pointer} - ${finalDetail}`;
@@ -663,100 +667,96 @@ export const BulkAffiliates = () => {
 
     return (
         <Box py={2}>
-            <Box display="flex" justifyContent="flex-end" mb={2}>
-                <Button variant="contained" color="primary" onClick={() => navigate("/admin/affiliates-list")}>
+            <Box display='flex' justifyContent='flex-end' mb={2}>
+                <Button variant='contained' color='primary' onClick={() => navigate('/admin/affiliates-list')}>
                     Volver al listado
                 </Button>
             </Box>
 
             {loading && (
-                <div className="overlay">
-                    <div className="loader">Analizando archivo…</div>
+                <div className='overlay'>
+                    <div className='loader'>Analizando archivo…</div>
                 </div>
             )}
 
-            <Box component="form" onSubmit={formik.handleSubmit} mt={3}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <TextField
-                            select
-                            fullWidth
-                            label="Tipo de Regimen"
-                            {...formik.getFieldProps("regime")}
-                            error={formik.touched.regime && Boolean(formik.errors.regime)}
-                            helperText={formik.touched.regime && formik.errors.regime}
+            <Box component='form' onSubmit={formik.handleSubmit} mt={3}>
+                <Box sx={oneCol}>
+                    <TextField
+                        select
+                        fullWidth
+                        label='Tipo de Regimen'
+                        {...formik.getFieldProps('regime')}
+                        error={formik.touched.regime && Boolean(formik.errors.regime)}
+                        helperText={formik.touched.regime && formik.errors.regime}
+                    >
+                        {regimens.map((item) => (
+                            <MenuItem key={item.id} value={item.id}>
+                                {item.name}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+
+                    <FormControl fullWidth>
+                        <Typography variant='h6'>Subir Archivo CSV</Typography>
+                        <Box
+                            onClick={() => document.getElementById('fileInput')?.click()}
+                            sx={{ border: '2px dashed #ccc', p: 3, textAlign: 'center', cursor: 'pointer' }}
                         >
-                            {regimens.map((item) => (
-                                <MenuItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </Grid>
+                            <CloudUpload sx={{ fontSize: 40, color: '#777' }} />
+                            <Typography variant='body2'>
+                                Arrastra o haz clic para subir archivo CSV (.csv)
+                            </Typography>
+                        </Box>
+                        <input
+                            id='fileInput'
+                            type='file'
+                            accept='.csv'
+                            style={{ display: 'none' }}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                if (file.name.toLowerCase().endsWith('.csv')) {
+                                    formik.setFieldValue('attachment', file);
+                                    formik.setFieldTouched('attachment', true, true);
+                                } else {
+                                    formik.setFieldError('attachment', 'Solo se permiten archivos .csv');
+                                }
+                            }}
+                        />
 
-                    <Grid item xs={12}>
-                        <FormControl fullWidth>
-                            <Typography variant="h6">Subir Archivo CSV</Typography>
-                            <Box
-                                onClick={() => document.getElementById("fileInput")?.click()}
-                                sx={{ border: "2px dashed #ccc", p: 3, textAlign: "center", cursor: "pointer" }}
-                            >
-                                <CloudUpload sx={{ fontSize: 40, color: "#777" }} />
-                                <Typography variant="body2">
-                                    Arrastra o haz clic para subir archivo CSV (.csv)
-                                </Typography>
-                            </Box>
-                            <input
-                                id="fileInput"
-                                type="file"
-                                accept=".csv"
-                                style={{ display: "none" }}
-                                onChange={(e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-                                    if (file.name.toLowerCase().endsWith(".csv")) {
-                                        formik.setFieldValue("attachment", file);
-                                        formik.setFieldTouched("attachment", true, true);
-                                    } else {
-                                        formik.setFieldError("attachment", "Solo se permiten archivos .csv");
-                                    }
-                                }}
-                            />
-
-                            {formik.values.attachment && (
-                                <Stack mt={2} direction="row" spacing={1} alignItems="center">
-                                    <Typography variant="body2">Archivo:</Typography>
-                                    <Chip size="small" label={formik.values.attachment.name} />
-                                </Stack>
-                            )}
-                            {formik.touched.attachment && formik.errors.attachment && (
-                                <Typography color="error" variant="body2">
-                                    {formik.errors.attachment}
-                                </Typography>
-                            )}
-                        </FormControl>
-                    </Grid>
-                </Grid>
+                        {formik.values.attachment && (
+                            <Stack mt={2} direction='row' spacing={1} alignItems='center'>
+                                <Typography variant='body2'>Archivo:</Typography>
+                                <Chip size='small' label={formik.values.attachment.name} />
+                            </Stack>
+                        )}
+                        {formik.touched.attachment && formik.errors.attachment && (
+                            <Typography color='error' variant='body2'>
+                                {formik.errors.attachment}
+                            </Typography>
+                        )}
+                    </FormControl>
+                </Box>
 
 
                 {parseErrors.length > 0 && (
                     <Box mt={2}>
-                        <Typography color="error" variant="body2">
+                        <Typography color='error' variant='body2'>
                             Se encontraron los siguientes errores:
                         </Typography>
                         <ul>
                             {parseErrors.map((err, idx) => (
-                                <li key={idx} style={{ color: "red", fontSize: "0.9rem" }}>{err}</li>
+                                <li key={idx} style={{ color: 'red', fontSize: '0.9rem' }}>{err}</li>
                             ))}
                         </ul>
                     </Box>
                 )}
 
-                <Box display="flex" justifyContent="flex-end" gap={1} mt={2}>
+                <Box display='flex' justifyContent='flex-end' gap={1} mt={2}>
                     <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
+                        type='submit'
+                        variant='contained'
+                        color='primary'
                         disabled={
                             loading ||
                             parseErrors.length > 0 ||
@@ -764,12 +764,12 @@ export const BulkAffiliates = () => {
                             !formik.values.regime
                         }
                     >
-                        {loading ? "Cargando..." : "Enviar"}
+                        {loading ? 'Cargando...' : 'Enviar'}
                     </Button>
 
                     <Button
-                        variant="outlined"
-                        color="secondary"
+                        variant='outlined'
+                        color='secondary'
                         onClick={() => window.location.reload()}
                         disabled={loading}
                     >

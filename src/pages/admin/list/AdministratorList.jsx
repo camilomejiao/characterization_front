@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
-import { TextField, Button, IconButton, Box, Stack } from "@mui/material";
+import { Button, IconButton, InputAdornment, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Search, Add } from "@mui/icons-material";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
+import { PageHeader } from "../../../components/shared/page-header/PageHeader";
 //
 import AlertComponent from "../../../helpers/alert/AlertComponent";
 
@@ -139,25 +141,62 @@ export const AdministratorList = () => {
         getAdminList();
     }, []);
 
+    const totalAdmins = adminList.length;
+    const activeAdmins = adminList.filter((row) => row?.active).length;
+    const inactiveAdmins = totalAdmins - activeAdmins;
+
     return (
         <>
-            <Box>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                    <TextField
-                        label="Buscar..."
-                        variant="outlined"
-                        size="small"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        sx={{ width: 300 }}
-                    />
+            <PageHeader
+                title="Administradores"
+                subtitle="Controla accesos, estados y permisos de administración."
+                stats={[
+                    { label: "Total", value: totalAdmins },
+                    { label: "Activos", value: activeAdmins, color: "#b7f0d1" },
+                    { label: "Inactivos", value: inactiveAdmins, color: "#ffd1d1" },
+                ]}
+                actions={
                     <Button
                         variant="contained"
-                        color="primary"
+                        color="secondary"
+                        startIcon={<Add />}
                         onClick={() => navigate("/admin/administrator-create")}
                     >
                         Crear Nuevo
                     </Button>
+                }
+            >
+                <TextField
+                    label="Buscar administrador"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    fullWidth
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search sx={{ color: "rgba(255,255,255,0.9)" }} />
+                            </InputAdornment>
+                        ),
+                    }}
+                    sx={{
+                        maxWidth: 420,
+                        "& .MuiInputBase-root": {
+                            backgroundColor: "rgba(255,255,255,0.15)",
+                            color: "#fff",
+                        },
+                        "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.8)" },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "rgba(255,255,255,0.4)",
+                        },
+                    }}
+                />
+            </PageHeader>
+
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 4 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Typography variant="subtitle1" fontWeight={700}>
+                        Listado
+                    </Typography>
                 </Stack>
 
                 {loading && (
@@ -170,34 +209,29 @@ export const AdministratorList = () => {
                     rows={filteredRows}
                     columns={AdministratorColumns}
                     pageSize={10}
+                    autoHeight
+                    getRowClassName={(params) =>
+                        params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+                    }
                     sx={{
+                        border: "none",
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#102844",
+                            backgroundColor: "#0f375a",
                             color: "white",
                             fontSize: "14px",
                         },
-                        "& .MuiDataGrid-columnHeader": {
-                            textAlign: "center",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
+                        "& .MuiDataGrid-columnHeaderTitle": {
+                            fontWeight: 700,
                         },
-                        "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#102844",
-                            color: "white !important",
-                        },
-                        "& .MuiDataGrid-cell": {
-                            fontSize: "14px",
-                            textAlign: "left",
-                            justifyContent: "left",
-                            display: "flex",
+                        "& .MuiDataGrid-row.even": {
+                            backgroundColor: "rgba(15,55,90,0.04)",
                         },
                         "& .MuiDataGrid-row:hover": {
-                            backgroundColor: "#E8F5E9",
+                            backgroundColor: "rgba(47,168,126,0.08)",
                         },
                     }}
                 />
-            </Box>
+            </Paper>
         </>
     );
 };

@@ -1,11 +1,23 @@
-import { Box, Button, Card, CardContent, CardHeader, Grid, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, CardHeader, Divider, Grid, Typography } from "@mui/material";
 import { FiExternalLink, FiFileText } from "react-icons/fi";
 
 export const PqrsInformation = ({ data }) => {
     const docUrl = data?.fileUrl ?? data?.files ?? null;
 
+    const items = [
+        { label: "Tipo PQRS", value: data?.pqrsType?.name },
+        { label: "Status", value: data?.applicationStatus?.name },
+        { label: "Departamento", value: data?.department?.name },
+        { label: "Municipio", value: data?.municipality?.name },
+        { label: "Razón", value: data?.reason?.name },
+        { label: "EPS", value: data?.eps?.name },
+        { label: "Entidad", value: data?.entity },
+        { label: "Responsable", value: data?.userSystem?.name },
+        { label: "Fecha del Evento", value: data?.dateOfEvents },
+    ];
+
     return (
-        <Card sx={{ borderRadius: 4, overflow: "hidden", mt: 3, boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
+        <Card sx={{ borderRadius: 2, overflow: "hidden", mt: 3, boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
             <CardHeader
                 title="Información de PQRS"
                 sx={{
@@ -37,42 +49,23 @@ export const PqrsInformation = ({ data }) => {
 
                     <Grid item xs={12} md={9}>
                         <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Tipo PQRS</Typography>
-                                <Typography fontWeight={600}>{data?.pqrsType?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Status</Typography>
-                                <Typography fontWeight={600}>{data?.applicationStatus?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Departamento</Typography>
-                                <Typography fontWeight={600}>{data?.department?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Municipio</Typography>
-                                <Typography fontWeight={600}>{data?.municipality?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Razón</Typography>
-                                <Typography fontWeight={600}>{data?.reason?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">EPS</Typography>
-                                <Typography fontWeight={600}>{data?.eps?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Entidad</Typography>
-                                <Typography fontWeight={600}>{data?.entity}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Responsable</Typography>
-                                <Typography fontWeight={600}>{data?.userSystem?.name}</Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <Typography variant="subtitle2">Fecha del Evento</Typography>
-                                <Typography fontWeight={600}>{data?.dateOfEvents}</Typography>
-                            </Grid>
+                            {items.map((item) => (
+                                <Grid item xs={12} md={6} key={item.label}>
+                                    <Box
+                                        sx={{
+                                            p: 1.5,
+                                            borderRadius: 2,
+                                            backgroundColor: "rgba(15,55,90,0.04)",
+                                        }}
+                                    >
+                                        <Typography variant="caption" sx={{ letterSpacing: 0.6 }}>
+                                            {item.label}
+                                        </Typography>
+                                        <Divider sx={{ my: 0.6 }} />
+                                        <Typography fontWeight={600}>{item.value || "—"}</Typography>
+                                    </Box>
+                                </Grid>
+                            ))}
                             <Grid item xs={12} md={6}>
                                 {docUrl ? (
                                     <Button
@@ -91,9 +84,20 @@ export const PqrsInformation = ({ data }) => {
                                     </Typography>
                                 )}
                             </Grid>
-                            <Grid item xs={12}>
-                                <Typography variant="subtitle2">Descripción</Typography>
-                                <Typography fontWeight={600}>{data?.descriptionOfEvents}</Typography>
+                            <Grid item xs={12} md={6}>
+                                <Box
+                                    sx={{
+                                        p: 1.5,
+                                        borderRadius: 2,
+                                        backgroundColor: "rgba(15,55,90,0.04)",
+                                    }}
+                                >
+                                    <Typography variant="caption" sx={{ letterSpacing: 0.6 }}>
+                                        Descripción
+                                    </Typography>
+                                    <Divider sx={{ my: 0.6 }} />
+                                    <Typography fontWeight={600}>{data?.descriptionOfEvents || "—"}</Typography>
+                                </Box>
                             </Grid>
                         </Grid>
                     </Grid>

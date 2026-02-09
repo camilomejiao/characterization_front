@@ -1,6 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    CircularProgress,
+    IconButton,
+    InputAdornment,
+    Paper,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
+import { Add, Search } from "@mui/icons-material";
 import { FaPencilAlt, FaRegFile } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
 import printJS from "print-js";
@@ -13,9 +24,9 @@ import { ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 import { specialPopulationServices } from "../../../services/SpecialPopulationServices";
 //Components
 import { SpecialPopulationReport } from "../special-population-report/SpecialPopulationReport";
+import { PageHeader } from "../../../components/shared/page-header/PageHeader";
 
 export const SpecialPopulationList = () => {
-
     const navigate = useNavigate();
     const SpecialPopulationReportRef = useRef();
 
@@ -30,14 +41,13 @@ export const SpecialPopulationList = () => {
         setLoadingData(true);
         try {
             setIsLoading(true);
-            const {data, status} = await specialPopulationServices.getList();
-            console.log('data:', data);
-            if(status === ResponseStatusEnum.OK) {
+            const { data, status } = await specialPopulationServices.getList();
+            if (status === ResponseStatusEnum.OK) {
                 setSpecialPopulationList(await normalizeRows(data));
             }
 
-            if(status !== ResponseStatusEnum.OK) {
-                AlertComponent.warning('Error al obtener lista de afiliados');
+            if (status !== ResponseStatusEnum.OK) {
+                AlertComponent.warning("Error al obtener lista de afiliados");
             }
         } catch (error) {
             console.log(`Error en Admin List ${error}`);
@@ -45,24 +55,23 @@ export const SpecialPopulationList = () => {
             setLoadingData(false);
             setIsLoading(false);
         }
-    }
+    };
 
     const normalizeRows = async (data) => {
-        //console.log(data);
         return data.map((row) => {
             return {
                 id: row?.id,
-                name: row?.user?.firstName + ' ' + row?.user?.middleName,
-                lastName: row?.user?.firstLastName + ' ' + row?.user?.middleLastName,
+                name: row?.user?.firstName + " " + row?.user?.middleName,
+                lastName: row?.user?.firstLastName + " " + row?.user?.middleLastName,
                 identificationNumber: row?.user?.identificationNumber,
                 eps: row?.eps?.name ?? "No registra",
                 populationType: row?.populationType?.name,
-                hasEpsAffiliate: row?.hasEpsAffiliate === false ? 'NO' : 'SI',
+                hasEpsAffiliate: row?.hasEpsAffiliate === false ? "NO" : "SI",
                 ethnicity: row?.ethnicity?.name,
                 observations: row?.observations,
             };
         });
-    }
+    };
 
     const filteredRows = specialPopulationList.filter((row) =>
         Object.values(row).some((value) =>
@@ -123,17 +132,11 @@ export const SpecialPopulationList = () => {
             headerAlign: "left",
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
-                    <IconButton
-                        color="secondary"
-                        onClick={() => generateReport(params.row.id)}
-                    >
-                        <FaRegFile/>
+                    <IconButton color="secondary" onClick={() => generateReport(params.row.id)}>
+                        <FaRegFile />
                     </IconButton>
-                    <IconButton
-                        color="warning"
-                        onClick={() => handleEdit(params.row.id)}
-                    >
-                        <FaPencilAlt/>
+                    <IconButton color="warning" onClick={() => handleEdit(params.row.id)}>
+                        <FaPencilAlt />
                     </IconButton>
                 </Stack>
             ),
@@ -142,13 +145,13 @@ export const SpecialPopulationList = () => {
 
     const handleEdit = (id) => {
         navigate(`/admin/special-population-update/${id}`);
-    }
+    };
 
     const generateReport = async (id) => {
         setIsLoading(true);
         try {
-            const {data, status} = await specialPopulationServices.getById(id);
-            if(status === ResponseStatusEnum.OK) {
+            const { data, status } = await specialPopulationServices.getById(id);
+            if (status === ResponseStatusEnum.OK) {
                 setUserData(data);
                 setIsReadyToPrintReport(true);
             }
@@ -158,7 +161,7 @@ export const SpecialPopulationList = () => {
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     const handlePDFPrint = () => {
         const printContent = `
@@ -183,13 +186,13 @@ export const SpecialPopulationList = () => {
 
         printJS({
             printable: printContent,
-            type: 'raw-html',
-            documentTitle: 'Reporte Pobacion Especial',
+            type: "raw-html",
+            documentTitle: "Reporte Pobacion Especial",
         });
     };
 
     useEffect(() => {
-        if(isReadyToPrintReport) {
+        if (isReadyToPrintReport) {
             handlePDFPrint();
             setIsReadyToPrintReport(false);
         }
@@ -201,30 +204,52 @@ export const SpecialPopulationList = () => {
 
     return (
         <>
-            <Box>
-                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
-                    {/* Input de búsqueda */}
-                    <TextField
-                        label="Buscar..."
-                        variant="outlined"
-                        size="small"
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        style={{ width: "300px" }}
-                    />
-
-                    {/* Botón para redirigir a "Crear" */}
+            <PageHeader
+                title="Población Especial"
+                subtitle="Listado censal y reportes con trazabilidad completa."
+                stats={[{ label: "Total", value: specialPopulationList.length }]}
+                actions={
                     <Button
                         variant="contained"
-                        sx={{
-                            backgroundColor: "#031b32",
-                            color: "#fff",
-                            "&:hover": { backgroundColor: "#21569a" },
-                        }}
+                        color="secondary"
+                        startIcon={<Add />}
                         onClick={() => navigate("/admin/special-population-create")}
                     >
                         Crear Nuevo
                     </Button>
+                }
+            >
+                <TextField
+                    label="Buscar registro"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    fullWidth
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <Search sx={{ color: "rgba(255,255,255,0.9)" }} />
+                            </InputAdornment>
+                        ),
+                    }}
+                    sx={{
+                        maxWidth: 420,
+                        "& .MuiInputBase-root": {
+                            backgroundColor: "rgba(255,255,255,0.15)",
+                            color: "#fff",
+                        },
+                        "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.8)" },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "rgba(255,255,255,0.4)",
+                        },
+                    }}
+                />
+            </PageHeader>
+
+            <Paper elevation={0} sx={{ p: 2, borderRadius: 4 }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Typography variant="subtitle1" fontWeight={700}>
+                        Listado
+                    </Typography>
                 </Stack>
 
                 {isLoading && (
@@ -239,37 +264,32 @@ export const SpecialPopulationList = () => {
                     columns={AffiliateColumns}
                     loading={loadingData}
                     pageSize={100}
+                    autoHeight
+                    getRowClassName={(params) =>
+                        params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
+                    }
                     sx={{
+                        border: "none",
                         "& .MuiDataGrid-columnHeaders": {
-                            backgroundColor: "#102844",
+                            backgroundColor: "#0f375a",
                             color: "white",
                             fontSize: "14px",
                         },
-                        "& .MuiDataGrid-columnHeader": {
-                            textAlign: "center",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
+                        "& .MuiDataGrid-columnHeaderTitle": {
+                            fontWeight: 700,
                         },
-                        "& .MuiDataGrid-container--top [role=row], .MuiDataGrid-container--bottom [role=row]": {
-                            backgroundColor: "#102844",
-                            color: "white !important",
-                        },
-                        "& .MuiDataGrid-cell": {
-                            fontSize: "14px",
-                            textAlign: "left",
-                            justifyContent: "left",
-                            display: "flex",
+                        "& .MuiDataGrid-row.even": {
+                            backgroundColor: "rgba(15,55,90,0.04)",
                         },
                         "& .MuiDataGrid-row:hover": {
-                            backgroundColor: "#E8F5E9",
+                            backgroundColor: "rgba(47,168,126,0.08)",
                         },
                     }}
                 />
-            </Box>
+            </Paper>
 
-            {/* Aquí renderizas el componente pero lo ocultas */}
-            <div style={{display: 'none'}}>
+            {/* AquÃ­ renderizas el componente pero lo ocultas */}
+            <div style={{ display: "none" }}>
                 {isReadyToPrintReport && (
                     <div ref={SpecialPopulationReportRef}>
                         <SpecialPopulationReport data={userData} />
@@ -277,5 +297,5 @@ export const SpecialPopulationList = () => {
                 )}
             </div>
         </>
-    )
-}
+    );
+};

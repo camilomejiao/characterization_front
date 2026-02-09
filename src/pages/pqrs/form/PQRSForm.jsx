@@ -3,14 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     Box,
     Button,
+    Card,
+    CardContent,
+    CardHeader,
     CircularProgress,
     FormControl,
-    Grid,
     InputLabel,
     MenuItem,
     Select,
     TextField,
     Typography,
+    Divider,
 } from "@mui/material";
 import { CloudUpload } from "@mui/icons-material";
 import { useFormik } from "formik";
@@ -70,6 +73,11 @@ export const PQRSForm = () => {
     const [reason, setReason] = useState([]);
     const [eps, setEps] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const twoCol = {
+        display: "grid",
+        gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+        gap: 3,
+    };
 
     //
     const fetchOptions = async () => {
@@ -206,180 +214,186 @@ export const PQRSForm = () => {
                     )}
 
                     <Box component="form" onSubmit={formik.handleSubmit} mt={3}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.pqrs_type_id && Boolean(formik.errors.pqrs_type_id)}
-                                >
-                                    <InputLabel>Tipo de PQRS</InputLabel>
-                                    <Select {...formik.getFieldProps("pqrs_type_id")}>
-                                        {pqrsType.map((opt) => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.application_status_id && Boolean(formik.errors.application_status_id)}
-                                >
-                                    <InputLabel>Estado</InputLabel>
-                                    <Select {...formik.getFieldProps("application_status_id")}>
-                                        {status.map((opt) => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.department_id && Boolean(formik.errors.department_id)}
-                                >
-                                    <InputLabel>Departamento</InputLabel>
-                                    <Select
-                                        value={formik.values.department_id}
-                                        onChange={handleDepartmentChange}
-                                        onBlur={formik.handleBlur}
-                                    >
-                                        {departments.map((dep) => (
-                                            <MenuItem key={dep.id} value={dep.id}>
-                                                {dep.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
-                                >
-                                    <InputLabel>Municipio</InputLabel>
-                                    <Select {...formik.getFieldProps("municipality_id")}>
-                                        {municipalities.map((m) => (
-                                            <MenuItem key={m.id} value={m.id}>
-                                                {m.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.reason_id && Boolean(formik.errors.reason_id)}
-                                >
-                                    <InputLabel>Razón</InputLabel>
-                                    <Select {...formik.getFieldProps("reason_id")}>
-                                        {reason.map((opt) => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <FormControl
-                                    fullWidth
-                                    error={formik.touched.eps_id && Boolean(formik.errors.eps_id)}
-                                >
-                                    <InputLabel>EPS</InputLabel>
-                                    <Select {...formik.getFieldProps("eps_id")}>
-                                        {eps.map((opt) => (
-                                            <MenuItem key={opt.id} value={opt.id}>
-                                                {opt?.name} - {opt?.cod}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Entidad o IPS"
-                                    fullWidth
-                                    {...formik.getFieldProps("entity")}
-                                    error={formik.touched.entity && Boolean(formik.errors.entity)}
-                                    helperText={formik.touched.entity && formik.errors.entity}
-                                />
-                            </Grid>
-                            <Grid item xs={12} md={6}>
-                                <TextField
-                                    label="Fecha del evento"
-                                    type="date"
-                                    fullWidth
-                                    InputLabelProps={{ shrink: true }}
-                                    {...formik.getFieldProps("date_of_events")}
-                                    error={formik.touched.date_of_events && Boolean(formik.errors.date_of_events)}
-                                    helperText={formik.touched.date_of_events && formik.errors.date_of_events}
-                                />
-                            </Grid>
-
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Descripción del evento"
-                                    multiline
-                                    rows={4}
-                                    fullWidth
-                                    {...formik.getFieldProps("description_of_events")}
-                                    error={
-                                        formik.touched.description_of_events &&
-                                        Boolean(formik.errors.description_of_events)
-                                    }
-                                    helperText={
-                                        formik.touched.description_of_events && formik.errors.description_of_events
-                                    }
-                                />
-                            </Grid>
-                        </Grid>
-
-                        <FormControl fullWidth sx={{ mt: 3 }}>
-                            <Typography variant="h6">Subir Archivo</Typography>
-                            <Box
-                                onClick={() => document.getElementById("fileInput").click()}
-                                sx={{ border: "2px dashed #ccc", p: 3, textAlign: "center", cursor: "pointer" }}
-                            >
-                                <CloudUpload sx={{ fontSize: 40, color: "#777" }} />
-                                <Typography variant="body2">Arrastra o haz clic para subir archivo PDF</Typography>
-                            </Box>
-                            <input
-                                id="fileInput"
-                                type="file"
-                                accept="application/pdf"
-                                style={{ display: "none" }}
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file?.type === "application/pdf") formik.setFieldValue("attachment", file);
-                                    else formik.setFieldError("attachment", "Solo se permiten archivos PDF.");
-                                }}
+                        <Card sx={{ borderRadius: 2 }}>
+                            <CardHeader
+                                title="Registro de PQRS"
+                                subheader="Completa los datos del caso para registrar la PQRS."
                             />
-                            {formik.values.attachment && (
-                                <Typography mt={2} variant="body2">
-                                    Archivo: {formik.values.attachment.name}
-                                </Typography>
-                            )}
-                            {formik.errors.attachment && (
-                                <Typography color="error" variant="body2">
-                                    {formik.errors.attachment}
-                                </Typography>
-                            )}
-                        </FormControl>
+                            <Divider />
+                            <CardContent>
+                                <Box sx={twoCol}>
+                                    <FormControl
+                                        fullWidth
+                                        error={formik.touched.pqrs_type_id && Boolean(formik.errors.pqrs_type_id)}
+                                    >
+                                        <InputLabel>Tipo de PQRS</InputLabel>
+                                        <Select {...formik.getFieldProps("pqrs_type_id")}>
+                                            {pqrsType.map((opt) => (
+                                                <MenuItem key={opt.id} value={opt.id}>
+                                                    {opt.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
 
-                        <Box display="flex" justifyContent="flex-end" mt={3}>
-                            <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
-                                {id ? "Actualizar" : "Crear"}
-                            </Button>
-                        </Box>
+                                    <FormControl
+                                        fullWidth
+                                        error={formik.touched.application_status_id && Boolean(formik.errors.application_status_id)}
+                                    >
+                                        <InputLabel>Estado</InputLabel>
+                                        <Select {...formik.getFieldProps("application_status_id")}>
+                                            {status.map((opt) => (
+                                                <MenuItem key={opt.id} value={opt.id}>
+                                                    {opt.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl
+                                        fullWidth
+                                        error={formik.touched.department_id && Boolean(formik.errors.department_id)}
+                                    >
+                                        <InputLabel>Departamento</InputLabel>
+                                        <Select
+                                            value={formik.values.department_id}
+                                            onChange={handleDepartmentChange}
+                                            onBlur={formik.handleBlur}
+                                        >
+                                            {departments.map((dep) => (
+                                                <MenuItem key={dep.id} value={dep.id}>
+                                                    {dep.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl
+                                        fullWidth
+                                        error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
+                                    >
+                                        <InputLabel>Municipio</InputLabel>
+                                        <Select {...formik.getFieldProps("municipality_id")}>
+                                            {municipalities.map((m) => (
+                                                <MenuItem key={m.id} value={m.id}>
+                                                    {m.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl
+                                        fullWidth
+                                        error={formik.touched.reason_id && Boolean(formik.errors.reason_id)}
+                                    >
+                                        <InputLabel>Razón</InputLabel>
+                                        <Select {...formik.getFieldProps("reason_id")}>
+                                            {reason.map((opt) => (
+                                                <MenuItem key={opt.id} value={opt.id}>
+                                                    {opt.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl
+                                        fullWidth
+                                        error={formik.touched.eps_id && Boolean(formik.errors.eps_id)}
+                                    >
+                                        <InputLabel>EPS</InputLabel>
+                                        <Select {...formik.getFieldProps("eps_id")}>
+                                            {eps.map((opt) => (
+                                                <MenuItem key={opt.id} value={opt.id}>
+                                                    {opt?.name} - {opt?.cod}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <TextField
+                                        label="Entidad o IPS"
+                                        fullWidth
+                                        {...formik.getFieldProps("entity")}
+                                        error={formik.touched.entity && Boolean(formik.errors.entity)}
+                                        helperText={formik.touched.entity && formik.errors.entity}
+                                    />
+                                    <TextField
+                                        label="Fecha del evento"
+                                        type="date"
+                                        fullWidth
+                                        InputLabelProps={{ shrink: true }}
+                                        {...formik.getFieldProps("date_of_events")}
+                                        error={formik.touched.date_of_events && Boolean(formik.errors.date_of_events)}
+                                        helperText={formik.touched.date_of_events && formik.errors.date_of_events}
+                                    />
+
+                                    <TextField
+                                        label="Descripción del evento"
+                                        multiline
+                                        rows={4}
+                                        fullWidth
+                                        placeholder="Describe claramente lo ocurrido"
+                                        {...formik.getFieldProps("description_of_events")}
+                                        error={
+                                            formik.touched.description_of_events &&
+                                            Boolean(formik.errors.description_of_events)
+                                        }
+                                        helperText={
+                                            formik.touched.description_of_events && formik.errors.description_of_events
+                                        }
+                                    />
+
+                                    <FormControl fullWidth>
+                                        <Typography variant="h6">Adjuntar soporte (PDF)</Typography>
+                                        <Box
+                                            onClick={() => document.getElementById("fileInput").click()}
+                                            sx={{
+                                                border: "2px dashed #ccc",
+                                                p: 3,
+                                                textAlign: "center",
+                                                cursor: "pointer",
+                                            }}
+                                        >
+                                            <CloudUpload sx={{ fontSize: 40, color: "#777" }} />
+                                            <Typography variant="body2">
+                                                Arrastra o haz clic para subir archivo PDF
+                                            </Typography>
+                                        </Box>
+                                        <input
+                                            id="fileInput"
+                                            type="file"
+                                            accept="application/pdf"
+                                            style={{ display: "none" }}
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file?.type === "application/pdf")
+                                                    formik.setFieldValue("attachment", file);
+                                                else formik.setFieldError(
+                                                    "attachment",
+                                                    "Solo se permiten archivos PDF."
+                                                );
+                                            }}
+                                        />
+                                        {formik.values.attachment && (
+                                            <Typography mt={2} variant="body2">
+                                                Archivo: {formik.values.attachment.name}
+                                            </Typography>
+                                        )}
+                                        {formik.errors.attachment && (
+                                            <Typography color="error" variant="body2">
+                                                {formik.errors.attachment}
+                                            </Typography>
+                                        )}
+                                    </FormControl>
+                                </Box>
+
+                                <Box display="flex" justifyContent="flex-end" mt={3}>
+                                    <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
+                                        {id ? "Actualizar" : "Crear"}
+                                    </Button>
+                                </Box>
+                            </CardContent>
+                        </Card>
                     </Box>
                 </Box>
             )}
