@@ -1,9 +1,3 @@
-
-
 export const PqrsGraphics = () => {
-
-    return (
-        <>
-        </>
-    )
-}
+    return <></>;
+};

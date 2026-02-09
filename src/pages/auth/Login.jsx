@@ -101,8 +101,8 @@ export const Login = () => {
                             SIGES
                         </Typography>
                         <Typography variant="body1" sx={{ mt: 2, opacity: 0.9 }}>
-                            Acceso unificado para afiliaciones, PQRS y reportes con trazabilidad completa y una
-                            experiencia moderna y eficiente.
+                            Acceso unificado para afiliaciones, PQRS y reportes con trazabilidad
+                            completa y una experiencia moderna y eficiente.
                         </Typography>
                         <Box
                             sx={{
@@ -117,7 +117,8 @@ export const Login = () => {
                                 Tip rápido
                             </Typography>
                             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                Usa tu correo institucional para iniciar sesión y acceder a todos los módulos.
+                                Usa tu correo institucional para iniciar sesión y acceder a todos
+                                los módulos.
                             </Typography>
                         </Box>
                     </Box>
@@ -166,8 +167,19 @@ export const Login = () => {
 
                         <Divider sx={{ mb: 3 }} />
 
-                        <Formik initialValues={initialValues} validationSchema={loginSchema} onSubmit={handleLogin}>
-                            {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => (
+                        <Formik
+                            initialValues={initialValues}
+                            validationSchema={loginSchema}
+                            onSubmit={handleLogin}
+                        >
+                            {({
+                                values,
+                                errors,
+                                touched,
+                                handleChange,
+                                handleBlur,
+                                handleSubmit,
+                            }) => (
                                 <Box component="form" onSubmit={handleSubmit}>
                                     <TextField
                                         fullWidth
@@ -207,8 +219,15 @@ export const Login = () => {
                                             ),
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <IconButton onClick={togglePasswordVisibility} edge="end">
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    <IconButton
+                                                        onClick={togglePasswordVisibility}
+                                                        edge="end"
+                                                    >
+                                                        {showPassword ? (
+                                                            <VisibilityOff />
+                                                        ) : (
+                                                            <Visibility />
+                                                        )}
                                                     </IconButton>
                                                 </InputAdornment>
                                             ),

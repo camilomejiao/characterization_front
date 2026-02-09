@@ -2,7 +2,6 @@ import { Global } from "../helpers/Global";
 import { authTokenService } from "./AuthTokenService";
 
 class CommonServices {
-
     constructor() {
         this.baseUrl = Global.url;
     }
@@ -116,7 +115,6 @@ class CommonServices {
         const url = this.buildUrl(`regime`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
-
 
     //================================
     // Organizations

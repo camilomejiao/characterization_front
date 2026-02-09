@@ -188,14 +188,14 @@ const roleMenuMap = {
 };
 
 export const Sidebar = ({
-                        isOpen,
-                        setIsOpen,
-                        mobileOpen,
-                        handleDrawerToggle,
-                        paperSx,
-                        headerBg,
-                        userAuth,
-                    }) => {
+    isOpen,
+    setIsOpen,
+    mobileOpen,
+    handleDrawerToggle,
+    paperSx,
+    headerBg,
+    userAuth,
+}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const navigate = useNavigate();
@@ -212,7 +212,7 @@ export const Sidebar = ({
 
     const isActive = useMemo(
         () => (path) => location.pathname.startsWith(path),
-        [location.pathname]
+        [location.pathname],
     );
 
     const commonItemSx = {
@@ -227,7 +227,7 @@ export const Sidebar = ({
 
     const menuSections = useMemo(
         () => baseMenu.filter((sec) => allowedKeys.includes(sec.key)),
-        [allowedKeys]
+        [allowedKeys],
     );
 
     const renderItem = (item) => {
@@ -353,9 +353,7 @@ export const Sidebar = ({
                 )}
             </Box>
 
-            <List sx={{ py: 1 }}>
-                {menuSections.map((section) => renderSection(section))}
-            </List>
+            <List sx={{ py: 1 }}>{menuSections.map((section) => renderSection(section))}</List>
         </>
     );
 

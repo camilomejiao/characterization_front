@@ -1,9 +1,9 @@
 import { Global } from "../helpers/Global";
-import {authTokenService} from "./AuthTokenService";
+import { authTokenService } from "./AuthTokenService";
 
 class PqrsServices {
     constructor() {
-        this.baseUrl = Global.url + 'pqrs/';
+        this.baseUrl = Global.url + "pqrs/";
     }
 
     /**
@@ -21,7 +21,7 @@ class PqrsServices {
     }
 
     async create(formData) {
-        const url = this.buildUrl(`create`)
+        const url = this.buildUrl(`create`);
         return authTokenService.fetchWithAuth(url, {
             method: "POST",
             body: formData,
@@ -29,7 +29,7 @@ class PqrsServices {
     }
 
     async update(id, formData) {
-        const url = this.buildUrl(`${id}`)
+        const url = this.buildUrl(`${id}`);
         return authTokenService.fetchWithAuth(url, {
             method: "PUT",
             body: formData,

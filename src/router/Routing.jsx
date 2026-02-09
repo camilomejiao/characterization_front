@@ -34,48 +34,60 @@ export const Routing = () => {
         <BrowserRouter>
             <AuthProvider>
                 <Routes>
-                    <Route path="/" element={ <PublicLayout /> }>
-                        <Route index element={ <Login /> } />
-                        <Route path={ RouterEnum.Login } element={ <Login /> } />
+                    <Route path="/" element={<PublicLayout />}>
+                        <Route index element={<Login />} />
+                        <Route path={RouterEnum.Login} element={<Login />} />
                     </Route>
 
-                    <Route path={ RouterEnum.RouterAdmin } element={<PrivateLayout /> }>
+                    <Route path={RouterEnum.RouterAdmin} element={<PrivateLayout />}>
                         {/* Admin */}
-                        <Route path={ RouterEnum.AdministratorList } element={ <AdministratorList /> }  />
-                        <Route path={ RouterEnum.CreateAdmin } element={ <AdministratorForm /> }  />
-                        <Route path={ RouterEnum.UpdateAdmin } element={ <AdministratorForm /> }  />
+                        <Route
+                            path={RouterEnum.AdministratorList}
+                            element={<AdministratorList />}
+                        />
+                        <Route path={RouterEnum.CreateAdmin} element={<AdministratorForm />} />
+                        <Route path={RouterEnum.UpdateAdmin} element={<AdministratorForm />} />
 
                         {/* Users */}
-                        <Route path={ RouterEnum.Users } element={ <UserList /> }         />
-                        <Route path={ RouterEnum.UsersCreate } element={ <UserForm /> }   />
-                        <Route path={ RouterEnum.UsersUpdate } element={ <UserForm /> }   />
+                        <Route path={RouterEnum.Users} element={<UserList />} />
+                        <Route path={RouterEnum.UsersCreate} element={<UserForm />} />
+                        <Route path={RouterEnum.UsersUpdate} element={<UserForm />} />
 
                         {/* PQRS */}
-                        <Route path={ RouterEnum.PQRSList } element={ <PQRSList /> }   />
-                        <Route path={ RouterEnum.PQRSCreate } element={ <PQRSForm /> } />
-                        <Route path={ RouterEnum.PQRSUpdate } element={ <PQRSForm /> } />
-                        <Route path={ RouterEnum.PQRSObservations } element={ <PQRSObservation /> } />
+                        <Route path={RouterEnum.PQRSList} element={<PQRSList />} />
+                        <Route path={RouterEnum.PQRSCreate} element={<PQRSForm />} />
+                        <Route path={RouterEnum.PQRSUpdate} element={<PQRSForm />} />
+                        <Route path={RouterEnum.PQRSObservations} element={<PQRSObservation />} />
 
                         {/* Afiliados */}
-                        <Route path={ RouterEnum.AffiliatesReport } element={ <Report /> }   />
-                        <Route path={ RouterEnum.AffiliatesList } element={ <AffiliateList /> }   />
-                        <Route path={ RouterEnum.AffiliatesCreate } element={ <AffiliateForm /> } />
-                        <Route path={ RouterEnum.AffiliatesUpdate } element={ <AffiliateForm /> } />
-                        <Route path={ RouterEnum.BulkAffiliates } element={ <BulkAffiliates /> }   />
-                        <Route path={ RouterEnum.AffiliateHistory } element={ <AffiliateHistory /> }   />
+                        <Route path={RouterEnum.AffiliatesReport} element={<Report />} />
+                        <Route path={RouterEnum.AffiliatesList} element={<AffiliateList />} />
+                        <Route path={RouterEnum.AffiliatesCreate} element={<AffiliateForm />} />
+                        <Route path={RouterEnum.AffiliatesUpdate} element={<AffiliateForm />} />
+                        <Route path={RouterEnum.BulkAffiliates} element={<BulkAffiliates />} />
+                        <Route path={RouterEnum.AffiliateHistory} element={<AffiliateHistory />} />
 
                         {/* Listados Censales */}
-                        <Route path={ RouterEnum.SpecialPopulationList } element={ <SpecialPopulationList /> }   />
-                        <Route path={ RouterEnum.SpecialPopulationCreate } element={ <SpecialPopulationForm /> }   />
-                        <Route path={ RouterEnum.SpecialPopulationUpdate } element={ <SpecialPopulationForm /> }   />
+                        <Route
+                            path={RouterEnum.SpecialPopulationList}
+                            element={<SpecialPopulationList />}
+                        />
+                        <Route
+                            path={RouterEnum.SpecialPopulationCreate}
+                            element={<SpecialPopulationForm />}
+                        />
+                        <Route
+                            path={RouterEnum.SpecialPopulationUpdate}
+                            element={<SpecialPopulationForm />}
+                        />
 
                         {/* Logout */}
-                        <Route path={ RouterEnum.Logout } element={ <Logout /> }  />
+                        <Route path={RouterEnum.Logout} element={<Logout />} />
                     </Route>
 
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </AuthProvider>
         </BrowserRouter>
-    )
-}
+    );
+};

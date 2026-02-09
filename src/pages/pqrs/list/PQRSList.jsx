@@ -86,8 +86,8 @@ export const PQRSList = () => {
 
     const filteredRows = pqrsList.filter((row) =>
         Object.values(row).some((value) =>
-            String(value).toLowerCase().includes(searchText.toLowerCase())
-        )
+            String(value).toLowerCase().includes(searchText.toLowerCase()),
+        ),
     );
 
     const PqrsColumns = [
@@ -354,7 +354,12 @@ export const PQRSList = () => {
                 </PageHeader>
 
                 <Paper elevation={0} sx={{ p: 2, borderRadius: 4 }}>
-                    <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={2}
+                    >
                         <Typography variant="subtitle1" fontWeight={700}>
                             Listado
                         </Typography>

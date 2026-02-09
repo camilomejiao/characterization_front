@@ -12,24 +12,14 @@ export const PageNotFound = () => {
             }}
         >
             <Box>
-                <img
-                    src={image}
-                    alt="Not Found"
-                    style={{ width: "100%", maxWidth: "400px" }}
-                />
+                <img src={image} alt="Not Found" style={{ width: "100%", maxWidth: "400px" }} />
             </Box>
 
             <Typography variant="h4" mt={4}>
                 Página no encontrada
             </Typography>
 
-            <Button
-                component={Link}
-                to="/admin"
-                variant="contained"
-                color="primary"
-                sx={{ mt: 4 }}
-            >
+            <Button component={Link} to="/admin" variant="contained" color="primary" sx={{ mt: 4 }}>
                 Volver al inicio
             </Button>
         </Container>

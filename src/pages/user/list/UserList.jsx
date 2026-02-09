@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, IconButton, InputAdornment, Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+    Button,
+    IconButton,
+    InputAdornment,
+    Paper,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import { Add, Search } from "@mui/icons-material";
 
 import AlertComponent from "../../../helpers/alert/AlertComponent";
@@ -13,9 +21,7 @@ import { ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 //Services
 import { userServices } from "../../../services/UserServices";
 
-
 export const UserList = () => {
-
     const navigate = useNavigate();
 
     const [userList, setUserList] = useState([]);
@@ -28,13 +34,13 @@ export const UserList = () => {
             setLoading(true);
             setInformationLoadingText("Cargando informacion...");
 
-            const {data, status} = await userServices.getList();
-            if(status === ResponseStatusEnum.OK) {
+            const { data, status } = await userServices.getList();
+            if (status === ResponseStatusEnum.OK) {
                 setUserList(await normalizeRows(data));
             }
 
-            if(status !== ResponseStatusEnum.OK) {
-                AlertComponent.warning('Error al obtener lista de usuarios');
+            if (status !== ResponseStatusEnum.OK) {
+                AlertComponent.warning("Error al obtener lista de usuarios");
             }
         } catch (error) {
             console.log(`Error en Admin List ${error}`);
@@ -49,20 +55,20 @@ export const UserList = () => {
         return data.map((row) => {
             return {
                 id: row?.id,
-                name: row?.firstName + ' ' + row?.middleName,
-                lastName: row?.firstLastName + ' ' + row?.middleLastName,
+                name: row?.firstName + " " + row?.middleName,
+                lastName: row?.firstLastName + " " + row?.middleLastName,
                 identificationType: row?.identificationType?.acronym,
                 identificationNumber: row?.identificationNumber,
-                email: row?.email
+                email: row?.email,
             };
         });
-    }
+    };
 
     // Filtrar los datos según el texto de búsqueda
     const filteredRows = userList.filter((row) =>
         Object.values(row).some((value) =>
-            String(value).toLowerCase().includes(searchText.toLowerCase())
-        )
+            String(value).toLowerCase().includes(searchText.toLowerCase()),
+        ),
     );
 
     const UserColumns = [
@@ -105,18 +111,15 @@ export const UserList = () => {
             width: 150,
             renderCell: (params) => (
                 <Stack direction="row" spacing={1}>
-                    <IconButton
-                        color="warning"
-                        onClick={() => handleEdit(params.row.id) }
-                    >
-                        <FaPencilAlt/>
+                    <IconButton color="warning" onClick={() => handleEdit(params.row.id)}>
+                        <FaPencilAlt />
                     </IconButton>
                     <IconButton
                         color="error"
                         onClick={() => handleDelete(params.row.id)}
                         //disabled={isButtonDisabled(params.row.id)}
                     >
-                        <FaTrash/>
+                        <FaTrash />
                     </IconButton>
                 </Stack>
             ),
@@ -125,24 +128,23 @@ export const UserList = () => {
 
     const handleEdit = (id) => {
         navigate(`/admin/user-update/${id}`);
-    }
+    };
 
     const handleDelete = async (id) => {
         try {
-            const {status} = await userServices.delete(id);
+            const { status } = await userServices.delete(id);
             if (status === ResponseStatusEnum.OK) {
                 getUserList();
-                AlertComponent.success('Eliminado correctamente');
+                AlertComponent.success("Eliminado correctamente");
             }
 
             if (status !== ResponseStatusEnum.OK) {
-                AlertComponent.warning('Error al eliminar el usuario');
+                AlertComponent.warning("Error al eliminar el usuario");
             }
         } catch (error) {
             console.log(`Error en borrar usuario ${error}`);
         }
-    }
-
+    };
 
     useEffect(() => {
         getUserList();
@@ -233,4 +235,4 @@ export const UserList = () => {
             </Paper>
         </>
     );
-}
+};

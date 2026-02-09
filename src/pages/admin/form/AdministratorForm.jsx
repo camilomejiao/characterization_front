@@ -28,7 +28,9 @@ import { ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 const validationSchema = Yup.object({
     name: Yup.string().required("El nombre es obligatorio"),
     email: Yup.string().email("Formato de email inv\u00e1lido").required("El email es obligatorio"),
-    password: Yup.string().min(6, "M\u00ednimo 6 caracteres").required("La contrase\u00f1a es obligatoria"),
+    password: Yup.string()
+        .min(6, "M\u00ednimo 6 caracteres")
+        .required("La contrase\u00f1a es obligatoria"),
     organization_id: Yup.string().required("El nombre de la organizaci\u00f3n es obligatorio"),
     role_id: Yup.string().required("El rol es obligatorio"),
     active: Yup.boolean(),
@@ -64,7 +66,7 @@ export const AdministratorForm = () => {
                 organization_id: values.organization_id,
                 email: values.email,
                 name: values.name,
-                password: values.password
+                password: values.password,
             };
             try {
                 const response = id
@@ -85,16 +87,16 @@ export const AdministratorForm = () => {
     const fetchOptions = async () => {
         const load = async (fn, set) => {
             try {
-                const {data, status} = await fn();
+                const { data, status } = await fn();
                 if (status === ResponseStatusEnum.OK) {
                     set(data);
                 }
             } catch {}
         };
 
-        await load (() => administratorServices.getRoles(), setRoles);
-        await load (() => commonServices.getOrganizations(), setOrganizations);
-    }
+        await load(() => administratorServices.getRoles(), setRoles);
+        await load(() => commonServices.getOrganizations(), setOrganizations);
+    };
 
     const fetchUserData = async (id, formik) => {
         try {
@@ -146,8 +148,8 @@ export const AdministratorForm = () => {
                                         field === "email"
                                             ? "correo@dominio.com"
                                             : field === "password"
-                                            ? "Mínimo 6 caracteres"
-                                            : "Nombre completo"
+                                              ? "Mínimo 6 caracteres"
+                                              : "Nombre completo"
                                     }
                                     value={formik.values[field]}
                                     onChange={formik.handleChange}
@@ -166,8 +168,13 @@ export const AdministratorForm = () => {
                                 value={formik.values.organization_id}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
-                                error={formik.touched.organization_id && Boolean(formik.errors.organization_id)}
-                                helperText={formik.touched.organization_id && formik.errors.organization_id}
+                                error={
+                                    formik.touched.organization_id &&
+                                    Boolean(formik.errors.organization_id)
+                                }
+                                helperText={
+                                    formik.touched.organization_id && formik.errors.organization_id
+                                }
                             >
                                 {organizations.map((r) => (
                                     <MenuItem key={r.id} value={r.id}>

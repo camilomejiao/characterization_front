@@ -202,7 +202,10 @@ export const UserForm = () => {
 
     const trySetDefaultMunicipality = (list) => {
         const exists = list.some((m) => m.id === DefaultsSelectUserFormEnum.municipality);
-        formik.setFieldValue("municipality_id", exists ? DefaultsSelectUserFormEnum.municipality : "");
+        formik.setFieldValue(
+            "municipality_id",
+            exists ? DefaultsSelectUserFormEnum.municipality : "",
+        );
     };
 
     const selectDepartment = async (departmentId, { setMunicipalityDefault = false } = {}) => {
@@ -222,9 +225,14 @@ export const UserForm = () => {
             return;
         }
 
-        formik.setFieldValue("identification_type_id", DefaultsSelectUserFormEnum.identification_type);
+        formik.setFieldValue(
+            "identification_type_id",
+            DefaultsSelectUserFormEnum.identification_type,
+        );
         formik.setFieldValue("country_id", DefaultsSelectUserFormEnum.country);
-        await selectDepartment(DefaultsSelectUserFormEnum.department, { setMunicipalityDefault: true });
+        await selectDepartment(DefaultsSelectUserFormEnum.department, {
+            setMunicipalityDefault: true,
+        });
         formik.setFieldValue("ethnicity_id", DefaultsSelectUserFormEnum.ethnicity);
         formik.setFieldValue("disability_type_id", DefaultsSelectUserFormEnum.disability_type);
     };
@@ -270,7 +278,9 @@ export const UserForm = () => {
                                 label="Primer Nombre"
                                 placeholder="Ej: María"
                                 {...formik.getFieldProps("first_name")}
-                                error={formik.touched.first_name && Boolean(formik.errors.first_name)}
+                                error={
+                                    formik.touched.first_name && Boolean(formik.errors.first_name)
+                                }
                                 helperText={formik.touched.first_name && formik.errors.first_name}
                             />
                             <TextField
@@ -278,7 +288,9 @@ export const UserForm = () => {
                                 label="Segundo Nombre"
                                 placeholder="Opcional"
                                 {...formik.getFieldProps("middle_name")}
-                                error={formik.touched.middle_name && Boolean(formik.errors.middle_name)}
+                                error={
+                                    formik.touched.middle_name && Boolean(formik.errors.middle_name)
+                                }
                                 helperText={formik.touched.middle_name && formik.errors.middle_name}
                             />
                             <TextField
@@ -286,16 +298,27 @@ export const UserForm = () => {
                                 label="Primer Apellido"
                                 placeholder="Ej: Rodríguez"
                                 {...formik.getFieldProps("first_last_name")}
-                                error={formik.touched.first_last_name && Boolean(formik.errors.first_last_name)}
-                                helperText={formik.touched.first_last_name && formik.errors.first_last_name}
+                                error={
+                                    formik.touched.first_last_name &&
+                                    Boolean(formik.errors.first_last_name)
+                                }
+                                helperText={
+                                    formik.touched.first_last_name && formik.errors.first_last_name
+                                }
                             />
                             <TextField
                                 fullWidth
                                 label="Segundo Apellido"
                                 placeholder="Opcional"
                                 {...formik.getFieldProps("middle_last_name")}
-                                error={formik.touched.middle_last_name && Boolean(formik.errors.middle_last_name)}
-                                helperText={formik.touched.middle_last_name && formik.errors.middle_last_name}
+                                error={
+                                    formik.touched.middle_last_name &&
+                                    Boolean(formik.errors.middle_last_name)
+                                }
+                                helperText={
+                                    formik.touched.middle_last_name &&
+                                    formik.errors.middle_last_name
+                                }
                             />
                             <TextField
                                 select
@@ -360,7 +383,10 @@ export const UserForm = () => {
                 </Card>
 
                 <Card sx={{ borderRadius: 2, mb: 3 }}>
-                    <CardHeader title="Ubicación" subheader="Selecciona la ubicación del usuario." />
+                    <CardHeader
+                        title="Ubicación"
+                        subheader="Selecciona la ubicación del usuario."
+                    />
                     <Divider />
                     <CardContent>
                         <Box sx={twoCol}>
@@ -369,7 +395,9 @@ export const UserForm = () => {
                                 fullWidth
                                 label="País"
                                 {...formik.getFieldProps("country_id")}
-                                error={formik.touched.country_id && Boolean(formik.errors.country_id)}
+                                error={
+                                    formik.touched.country_id && Boolean(formik.errors.country_id)
+                                }
                                 helperText={formik.touched.country_id && formik.errors.country_id}
                             >
                                 {country.map((item) => (
@@ -385,8 +413,13 @@ export const UserForm = () => {
                                 value={formik.values.department_id}
                                 onChange={handleDepartmentChange}
                                 onBlur={formik.handleBlur}
-                                error={formik.touched.department_id && Boolean(formik.errors.department_id)}
-                                helperText={formik.touched.department_id && formik.errors.department_id}
+                                error={
+                                    formik.touched.department_id &&
+                                    Boolean(formik.errors.department_id)
+                                }
+                                helperText={
+                                    formik.touched.department_id && formik.errors.department_id
+                                }
                             >
                                 {departments.map((item) => (
                                     <MenuItem key={item.id} value={item.id}>
@@ -400,8 +433,13 @@ export const UserForm = () => {
                                 label="Municipio"
                                 {...formik.getFieldProps("municipality_id")}
                                 disabled={isMunicipalityDisabled}
-                                error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
-                                helperText={formik.touched.municipality_id && formik.errors.municipality_id}
+                                error={
+                                    formik.touched.municipality_id &&
+                                    Boolean(formik.errors.municipality_id)
+                                }
+                                helperText={
+                                    formik.touched.municipality_id && formik.errors.municipality_id
+                                }
                             >
                                 {municipalities.map((item) => (
                                     <MenuItem key={item.id} value={item.id}>
@@ -414,8 +452,13 @@ export const UserForm = () => {
                                 label="Barrio"
                                 placeholder="Ej: San Martín"
                                 {...formik.getFieldProps("neighborhood")}
-                                error={formik.touched.neighborhood && Boolean(formik.errors.neighborhood)}
-                                helperText={formik.touched.neighborhood && formik.errors.neighborhood}
+                                error={
+                                    formik.touched.neighborhood &&
+                                    Boolean(formik.errors.neighborhood)
+                                }
+                                helperText={
+                                    formik.touched.neighborhood && formik.errors.neighborhood
+                                }
                             />
                             <TextField
                                 fullWidth
@@ -476,8 +519,13 @@ export const UserForm = () => {
                                 label="Número de teléfono"
                                 placeholder="Ej: 3201234567"
                                 {...formik.getFieldProps("phone_number")}
-                                error={formik.touched.phone_number && Boolean(formik.errors.phone_number)}
-                                helperText={formik.touched.phone_number && formik.errors.phone_number}
+                                error={
+                                    formik.touched.phone_number &&
+                                    Boolean(formik.errors.phone_number)
+                                }
+                                helperText={
+                                    formik.touched.phone_number && formik.errors.phone_number
+                                }
                             />
                             <TextField
                                 fullWidth
@@ -492,8 +540,13 @@ export const UserForm = () => {
                                 fullWidth
                                 label="Etnia"
                                 {...formik.getFieldProps("ethnicity_id")}
-                                error={formik.touched.ethnicity_id && Boolean(formik.errors.ethnicity_id)}
-                                helperText={formik.touched.ethnicity_id && formik.errors.ethnicity_id}
+                                error={
+                                    formik.touched.ethnicity_id &&
+                                    Boolean(formik.errors.ethnicity_id)
+                                }
+                                helperText={
+                                    formik.touched.ethnicity_id && formik.errors.ethnicity_id
+                                }
                             >
                                 {ethnicity.map((item) => (
                                     <MenuItem key={item.id} value={item.id}>

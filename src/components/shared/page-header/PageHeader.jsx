@@ -65,11 +65,7 @@ export const PageHeader = ({ title, subtitle, stats = [], actions, children }) =
                 </Stack>
             )}
 
-            {children && (
-                <Box sx={{ mt: 2, position: "relative", zIndex: 1 }}>
-                    {children}
-                </Box>
-            )}
+            {children && <Box sx={{ mt: 2, position: "relative", zIndex: 1 }}>{children}</Box>}
         </Paper>
     );
 };

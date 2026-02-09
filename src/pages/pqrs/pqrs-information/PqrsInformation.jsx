@@ -1,4 +1,13 @@
-import { Box, Button, Card, CardContent, CardHeader, Divider, Grid, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    Divider,
+    Grid,
+    Typography,
+} from "@mui/material";
 import { FiExternalLink, FiFileText } from "react-icons/fi";
 
 export const PqrsInformation = ({ data }) => {
@@ -17,7 +26,14 @@ export const PqrsInformation = ({ data }) => {
     ];
 
     return (
-        <Card sx={{ borderRadius: 2, overflow: "hidden", mt: 3, boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
+        <Card
+            sx={{
+                borderRadius: 2,
+                overflow: "hidden",
+                mt: 3,
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+            }}
+        >
             <CardHeader
                 title="Información de PQRS"
                 sx={{
@@ -62,7 +78,9 @@ export const PqrsInformation = ({ data }) => {
                                             {item.label}
                                         </Typography>
                                         <Divider sx={{ my: 0.6 }} />
-                                        <Typography fontWeight={600}>{item.value || "—"}</Typography>
+                                        <Typography fontWeight={600}>
+                                            {item.value || "—"}
+                                        </Typography>
                                     </Box>
                                 </Grid>
                             ))}
@@ -96,7 +114,9 @@ export const PqrsInformation = ({ data }) => {
                                         Descripción
                                     </Typography>
                                     <Divider sx={{ my: 0.6 }} />
-                                    <Typography fontWeight={600}>{data?.descriptionOfEvents || "—"}</Typography>
+                                    <Typography fontWeight={600}>
+                                        {data?.descriptionOfEvents || "—"}
+                                    </Typography>
                                 </Box>
                             </Grid>
                         </Grid>

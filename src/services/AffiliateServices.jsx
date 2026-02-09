@@ -1,11 +1,9 @@
 import { Global } from "../helpers/Global";
 import { authTokenService } from "./AuthTokenService";
 
-
 class AffiliateServices {
-
     constructor() {
-        this.baseUrl = Global.url + 'affiliates/';
+        this.baseUrl = Global.url + "affiliates/";
     }
 
     /**
@@ -18,7 +16,7 @@ class AffiliateServices {
     }
 
     async create(data) {
-        const url = this.buildUrl(`create`)
+        const url = this.buildUrl(`create`);
         return authTokenService.fetchWithAuth(url, {
             method: "POST",
             body: JSON.stringify(data),
@@ -26,7 +24,7 @@ class AffiliateServices {
     }
 
     async getList() {
-        const url = this.buildUrl(`list`)
+        const url = this.buildUrl(`list`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
@@ -36,7 +34,7 @@ class AffiliateServices {
     }
 
     async update(id, data) {
-        const url = this.buildUrl(`update/${id}`)
+        const url = this.buildUrl(`update/${id}`);
         return authTokenService.fetchWithAuth(url, {
             method: "PUT",
             body: JSON.stringify(data),
@@ -49,7 +47,7 @@ class AffiliateServices {
     }
 
     async bulk(data) {
-        const url = this.buildUrl(`bulk`)
+        const url = this.buildUrl(`bulk`);
         return authTokenService.fetchWithAuth(url, {
             method: "POST",
             body: JSON.stringify(data),

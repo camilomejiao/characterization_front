@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext();
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
     const [auth, setAuth] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -13,10 +13,10 @@ export const AuthProvider = ({children}) => {
         setAuth({});
     };
 
-    const authUser = async() => {
+    const authUser = async () => {
         //Sacar datos del usuario identificado
-        const token = localStorage.getItem('token');
-        const organization = localStorage.getItem('organization_id');
+        const token = localStorage.getItem("token");
+        const organization = localStorage.getItem("organization_id");
         const user = await decodeToken(token);
         const userId = user?.id;
 
@@ -49,7 +49,7 @@ export const AuthProvider = ({children}) => {
      * @param {string} token - Token JWT.
      * @returns {object} - Datos decodificados del token.
      */
-    const decodeToken = async(token) => {
+    const decodeToken = async (token) => {
         try {
             return jwtDecode(token);
         } catch (error) {
@@ -62,11 +62,11 @@ export const AuthProvider = ({children}) => {
         authUser();
     }, []);
 
-    return(
-        <AuthContext.Provider value={{auth, setAuth, loading, logout}}>
+    return (
+        <AuthContext.Provider value={{ auth, setAuth, loading, logout }}>
             {children}
         </AuthContext.Provider>
-    )
-}
+    );
+};
 
 export default AuthContext;

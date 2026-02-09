@@ -91,7 +91,10 @@ export const Navbar = ({ userAuth, isSidebarOpen, handleDrawerToggle, isMobile }
                         <Typography variant="h6" noWrap sx={{ fontWeight: 800, letterSpacing: 1 }}>
                             SIGES
                         </Typography>
-                        <Breadcrumbs aria-label="breadcrumb" sx={{ color: "rgba(255,255,255,0.8)" }}>
+                        <Breadcrumbs
+                            aria-label="breadcrumb"
+                            sx={{ color: "rgba(255,255,255,0.8)" }}
+                        >
                             <Typography variant="caption">Inicio</Typography>
                             <Typography variant="caption">{currentTitle}</Typography>
                         </Breadcrumbs>

@@ -1,7 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
-import { Button, IconButton, InputAdornment, Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+    Button,
+    IconButton,
+    InputAdornment,
+    Paper,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import { Search, Add } from "@mui/icons-material";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
@@ -14,7 +22,6 @@ import { administratorServices } from "../../../services/AdministratorServices";
 import { ResponseStatusEnum, RolesEnum } from "../../../helpers/GlobalEnum";
 
 export const AdministratorList = () => {
-
     const navigate = useNavigate();
 
     const [adminList, setAdminList] = useState([]);
@@ -31,7 +38,7 @@ export const AdministratorList = () => {
             if (status === ResponseStatusEnum.OK) {
                 setAdminList(data);
             } else {
-                AlertComponent.warning('Error al obtener lista de usuarios');
+                AlertComponent.warning("Error al obtener lista de usuarios");
             }
         } catch (error) {
             console.error(`Error en Admin List ${error}`);
@@ -45,8 +52,8 @@ export const AdministratorList = () => {
     const filteredRows = useMemo(() => {
         return adminList.filter((row) =>
             Object.values(row).some((value) =>
-                String(value).toLowerCase().includes(searchText.toLowerCase())
-            )
+                String(value).toLowerCase().includes(searchText.toLowerCase()),
+            ),
         );
     }, [adminList, searchText]);
 
@@ -60,9 +67,9 @@ export const AdministratorList = () => {
             const { status } = await administratorServices.toggleStatus(id, { status: newStatus });
             if (status === ResponseStatusEnum.OK) {
                 getAdminList();
-                AlertComponent.success('Actualizado correctamente');
+                AlertComponent.success("Actualizado correctamente");
             } else {
-                AlertComponent.warning('Error al actualizar estado del usuario');
+                AlertComponent.warning("Error al actualizar estado del usuario");
             }
         } catch (error) {
             console.error(`Error en actualizar estado ${error}`);
@@ -80,9 +87,9 @@ export const AdministratorList = () => {
             const { status } = await administratorServices.delete(id);
             if (status === ResponseStatusEnum.OK) {
                 getAdminList();
-                AlertComponent.success('Eliminado correctamente');
+                AlertComponent.success("Eliminado correctamente");
             } else {
-                AlertComponent.warning('Error al eliminar el usuario');
+                AlertComponent.warning("Error al eliminar el usuario");
             }
         } catch (error) {
             console.error(`Error en borrar usuario ${error}`);

@@ -1,10 +1,9 @@
 import { Global } from "../helpers/Global";
-import {authTokenService} from "./AuthTokenService";
+import { authTokenService } from "./AuthTokenService";
 
 class SpecialPopulationServices {
-
     constructor() {
-        this.baseUrl = Global.url + 'special-population/';
+        this.baseUrl = Global.url + "special-population/";
     }
 
     /**
@@ -17,7 +16,7 @@ class SpecialPopulationServices {
     }
 
     async getList() {
-        const url = this.buildUrl(`list`)
+        const url = this.buildUrl(`list`);
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 
@@ -27,7 +26,7 @@ class SpecialPopulationServices {
     }
 
     async create(data) {
-        const url = this.buildUrl(`create`)
+        const url = this.buildUrl(`create`);
         return authTokenService.fetchWithAuth(url, {
             method: "POST",
             body: JSON.stringify(data),
@@ -35,13 +34,12 @@ class SpecialPopulationServices {
     }
 
     async update(id, data) {
-        const url = this.buildUrl(`update/${id}`)
+        const url = this.buildUrl(`update/${id}`);
         return authTokenService.fetchWithAuth(url, {
             method: "PUT",
             body: JSON.stringify(data),
         });
     }
-
 }
 
 export const specialPopulationServices = new SpecialPopulationServices();

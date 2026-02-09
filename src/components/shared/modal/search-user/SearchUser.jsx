@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+} from "@mui/material";
 
 import { ResponseStatusEnum } from "../../../../helpers/GlobalEnum";
 import AlertComponent from "../../../../helpers/alert/AlertComponent";
@@ -35,7 +42,7 @@ export const SearchUser = ({ showModal, onUserFound }) => {
 
             if (status === ResponseStatusEnum.NOT_FOUND) {
                 AlertComponent.warning(
-                    "El usuario que buscas no existe en el sistema, por favor regístralo para poder continuar!"
+                    "El usuario que buscas no existe en el sistema, por favor regístralo para poder continuar!",
                 );
                 navigate("/admin/user-create");
             }

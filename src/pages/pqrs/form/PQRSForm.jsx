@@ -42,9 +42,17 @@ const validationSchema = Yup.object({
     reason_id: Yup.string().required("La razón es obligatorio"),
     eps_id: Yup.string().required("La EPS es obligatoria"),
     entity: Yup.string().required("La entidad es obligatoria"),
-    date_of_events: Yup.date().max(new Date(), "La fecha no puede ser en el futuro").required("La fecha del evento es obligatoria"),
+    date_of_events: Yup.date()
+        .max(new Date(), "La fecha no puede ser en el futuro")
+        .required("La fecha del evento es obligatoria"),
     description_of_events: Yup.string().required("La descripción es obligatoria"),
-    attachment: Yup.mixed().nullable().test("fileFormat", "Solo se permiten archivos PDF", value => !value || value.type === "application/pdf"),
+    attachment: Yup.mixed()
+        .nullable()
+        .test(
+            "fileFormat",
+            "Solo se permiten archivos PDF",
+            (value) => !value || value.type === "application/pdf",
+        ),
 });
 
 const initialValues = {
@@ -117,7 +125,9 @@ export const PQRSForm = () => {
                 formData.append("descriptionOfEvents", values.description_of_events);
                 if (values.attachment) formData.append("file", values.attachment);
 
-                const response = id ? await pqrsServices.update(id, formData) : await pqrsServices.create(formData);
+                const response = id
+                    ? await pqrsServices.update(id, formData)
+                    : await pqrsServices.create(formData);
                 if ([ResponseStatusEnum.OK, ResponseStatusEnum.CREATE].includes(response.status)) {
                     AlertComponent.success("Operación realizada correctamente");
                     navigate("/admin/pqrs-list");
@@ -137,8 +147,8 @@ export const PQRSForm = () => {
         try {
             const { data, status } = await depaMuniServices.getMunicipalities(departmentId);
             if (status === ResponseStatusEnum.OK) setMunicipalities(data);
-        } catch(error) {
-            console.log('')
+        } catch (error) {
+            console.log("");
         }
     };
 
@@ -169,12 +179,12 @@ export const PQRSForm = () => {
                     description_of_events: data.descriptionOfEvents,
                     attachment: null,
                 });
-                if (data.department?.id){
+                if (data.department?.id) {
                     await fetchMunicipalities(data.department.id);
                 }
             }
-        } catch(error) {
-            console.log(error, '');
+        } catch (error) {
+            console.log(error, "");
         } finally {
             setIsLoading(false);
         }
@@ -199,7 +209,11 @@ export const PQRSForm = () => {
             {userData && (
                 <Box py={2}>
                     <Box display="flex" justifyContent="flex-end" mb={2}>
-                        <Button variant="contained" color="primary" onClick={() => navigate("/admin/pqrs-list")}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => navigate("/admin/pqrs-list")}
+                        >
                             Volver al listado
                         </Button>
                     </Box>
@@ -207,7 +221,13 @@ export const PQRSForm = () => {
                     <UserInformation data={userData} />
 
                     {isLoading && (
-                        <Box display="flex" alignItems="center" justifyContent="center" gap={1} py={2}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            gap={1}
+                            py={2}
+                        >
                             <CircularProgress size={22} />
                             <Typography variant="body2">Cargando...</Typography>
                         </Box>
@@ -224,7 +244,10 @@ export const PQRSForm = () => {
                                 <Box sx={twoCol}>
                                     <FormControl
                                         fullWidth
-                                        error={formik.touched.pqrs_type_id && Boolean(formik.errors.pqrs_type_id)}
+                                        error={
+                                            formik.touched.pqrs_type_id &&
+                                            Boolean(formik.errors.pqrs_type_id)
+                                        }
                                     >
                                         <InputLabel>Tipo de PQRS</InputLabel>
                                         <Select {...formik.getFieldProps("pqrs_type_id")}>
@@ -238,7 +261,10 @@ export const PQRSForm = () => {
 
                                     <FormControl
                                         fullWidth
-                                        error={formik.touched.application_status_id && Boolean(formik.errors.application_status_id)}
+                                        error={
+                                            formik.touched.application_status_id &&
+                                            Boolean(formik.errors.application_status_id)
+                                        }
                                     >
                                         <InputLabel>Estado</InputLabel>
                                         <Select {...formik.getFieldProps("application_status_id")}>
@@ -252,7 +278,10 @@ export const PQRSForm = () => {
 
                                     <FormControl
                                         fullWidth
-                                        error={formik.touched.department_id && Boolean(formik.errors.department_id)}
+                                        error={
+                                            formik.touched.department_id &&
+                                            Boolean(formik.errors.department_id)
+                                        }
                                     >
                                         <InputLabel>Departamento</InputLabel>
                                         <Select
@@ -270,7 +299,10 @@ export const PQRSForm = () => {
 
                                     <FormControl
                                         fullWidth
-                                        error={formik.touched.municipality_id && Boolean(formik.errors.municipality_id)}
+                                        error={
+                                            formik.touched.municipality_id &&
+                                            Boolean(formik.errors.municipality_id)
+                                        }
                                     >
                                         <InputLabel>Municipio</InputLabel>
                                         <Select {...formik.getFieldProps("municipality_id")}>
@@ -284,7 +316,10 @@ export const PQRSForm = () => {
 
                                     <FormControl
                                         fullWidth
-                                        error={formik.touched.reason_id && Boolean(formik.errors.reason_id)}
+                                        error={
+                                            formik.touched.reason_id &&
+                                            Boolean(formik.errors.reason_id)
+                                        }
                                     >
                                         <InputLabel>Razón</InputLabel>
                                         <Select {...formik.getFieldProps("reason_id")}>
@@ -298,7 +333,9 @@ export const PQRSForm = () => {
 
                                     <FormControl
                                         fullWidth
-                                        error={formik.touched.eps_id && Boolean(formik.errors.eps_id)}
+                                        error={
+                                            formik.touched.eps_id && Boolean(formik.errors.eps_id)
+                                        }
                                     >
                                         <InputLabel>EPS</InputLabel>
                                         <Select {...formik.getFieldProps("eps_id")}>
@@ -314,7 +351,9 @@ export const PQRSForm = () => {
                                         label="Entidad o IPS"
                                         fullWidth
                                         {...formik.getFieldProps("entity")}
-                                        error={formik.touched.entity && Boolean(formik.errors.entity)}
+                                        error={
+                                            formik.touched.entity && Boolean(formik.errors.entity)
+                                        }
                                         helperText={formik.touched.entity && formik.errors.entity}
                                     />
                                     <TextField
@@ -323,8 +362,14 @@ export const PQRSForm = () => {
                                         fullWidth
                                         InputLabelProps={{ shrink: true }}
                                         {...formik.getFieldProps("date_of_events")}
-                                        error={formik.touched.date_of_events && Boolean(formik.errors.date_of_events)}
-                                        helperText={formik.touched.date_of_events && formik.errors.date_of_events}
+                                        error={
+                                            formik.touched.date_of_events &&
+                                            Boolean(formik.errors.date_of_events)
+                                        }
+                                        helperText={
+                                            formik.touched.date_of_events &&
+                                            formik.errors.date_of_events
+                                        }
                                     />
 
                                     <TextField
@@ -339,14 +384,17 @@ export const PQRSForm = () => {
                                             Boolean(formik.errors.description_of_events)
                                         }
                                         helperText={
-                                            formik.touched.description_of_events && formik.errors.description_of_events
+                                            formik.touched.description_of_events &&
+                                            formik.errors.description_of_events
                                         }
                                     />
 
                                     <FormControl fullWidth>
                                         <Typography variant="h6">Adjuntar soporte (PDF)</Typography>
                                         <Box
-                                            onClick={() => document.getElementById("fileInput").click()}
+                                            onClick={() =>
+                                                document.getElementById("fileInput").click()
+                                            }
                                             sx={{
                                                 border: "2px dashed #ccc",
                                                 p: 3,
@@ -368,10 +416,11 @@ export const PQRSForm = () => {
                                                 const file = e.target.files[0];
                                                 if (file?.type === "application/pdf")
                                                     formik.setFieldValue("attachment", file);
-                                                else formik.setFieldError(
-                                                    "attachment",
-                                                    "Solo se permiten archivos PDF."
-                                                );
+                                                else
+                                                    formik.setFieldError(
+                                                        "attachment",
+                                                        "Solo se permiten archivos PDF.",
+                                                    );
                                             }}
                                         />
                                         {formik.values.attachment && (
@@ -388,7 +437,12 @@ export const PQRSForm = () => {
                                 </Box>
 
                                 <Box display="flex" justifyContent="flex-end" mt={3}>
-                                    <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        disabled={isLoading}
+                                    >
                                         {id ? "Actualizar" : "Crear"}
                                     </Button>
                                 </Box>

@@ -3,7 +3,7 @@ import { authTokenService } from "./AuthTokenService";
 
 class UserServices {
     constructor() {
-        this.baseUrl = Global.url + 'users/';
+        this.baseUrl = Global.url + "users/";
     }
 
     /**
@@ -26,7 +26,7 @@ class UserServices {
     }
 
     async create(data) {
-        const url = this.buildUrl(`create`)
+        const url = this.buildUrl(`create`);
         return authTokenService.fetchWithAuth(url, {
             method: "POST",
             body: JSON.stringify(data),
@@ -34,7 +34,7 @@ class UserServices {
     }
 
     async update(id, data) {
-        const url = this.buildUrl(`${id}`)
+        const url = this.buildUrl(`${id}`);
         return authTokenService.fetchWithAuth(url, {
             method: "PUT",
             body: JSON.stringify(data),

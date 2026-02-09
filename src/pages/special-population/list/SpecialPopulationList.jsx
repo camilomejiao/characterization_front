@@ -75,8 +75,8 @@ export const SpecialPopulationList = () => {
 
     const filteredRows = specialPopulationList.filter((row) =>
         Object.values(row).some((value) =>
-            String(value).toLowerCase().includes(searchText.toLowerCase())
-        )
+            String(value).toLowerCase().includes(searchText.toLowerCase()),
+        ),
     );
 
     const AffiliateColumns = [

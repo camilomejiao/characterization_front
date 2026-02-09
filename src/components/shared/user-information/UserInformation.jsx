@@ -21,7 +21,9 @@ export const UserInformation = ({ data }) => {
     ];
 
     return (
-        <Card sx={{ borderRadius: 2, overflow: "hidden", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
+        <Card
+            sx={{ borderRadius: 2, overflow: "hidden", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}
+        >
             <CardHeader
                 title="Información del Usuario"
                 sx={{
@@ -60,7 +62,8 @@ export const UserInformation = ({ data }) => {
                             {`${data?.firstName ?? ""} ${data?.firstLastName ?? ""}`.trim() || "—"}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            {data?.identificationType?.name || "Documento"}: {data?.identificationNumber || "—"}
+                            {data?.identificationType?.name || "Documento"}:{" "}
+                            {data?.identificationNumber || "—"}
                         </Typography>
                     </Box>
                 </Box>
@@ -79,7 +82,10 @@ export const UserInformation = ({ data }) => {
                                 gap: 2,
                             }}
                         >
-                            <Typography variant="caption" sx={{ letterSpacing: 0.6, color: "text.secondary" }}>
+                            <Typography
+                                variant="caption"
+                                sx={{ letterSpacing: 0.6, color: "text.secondary" }}
+                            >
                                 {item.label}
                             </Typography>
                             <Typography variant="body2" fontWeight={600}>

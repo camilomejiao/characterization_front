@@ -4,7 +4,14 @@ export const ObservationHistory = ({ observations }) => {
     if (!observations?.length) return null;
 
     return (
-        <Card sx={{ borderRadius: 4, overflow: "hidden", mt: 4, boxShadow: "0 8px 20px rgba(0,0,0,0.08)" }}>
+        <Card
+            sx={{
+                borderRadius: 4,
+                overflow: "hidden",
+                mt: 4,
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+            }}
+        >
             <CardHeader
                 title="Historial de Observaciones"
                 sx={{
@@ -16,7 +23,12 @@ export const ObservationHistory = ({ observations }) => {
             />
             <CardContent>
                 {observations.map((obs, idx) => (
-                    <Grid container spacing={2} key={idx} sx={{ pb: 2, mb: 2, borderBottom: "1px solid #e5e7eb" }}>
+                    <Grid
+                        container
+                        spacing={2}
+                        key={idx}
+                        sx={{ pb: 2, mb: 2, borderBottom: "1px solid #e5e7eb" }}
+                    >
                         <Grid item xs={12} md={4}>
                             <Typography variant="subtitle2">Fecha</Typography>
                             <Typography fontWeight={600}>

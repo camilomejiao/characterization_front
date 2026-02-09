@@ -1,4 +1,3 @@
-
 export const ResponseStatusEnum = {
     OK: 200,
     CREATE: 201,
@@ -12,7 +11,7 @@ export const ResponseStatusEnum = {
     CONFLICT: 409,
     Unprocessable: 422,
     INTERNAL_SERVER_ERROR: 500,
-}
+};
 
 export const RolesEnum = {
     SUPER_ADMIN: 1,
@@ -20,14 +19,14 @@ export const RolesEnum = {
     PQRS: 3,
     AFFILIATES: 4,
     AUDITOR: 5,
-    CENSALES: 6
-}
+    CENSALES: 6,
+};
 
 export const PqrsStatusEnum = {
     OPENED: 1,
     IN_FOLLOW_UP: 2,
-    CLOSED: 3
-}
+    CLOSED: 3,
+};
 
 export const DefaultsSelectUserFormEnum = {
     country: 43,
@@ -35,11 +34,11 @@ export const DefaultsSelectUserFormEnum = {
     municipality: 526,
     ethnicity: 1,
     disability_type: 1,
-    identification_type: 2
+    identification_type: 2,
 };
 
 export const RegimenEnum = {
     SUB: 1,
     CONT: 2,
-    ESP: 3
-}
+    ESP: 3,
+};

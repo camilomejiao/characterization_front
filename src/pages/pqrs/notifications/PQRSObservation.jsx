@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
-import {Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 
 //Helper
 import AlertComponent from "../../../helpers/alert/AlertComponent";
@@ -18,9 +18,7 @@ import { UserInformation } from "../../../components/shared/user-information/Use
 import { PqrsInformation } from "../pqrs-information/PqrsInformation";
 import { ObservationHistory } from "../observation-history/ObservationHistory";
 
-
 export const PQRSObservation = () => {
-
     const navigate = useNavigate();
 
     const { id } = useParams();
@@ -30,15 +28,15 @@ export const PQRSObservation = () => {
 
     const fetchPQRSData = async (id) => {
         try {
-            const {data, status} = await pqrsServices.getById(id);
-            if(status === ResponseStatusEnum.OK) {
+            const { data, status } = await pqrsServices.getById(id);
+            if (status === ResponseStatusEnum.OK) {
                 setUserData(data);
             }
         } catch (error) {
             console.error("Error al obtener datos del usuario:", error);
             AlertComponent.warning("No se pudieron cargar los datos del usuario.");
         }
-    }
+    };
 
     //
     const fetchOptions = async () => {
@@ -77,17 +75,17 @@ export const PQRSObservation = () => {
             } catch {
                 AlertComponent.error("Error al guardar la observación");
             }
-        }
+        },
     });
 
     useEffect(() => {
-        if(id) {
+        if (id) {
             fetchOptions();
             fetchPQRSData(id);
         }
     }, []);
 
-    return(
+    return (
         <>
             <div style={{ width: "100%", padding: "20px" }}>
                 <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "10px" }}>
@@ -119,8 +117,10 @@ export const PQRSObservation = () => {
                             onChange={observationForm.handleChange}
                             label="Nuevo estado"
                         >
-                            {status.map(opt => (
-                                <MenuItem key={opt.id} value={opt.id}>{opt.name}</MenuItem>
+                            {status.map((opt) => (
+                                <MenuItem key={opt.id} value={opt.id}>
+                                    {opt.name}
+                                </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
@@ -140,12 +140,13 @@ export const PQRSObservation = () => {
                             type="submit"
                             variant="contained"
                             disabled={userData?.applicationStatus?.id === PqrsStatusEnum.CLOSED}
-                            color="primary">
+                            color="primary"
+                        >
                             Guardar observación
                         </Button>
                     </Box>
                 </Box>
             </div>
         </>
-    )
-}
+    );
+};

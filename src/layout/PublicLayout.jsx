@@ -3,15 +3,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 export const PublicLayout = () => {
+    const { auth } = useAuth();
 
-    const {auth} = useAuth();
-
-    return (
-        <>
-            {
-                !auth.id ? <Outlet /> : <Navigate to="/admin" />
-            }
-        </>
-    )
-
-}
+    return <>{!auth.id ? <Outlet /> : <Navigate to="/admin" />}</>;
+};

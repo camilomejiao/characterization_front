@@ -1,6 +1,5 @@
 import { Global } from "../helpers/Global";
-import {authTokenService} from "./AuthTokenService";
-
+import { authTokenService } from "./AuthTokenService";
 
 class DepaMuniServices {
     constructor() {

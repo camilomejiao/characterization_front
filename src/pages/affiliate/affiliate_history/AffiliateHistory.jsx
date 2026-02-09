@@ -44,7 +44,6 @@ const validationSchema = Yup.object({
 });
 
 export const AffiliateHistory = () => {
-    
     const navigate = useNavigate();
     const AffiliateReportRef = useRef();
 
@@ -63,12 +62,15 @@ export const AffiliateHistory = () => {
                 const identification = values.identification_number.trim();
 
                 // ⬇️ Ajusta este servicio al que tengas en tu backend
-                const response = await affiliateServices.getUserInformationByIdentificationNumber(identification);
+                const response =
+                    await affiliateServices.getUserInformationByIdentificationNumber(
+                        identification,
+                    );
 
                 if (response.status === ResponseStatusEnum.OK) {
                     if (!response.data) {
                         AlertComponent.warning(
-                            "No se encontró información para el número de identificación ingresado."
+                            "No se encontró información para el número de identificación ingresado.",
                         );
                         return;
                     }
@@ -77,7 +79,7 @@ export const AffiliateHistory = () => {
                     AlertComponent.success("Beneficiario encontrado correctamente");
                 } else if (response.status === ResponseStatusEnum.NOT_FOUND) {
                     AlertComponent.warning(
-                        "No se encontró ningún beneficiario con ese número de identificación"
+                        "No se encontró ningún beneficiario con ese número de identificación",
                     );
                 } else {
                     // Manejo genérico de error con estructura tipo JSON:API (si la usas)
@@ -104,7 +106,7 @@ export const AffiliateHistory = () => {
 
             if (!identification) {
                 AlertComponent.warning(
-                    "Debes ingresar un número de identificación antes de generar el reporte."
+                    "Debes ingresar un número de identificación antes de generar el reporte.",
                 );
                 return;
             }
@@ -113,7 +115,7 @@ export const AffiliateHistory = () => {
             if (formik.errors.identification_number) {
                 formik.setFieldTouched("identification_number", true, false);
                 AlertComponent.warning(
-                    "Corrige el número de identificación antes de generar el reporte."
+                    "Corrige el número de identificación antes de generar el reporte.",
                 );
                 return;
             }
@@ -121,13 +123,11 @@ export const AffiliateHistory = () => {
             setIsLoading(true);
 
             const response =
-                await affiliateServices.getUserInformationByIdentificationNumber(
-                    identification
-                );
+                await affiliateServices.getUserInformationByIdentificationNumber(identification);
 
             if (response.status !== ResponseStatusEnum.OK) {
                 AlertComponent.warning(
-                    "No se encontró ningún beneficiario con ese número de identificación."
+                    "No se encontró ningún beneficiario con ese número de identificación.",
                 );
                 return;
             }
@@ -138,7 +138,7 @@ export const AffiliateHistory = () => {
         } catch (error) {
             console.error("Error al obtener datos del usuario:", error);
             AlertComponent.warning(
-                "Usuario no encontrado para cargar los datos del usuario para el reporte."
+                "Usuario no encontrado para cargar los datos del usuario para el reporte.",
             );
         } finally {
             setIsLoading(false);
@@ -168,13 +168,13 @@ export const AffiliateHistory = () => {
 
         printJS({
             printable: printContent,
-            type: 'raw-html',
-            documentTitle: 'Reporte AFILIADO',
+            type: "raw-html",
+            documentTitle: "Reporte AFILIADO",
         });
-    }
+    };
 
     useEffect(() => {
-        if(isReadyToPrintReport) {
+        if (isReadyToPrintReport) {
             handlePDFPrint();
             setIsReadyToPrintReport(false);
         }
@@ -262,7 +262,9 @@ export const AffiliateHistory = () => {
                                                         "&:hover": { backgroundColor: "#3f8872" },
                                                     }}
                                                 >
-                                                    {isLoading ? "Buscando..." : "Buscar beneficiario"}
+                                                    {isLoading
+                                                        ? "Buscando..."
+                                                        : "Buscar beneficiario"}
                                                 </Button>
                                             </Grid>
                                             <Grid item xs={12} sm={6} md={12}>
@@ -289,9 +291,17 @@ export const AffiliateHistory = () => {
                             </Box>
 
                             {isLoading && (
-                                <Box mt={3} display="flex" alignItems="center" justifyContent="center" gap={1}>
+                                <Box
+                                    mt={3}
+                                    display="flex"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    gap={1}
+                                >
                                     <CircularProgress size={22} />
-                                    <Typography variant="body2">Cargando información del usuario...</Typography>
+                                    <Typography variant="body2">
+                                        Cargando información del usuario...
+                                    </Typography>
                                 </Box>
                             )}
                         </CardContent>
@@ -301,10 +311,7 @@ export const AffiliateHistory = () => {
                 {/* Resultado debajo de la card */}
                 {userData && (
                     <Box mt={4}>
-                        <Typography
-                            variant="h6"
-                            sx={{ mb: 2, fontWeight: 600, color: "#374151" }}
-                        >
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#374151" }}>
                             Información basica del usuario
                         </Typography>
                         <UserInformation data={userData?.user} />
@@ -313,10 +320,7 @@ export const AffiliateHistory = () => {
 
                 {userData && (
                     <Box mt={4}>
-                        <Typography
-                            variant="h6"
-                            sx={{ mb: 2, fontWeight: 600, color: "#374151" }}
-                        >
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#374151" }}>
                             Información de la afiliación
                         </Typography>
                         <AffiliateInformation data={userData?.affiliate} />
@@ -325,10 +329,7 @@ export const AffiliateHistory = () => {
 
                 {userData && (
                     <Box mt={4}>
-                        <Typography
-                            variant="h6"
-                            sx={{ mb: 2, fontWeight: 600, color: "#374151" }}
-                        >
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#374151" }}>
                             Información de LMA
                         </Typography>
                         <LMAInformation data={userData?.lma} />
@@ -337,27 +338,22 @@ export const AffiliateHistory = () => {
 
                 {userData && (
                     <Box mt={4}>
-                        <Typography
-                            variant="h6"
-                            sx={{ mb: 2, fontWeight: 600, color: "#374151" }}
-                        >
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600, color: "#374151" }}>
                             Información de cambios del usuario
                         </Typography>
                         <AffiliateChangesInformation data={userData?.history} />
                     </Box>
                 )}
-
             </Box>
 
             {/* Aquí renderizas el componente pero lo ocultas */}
-            <div style={{display: 'none'}}>
+            <div style={{ display: "none" }}>
                 {isReadyToPrintReport && (
                     <div ref={AffiliateReportRef}>
-                        <AffiliateReport data={userData}/>
+                        <AffiliateReport data={userData} />
                     </div>
                 )}
             </div>
-
         </>
     );
 };

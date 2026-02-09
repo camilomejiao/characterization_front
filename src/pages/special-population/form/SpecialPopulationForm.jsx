@@ -27,7 +27,6 @@ import { ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 import { commonServices } from "../../../services/CommonServices";
 import { specialPopulationServices } from "../../../services/SpecialPopulationServices";
 
-
 //
 const initialValues = {
     populationTypeId: "",
@@ -35,7 +34,7 @@ const initialValues = {
     epsId: "",
     affiliatedStateId: "",
     observations: "",
-}
+};
 
 //
 const validationSchema = Yup.object({
@@ -49,8 +48,6 @@ const validationSchema = Yup.object({
     affiliatedStateId: Yup.string().required("Campo requerido"),
     observations: Yup.string().max(500, "Máximo 500 caracteres").optional(),
 });
-
-
 
 export const SpecialPopulationForm = () => {
     const navigate = useNavigate();
@@ -83,7 +80,7 @@ export const SpecialPopulationForm = () => {
         await load(() => commonServices.getEps(), setEps);
         await load(() => commonServices.getEthnicity(), setEthnicity);
         await load(() => commonServices.getAffiliatedState(), setState);
-    }
+    };
 
     //
     const formik = useFormik({
@@ -96,7 +93,7 @@ export const SpecialPopulationForm = () => {
                     ...values,
                     userId: userData.id,
                     affiliatedStateId: Number(values.affiliatedStateId),
-                    hasEpsAffiliate: Number(values.hasEpsAffiliate)
+                    hasEpsAffiliate: Number(values.hasEpsAffiliate),
                 };
                 let response;
                 if (id) {
@@ -105,11 +102,17 @@ export const SpecialPopulationForm = () => {
                     response = await specialPopulationServices.create(payload);
                 }
 
-                if (response.status === ResponseStatusEnum.OK || response.status === ResponseStatusEnum.CREATE) {
+                if (
+                    response.status === ResponseStatusEnum.OK ||
+                    response.status === ResponseStatusEnum.CREATE
+                ) {
                     AlertComponent.success("Afiliado guardado exitosamente");
                     navigate("/admin/special-population-list");
                 } else {
-                    AlertComponent.warning(response.data?.errors?.[0]?.title, response?.data?.errors?.[0]?.source?.pointer[0]?.errors);
+                    AlertComponent.warning(
+                        response.data?.errors?.[0]?.title,
+                        response?.data?.errors?.[0]?.source?.pointer[0]?.errors,
+                    );
                 }
             } catch (error) {
                 AlertComponent.error("Error al crear el afiliado");
@@ -123,7 +126,7 @@ export const SpecialPopulationForm = () => {
     const fetchSpecialPopulationUserData = async (id) => {
         try {
             setIsLoading(true);
-            const {data, status} = await specialPopulationServices.getById(id);
+            const { data, status } = await specialPopulationServices.getById(id);
             if (status === ResponseStatusEnum.OK) {
                 setUserData(data.user);
                 await formik.setValues({
@@ -135,11 +138,11 @@ export const SpecialPopulationForm = () => {
                 });
             }
         } catch (error) {
-            console.log(error, '');
+            console.log(error, "");
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     const handleUserSearch = (data) => {
         setUserData(data);
@@ -172,7 +175,13 @@ export const SpecialPopulationForm = () => {
                     <UserInformation data={userData} />
 
                     {isLoading && (
-                        <Box display="flex" alignItems="center" justifyContent="center" gap={1} py={2}>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            gap={1}
+                            py={2}
+                        >
                             <CircularProgress size={22} />
                             <Typography variant="body2">Cargando...</Typography>
                         </Box>
@@ -192,8 +201,14 @@ export const SpecialPopulationForm = () => {
                                         fullWidth
                                         label="Tipo de Población"
                                         {...formik.getFieldProps("populationTypeId")}
-                                        error={formik.touched.populationTypeId && Boolean(formik.errors.populationTypeId)}
-                                        helperText={formik.touched.populationTypeId && formik.errors.populationTypeId}
+                                        error={
+                                            formik.touched.populationTypeId &&
+                                            Boolean(formik.errors.populationTypeId)
+                                        }
+                                        helperText={
+                                            formik.touched.populationTypeId &&
+                                            formik.errors.populationTypeId
+                                        }
                                     >
                                         {populationType.map((item) => (
                                             <MenuItem key={item.id} value={item.id}>
@@ -212,8 +227,14 @@ export const SpecialPopulationForm = () => {
                                             formik.setFieldValue("hasEpsAffiliate", value);
                                             if (value === "0") formik.setFieldValue("epsId", "");
                                         }}
-                                        error={formik.touched.hasEpsAffiliate && Boolean(formik.errors.hasEpsAffiliate)}
-                                        helperText={formik.touched.hasEpsAffiliate && formik.errors.hasEpsAffiliate}
+                                        error={
+                                            formik.touched.hasEpsAffiliate &&
+                                            Boolean(formik.errors.hasEpsAffiliate)
+                                        }
+                                        helperText={
+                                            formik.touched.hasEpsAffiliate &&
+                                            formik.errors.hasEpsAffiliate
+                                        }
                                     >
                                         <MenuItem value="1">Sí</MenuItem>
                                         <MenuItem value="0">No</MenuItem>
@@ -243,8 +264,14 @@ export const SpecialPopulationForm = () => {
                                         fullWidth
                                         label="Estado"
                                         {...formik.getFieldProps("affiliatedStateId")}
-                                        error={formik.touched.affiliatedStateId && Boolean(formik.errors.affiliatedStateId)}
-                                        helperText={formik.touched.affiliatedStateId && formik.errors.affiliatedStateId}
+                                        error={
+                                            formik.touched.affiliatedStateId &&
+                                            Boolean(formik.errors.affiliatedStateId)
+                                        }
+                                        helperText={
+                                            formik.touched.affiliatedStateId &&
+                                            formik.errors.affiliatedStateId
+                                        }
                                     >
                                         {state.map((item) => (
                                             <MenuItem key={item.id} value={item.id}>
@@ -261,8 +288,14 @@ export const SpecialPopulationForm = () => {
                                         label="Observaciones"
                                         placeholder="Ej: Observaciones relevantes para el registro"
                                         {...formik.getFieldProps("observations")}
-                                        error={formik.touched.observations && Boolean(formik.errors.observations)}
-                                        helperText={formik.touched.observations && formik.errors.observations}
+                                        error={
+                                            formik.touched.observations &&
+                                            Boolean(formik.errors.observations)
+                                        }
+                                        helperText={
+                                            formik.touched.observations &&
+                                            formik.errors.observations
+                                        }
                                     />
                                 </Box>
                                 <Box display="flex" justifyContent="flex-end" mt={3}>
@@ -288,5 +321,5 @@ export const SpecialPopulationForm = () => {
 
             <SearchUser showModal={showModal} onUserFound={handleUserSearch} />
         </>
-    )
-}
+    );
+};

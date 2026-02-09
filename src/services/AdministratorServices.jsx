@@ -1,10 +1,9 @@
 import { Global } from "../helpers/Global";
-import {authTokenService} from "./AuthTokenService";
-
+import { authTokenService } from "./AuthTokenService";
 
 class AdministratorServices {
     constructor() {
-        this.baseUrl = Global.url + 'admins/';
+        this.baseUrl = Global.url + "admins/";
     }
 
     /**
@@ -27,7 +26,7 @@ class AdministratorServices {
     }
 
     async create(data) {
-        const url = this.buildUrl(`create`)
+        const url = this.buildUrl(`create`);
         return authTokenService.fetchWithAuth(url, {
             method: "POST",
             body: JSON.stringify(data),
@@ -35,7 +34,7 @@ class AdministratorServices {
     }
 
     async update(id, data) {
-        const url = this.buildUrl(`update/${id}/`)
+        const url = this.buildUrl(`update/${id}/`);
         return authTokenService.fetchWithAuth(url, {
             method: "PUT",
             body: JSON.stringify(data),
@@ -47,8 +46,8 @@ class AdministratorServices {
         return authTokenService.fetchWithAuth(url, { method: "DELETE" });
     }
 
-    async toggleStatus (id, status) {
-        const url = this.buildUrl(`toggle-status/${id}/`)
+    async toggleStatus(id, status) {
+        const url = this.buildUrl(`toggle-status/${id}/`);
         return authTokenService.fetchWithAuth(url, {
             method: "PUT",
             body: JSON.stringify(status),
@@ -56,7 +55,7 @@ class AdministratorServices {
     }
 
     async getRoles() {
-        const url = Global.url+'roles';
+        const url = Global.url + "roles";
         return authTokenService.fetchWithAuth(url, { method: "GET" });
     }
 }
