@@ -40,6 +40,11 @@ class SpecialPopulationServices {
             body: JSON.stringify(data),
         });
     }
+
+    async delete(id) {
+        const url = this.buildUrl(`${id}`);
+        return authTokenService.fetchWithAuth(url, { method: "DELETE" });
+    }
 }
 
 export const specialPopulationServices = new SpecialPopulationServices();

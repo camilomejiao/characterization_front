@@ -12,7 +12,7 @@ import {
     Typography,
 } from "@mui/material";
 import { Add, Search } from "@mui/icons-material";
-import { FaPencilAlt, FaRegFile } from "react-icons/fa";
+import { FaPencilAlt, FaRegFile, FaTrash } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
 import printJS from "print-js";
 
@@ -25,6 +25,7 @@ import { specialPopulationServices } from "../../../services/SpecialPopulationSe
 //Components
 import { SpecialPopulationReport } from "../special-population-report/SpecialPopulationReport";
 import { PageHeader } from "../../../components/shared/page-header/PageHeader";
+import { userServices } from "../../../services/UserServices";
 
 export const SpecialPopulationList = () => {
     const navigate = useNavigate();
@@ -138,6 +139,9 @@ export const SpecialPopulationList = () => {
                     <IconButton color="warning" onClick={() => handleEdit(params.row.id)}>
                         <FaPencilAlt />
                     </IconButton>
+                    <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
+                        <FaTrash />
+                    </IconButton>
                 </Stack>
             ),
         },
@@ -146,6 +150,22 @@ export const SpecialPopulationList = () => {
     const handleEdit = (id) => {
         navigate(`/admin/special-population-update/${id}`);
     };
+
+    const handleDelete = async (id) => {
+        try {
+            const { status } = await specialPopulationServices.delete(id);
+            if (status === ResponseStatusEnum.OK) {
+                getSpecialPopulationList();
+                AlertComponent.success("Eliminado correctamente");
+            }
+
+            if (status !== ResponseStatusEnum.OK) {
+                AlertComponent.warning("Error al eliminar el usuario");
+            }
+        } catch (error) {
+            console.log(`Error en borrar usuario ${error}`);
+        }
+    }
 
     const generateReport = async (id) => {
         setIsLoading(true);
