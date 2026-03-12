@@ -218,7 +218,7 @@ export const UserList = () => {
                         border: "none",
                         "& .MuiDataGrid-columnHeaders": {
                             backgroundColor: "#0f375a",
-                            color: "white",
+                            color: "",
                             fontSize: "14px",
                         },
                         "& .MuiDataGrid-columnHeaderTitle": {

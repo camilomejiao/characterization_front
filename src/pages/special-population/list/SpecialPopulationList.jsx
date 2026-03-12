@@ -292,7 +292,7 @@ export const SpecialPopulationList = () => {
                         border: "none",
                         "& .MuiDataGrid-columnHeaders": {
                             backgroundColor: "#0f375a",
-                            color: "white",
+                            color: "black",
                             fontSize: "14px",
                         },
                         "& .MuiDataGrid-columnHeaderTitle": {
