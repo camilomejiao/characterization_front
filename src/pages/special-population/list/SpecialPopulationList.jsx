@@ -165,7 +165,7 @@ export const SpecialPopulationList = () => {
         } catch (error) {
             console.log(`Error en borrar usuario ${error}`);
         }
-    }
+    };
 
     const generateReport = async (id) => {
         setIsLoading(true);
