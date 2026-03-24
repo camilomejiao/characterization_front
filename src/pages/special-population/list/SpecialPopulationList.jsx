@@ -68,7 +68,6 @@ export const SpecialPopulationList = () => {
                 eps: row?.eps?.name ?? "No registra",
                 populationType: row?.populationType?.name,
                 hasEpsAffiliate: row?.hasEpsAffiliate === false ? "NO" : "SI",
-                ethnicity: row?.ethnicity?.name,
                 observations: row?.observations,
             };
         });
@@ -115,8 +114,8 @@ export const SpecialPopulationList = () => {
             headerAlign: "left",
         },
         {
-            field: "ethnicity",
-            headerName: "Etnia",
+            field: "populationType",
+            headerName: "Tipo de POblación",
             width: 100,
             headerAlign: "left",
         },
