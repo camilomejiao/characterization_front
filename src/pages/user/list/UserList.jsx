@@ -11,7 +11,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { Add, Search } from "@mui/icons-material";
+import { Add, PictureAsPdf, Search, TableView } from "@mui/icons-material";
 
 import AlertComponent from "../../../helpers/alert/AlertComponent";
 import { PageHeader } from "../../../components/shared/page-header/PageHeader";
@@ -20,6 +20,7 @@ import { ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 
 //Services
 import { userServices } from "../../../services/UserServices";
+import { exportDataGridToExcel, exportDataGridToPdf } from "../../../helpers/dataGridExport";
 
 export const UserList = () => {
     const navigate = useNavigate();
@@ -150,6 +151,24 @@ export const UserList = () => {
         getUserList();
     }, []);
 
+    const handleExportExcel = () => {
+        exportDataGridToExcel({
+            fileName: "usuarios.xls",
+            title: "Listado de Usuarios",
+            columns: UserColumns,
+            rows: filteredRows,
+        });
+    };
+
+    const handleExportPdf = () => {
+        exportDataGridToPdf({
+            documentTitle: "Listado de Usuarios",
+            title: "Listado de Usuarios",
+            columns: UserColumns,
+            rows: filteredRows,
+        });
+    };
+
     return (
         <>
             <PageHeader
@@ -198,6 +217,25 @@ export const UserList = () => {
                     <Typography variant="subtitle1" fontWeight={700}>
                         Listado
                     </Typography>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<TableView />}
+                            onClick={handleExportExcel}
+                        >
+                            Excel
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            color="error"
+                            startIcon={<PictureAsPdf />}
+                            onClick={handleExportPdf}
+                        >
+                            PDF
+                        </Button>
+                    </Stack>
                 </Stack>
 
                 {loading && (

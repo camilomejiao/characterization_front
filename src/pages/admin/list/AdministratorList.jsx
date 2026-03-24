@@ -10,7 +10,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { Search, Add } from "@mui/icons-material";
+import { Search, Add, PictureAsPdf, TableView } from "@mui/icons-material";
 import { FaPencilAlt, FaTrash } from "react-icons/fa";
 
 import { PageHeader } from "../../../components/shared/page-header/PageHeader";
@@ -20,6 +20,7 @@ import AlertComponent from "../../../helpers/alert/AlertComponent";
 //
 import { administratorServices } from "../../../services/AdministratorServices";
 import { ResponseStatusEnum, RolesEnum } from "../../../helpers/GlobalEnum";
+import { exportDataGridToExcel, exportDataGridToPdf } from "../../../helpers/dataGridExport";
 
 export const AdministratorList = () => {
     const navigate = useNavigate();
@@ -106,6 +107,7 @@ export const AdministratorList = () => {
             field: "active",
             headerName: "Estado",
             width: 200,
+            exportValue: (row) => (row?.active ? "Activo" : "Inactivo"),
             renderCell: (params) => (
                 <Button
                     variant="outlined"
@@ -147,6 +149,24 @@ export const AdministratorList = () => {
     useEffect(() => {
         getAdminList();
     }, []);
+
+    const handleExportExcel = () => {
+        exportDataGridToExcel({
+            fileName: "administradores.xls",
+            title: "Listado de Administradores",
+            columns: AdministratorColumns,
+            rows: filteredRows,
+        });
+    };
+
+    const handleExportPdf = () => {
+        exportDataGridToPdf({
+            documentTitle: "Listado de Administradores",
+            title: "Listado de Administradores",
+            columns: AdministratorColumns,
+            rows: filteredRows,
+        });
+    };
 
     const totalAdmins = adminList.length;
     const activeAdmins = adminList.filter((row) => row?.active).length;
@@ -204,6 +224,25 @@ export const AdministratorList = () => {
                     <Typography variant="subtitle1" fontWeight={700}>
                         Listado
                     </Typography>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<TableView />}
+                            onClick={handleExportExcel}
+                        >
+                            Excel
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            color="error"
+                            startIcon={<PictureAsPdf />}
+                            onClick={handleExportPdf}
+                        >
+                            PDF
+                        </Button>
+                    </Stack>
                 </Stack>
 
                 {loading && (

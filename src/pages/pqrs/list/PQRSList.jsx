@@ -14,7 +14,7 @@ import {
     Paper,
     Typography,
 } from "@mui/material";
-import { Add, Search } from "@mui/icons-material";
+import { Add, PictureAsPdf, Search, TableView } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { FaFilePdf, FaPencilAlt, FaRegFile } from "react-icons/fa";
 
@@ -34,6 +34,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { PageHeader } from "../../../components/shared/page-header/PageHeader";
+import { exportDataGridToExcel, exportDataGridToPdf } from "../../../helpers/dataGridExport";
 
 export const PQRSList = () => {
     const navigate = useNavigate();
@@ -248,6 +249,24 @@ export const PQRSList = () => {
         getPqrsList();
     }, []);
 
+    const handleExportExcel = () => {
+        exportDataGridToExcel({
+            fileName: "pqrs.xls",
+            title: "Listado de PQRS",
+            columns: PqrsColumns,
+            rows: filteredRows,
+        });
+    };
+
+    const handleExportPdf = () => {
+        exportDataGridToPdf({
+            documentTitle: "Listado de PQRS",
+            title: "Listado de PQRS",
+            columns: PqrsColumns,
+            rows: filteredRows,
+        });
+    };
+
     return (
         <>
             <Box>
@@ -363,6 +382,25 @@ export const PQRSList = () => {
                         <Typography variant="subtitle1" fontWeight={700}>
                             Listado
                         </Typography>
+                        <Stack direction="row" spacing={1}>
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                startIcon={<TableView />}
+                                onClick={handleExportExcel}
+                            >
+                                Excel
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                color="error"
+                                startIcon={<PictureAsPdf />}
+                                onClick={handleExportPdf}
+                            >
+                                PDF
+                            </Button>
+                        </Stack>
                     </Stack>
 
                     {isLoading && (
@@ -383,7 +421,7 @@ export const PQRSList = () => {
                             border: "none",
                             "& .MuiDataGrid-columnHeaders": {
                                 backgroundColor: "#0f375a",
-                                color: "white",
+                                color: "black",
                                 fontSize: "14px",
                             },
                             "& .MuiDataGrid-columnHeaderTitle": {

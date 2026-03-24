@@ -11,7 +11,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { Add, Search } from "@mui/icons-material";
+import { Add, PictureAsPdf, Search, TableView } from "@mui/icons-material";
 import { FaPencilAlt, FaRegFile, FaTrash } from "react-icons/fa";
 import { DataGrid } from "@mui/x-data-grid";
 import printJS from "print-js";
@@ -26,6 +26,7 @@ import { specialPopulationServices } from "../../../services/SpecialPopulationSe
 import { SpecialPopulationReport } from "../special-population-report/SpecialPopulationReport";
 import { PageHeader } from "../../../components/shared/page-header/PageHeader";
 import { userServices } from "../../../services/UserServices";
+import { exportDataGridToExcel, exportDataGridToPdf } from "../../../helpers/dataGridExport";
 
 export const SpecialPopulationList = () => {
     const navigate = useNavigate();
@@ -221,6 +222,24 @@ export const SpecialPopulationList = () => {
         getSpecialPopulationList();
     }, []);
 
+    const handleExportExcel = () => {
+        exportDataGridToExcel({
+            fileName: "poblacion-especial.xls",
+            title: "Listado de Poblacion Especial",
+            columns: AffiliateColumns,
+            rows: filteredRows,
+        });
+    };
+
+    const handleExportPdf = () => {
+        exportDataGridToPdf({
+            documentTitle: "Listado de Poblacion Especial",
+            title: "Listado de Poblacion Especial",
+            columns: AffiliateColumns,
+            rows: filteredRows,
+        });
+    };
+
     return (
         <>
             <PageHeader
@@ -269,6 +288,25 @@ export const SpecialPopulationList = () => {
                     <Typography variant="subtitle1" fontWeight={700}>
                         Listado
                     </Typography>
+                    <Stack direction="row" spacing={1}>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<TableView />}
+                            onClick={handleExportExcel}
+                        >
+                            Excel
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            color="error"
+                            startIcon={<PictureAsPdf />}
+                            onClick={handleExportPdf}
+                        >
+                            PDF
+                        </Button>
+                    </Stack>
                 </Stack>
 
                 {isLoading && (
