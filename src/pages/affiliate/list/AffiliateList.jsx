@@ -62,12 +62,16 @@ export const AffiliateList = () => {
                 regime: row?.regime?.name,
                 name: row?.user?.firstName + " " + row?.user?.middleName,
                 lastName: row?.user?.firstLastName + " " + row?.user?.middleLastName,
+                phoneNumber: row?.user?.phoneNumber,
+                documentType: row?.user?.identificationType?.name,
                 identificationNumber: row?.user?.identificationNumber,
                 eps: row?.eps?.name,
                 populationType: row?.populationType?.name,
                 affiliateType: row?.affiliateType?.name,
                 methodology: row?.methodology?.name,
                 level: row?.level?.name,
+                location: row?.user?.neighborhood,
+                address: row?.user?.address,
             };
         });
     };
@@ -103,8 +107,20 @@ export const AffiliateList = () => {
             headerAlign: "left",
         },
         {
+            field: "phoneNumber",
+            headerName: "Telefono",
+            width: 200,
+            headerAlign: "left",
+        },
+        {
+            field: "documentType",
+            headerName: "Tipo de documento",
+            width: 150,
+            headerAlign: "left",
+        },
+        {
             field: "identificationNumber",
-            headerName: "Cédula",
+            headerName: "Número de documento",
             width: 150,
             headerAlign: "left",
         },
@@ -135,6 +151,18 @@ export const AffiliateList = () => {
         {
             field: "level",
             headerName: "Nivel",
+            width: 150,
+            headerAlign: "left",
+        },
+        {
+            field: "location",
+            headerName: "Barrio o Vereda",
+            width: 150,
+            headerAlign: "left",
+        },
+        {
+            field: "address",
+            headerName: "Dirección",
             width: 150,
             headerAlign: "left",
         },
