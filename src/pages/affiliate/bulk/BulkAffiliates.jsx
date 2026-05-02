@@ -395,9 +395,10 @@ export const BulkAffiliates = () => {
         //GRUPO
         if (!isEmptyValue(rowKnown["GRUPO"])) {
             const groupTxt = String(rowKnown["GRUPO"]).trim().toUpperCase();
-            if (/^\d+$/.test(groupTxt)) {
+
+            if (!/^[A-F]$/.test(groupTxt)) {
                 errors.push(
-                    `Fila ${rowNumber}: GRUPO no debe contener caracteres especiales(usa códigos como A, B, C,D).`,
+                    `Fila ${rowNumber}: GRUPO debe ser una sola letra válida (A, B, C, D, E o F).`
                 );
             }
         }
