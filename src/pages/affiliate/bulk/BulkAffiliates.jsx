@@ -22,7 +22,7 @@ import { commonServices } from "../../../services/CommonServices";
 import { RegimenEnum, ResponseStatusEnum } from "../../../helpers/GlobalEnum";
 import useAuth from "../../../hooks/useAuth";
 
-// Prefijo permitido: MS202510 | MSCM202510 | MC202510 | MCCM202510
+// Prefijo permitido: MS202510 | MSCM202510 | MC202510 | MCCM202510 | MSLMA202510
 const FILE_NAME_RE = /^(MS(CM)?|MS(LMA)?|MC(CM)?)\d{6}$/;
 
 const validationSchema = Yup.object({
@@ -48,15 +48,13 @@ const initialValues = {
 };
 
 //Columnas requeridas por régimen
-const REQUIRED_S = ["TIPO_DOCUMENTO", "IDENTIFICACION"];
+const REQUIRED_S = ["TIPO_DOCUMENTO", "IDENTIFICACION", "PRIMER_NOMBRE", "PRIMER_APELLIDO", "FECHA_NACIMIENTO"];
 
-const REQUIRED_C = ["TIPO_DOCUMENTO", "IDENTIFICACION"];
+const REQUIRED_C = ["TIPO_DOCUMENTO", "IDENTIFICACION", "PRIMER_NOMBRE", "PRIMER_APELLIDO", "FECHA_NACIMIENTO"];
 
 //Columnas opcionales
 const OPTIONAL_COMMON = [
-    "PRIMER_NOMBRE",
     "SEGUNDO_NOMBRE",
-    "PRIMER_APELLIDO",
     "SEGUNDO_APELLIDO",
     "SEXO",
     "PAIS",
@@ -394,6 +392,16 @@ export const BulkAffiliates = () => {
             }
         }
 
+        //GRUPO
+        if (!isEmptyValue(rowKnown["GRUPO"])) {
+            const groupTxt = String(rowKnown["GRUPO"]).trim().toUpperCase();
+            if (/^\d+$/.test(groupTxt)) {
+                errors.push(
+                    `Fila ${rowNumber}: GRUPO no debe contener caracteres especiales(usa códigos como A, B, C,D).`,
+                );
+            }
+        }
+
         return errors;
     };
 
@@ -556,7 +564,7 @@ export const BulkAffiliates = () => {
         return { hasErrors, totalSent, errorMessages };
     };
 
-    //
+    //Metodo para obtener el año y mes actua y decir cual es el archivo q podria recibir
     const getAllowedPeriods = () => {
         const today = new Date();
         const currentYear = today.getFullYear();
@@ -593,6 +601,7 @@ export const BulkAffiliates = () => {
                 const { base: fileName, period } = getFileBaseAndPeriod(values.attachment);
 
                 const { prevPeriod } = getAllowedPeriods();
+                //Validacion de fechas de los periodos a cargar
                 if (!isPeriodInAllowedWindow(period)) {
                     AlertComponent.warning(
                         `El periodo del archivo (${period}) no es válido. Solo se permiten archivos del periodo inmediatamente anterior: ${prevPeriod}.`,
