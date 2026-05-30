@@ -678,20 +678,20 @@ export const BulkAffiliates = () => {
                 console.log(meta);
                 console.log(parsedRows);
 
-                // const { hasErrors, totalSent, errorMessages } = await sendInBatches(
-                //     parsedRows,
-                //     meta,
-                //     250,
-                // );
-                //
-                // if (hasErrors) {
-                //     setParseErrors(errorMessages);
-                //     AlertComponent.error(
-                //         `Se encontraron ${errorMessages.length} error(es) de validación. Revisa el detalle debajo.`,
-                //     );
-                //     return;
-                // }
-                const totalSent = 1;
+                const { hasErrors, totalSent, errorMessages } = await sendInBatches(
+                    parsedRows,
+                    meta,
+                    250,
+                );
+
+                if (hasErrors) {
+                    setParseErrors(errorMessages);
+                    AlertComponent.error(
+                        `Se encontraron ${errorMessages.length} error(es) de validación. Revisa el detalle debajo.`,
+                    );
+                    return;
+                }
+
                 AlertComponent.success(
                     `Carga masiva realizada correctamente (${totalSent} registros enviados)`,
                 );
