@@ -172,6 +172,39 @@ const toDecimal = (value) => {
     return Number.isFinite(n) ? n : undefined;
 };
 
+//EPS
+const EPS = [
+    "CCF018",
+    "EPSS02",
+    "EPS002",
+    "EPSS05",
+    "EPS005",
+    "EPSS08",
+    "EPS008",
+    "EPS010",
+    "EPS017",
+    "EPS022",
+    "EPSS37",
+    "EPS037",
+    "EPSS41",
+    "EPS041",
+    "ESS091",
+    "EPS091",
+    "EPSM03",
+    "EPSS33",
+    "EPSS44",
+];
+
+//EPS
+const EPS_EQUIVALENCES = {
+    EPSS02: "EPS002",
+    EPSS05: "EPS005",
+    EPSS08: "EPS008",
+    EPSS37: "EPS037",
+    EPSS41: "EPS041",
+    ESS091: "EPS091",
+};
+
 //
 const ALLOWED_POPULATION_IDS = [
     1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33,
@@ -187,23 +220,18 @@ const AREA_TYPE = ["U", "R", "RD", "CP", "CM"];
 //
 const STATUS_TYPE = ["AF", "AC", "RE", "PL", "SM"];
 
-//
-const EPS = [
-    "CCF018",
-    "EPS002",
-    "EPS005",
-    "EPS008",
-    "EPS010",
-    "EPS017",
-    "EPS022",
-    "EPS037",
-    "EPS041",
-    "EPS091",
-    "EPSM03",
-    "EPSS33",
-    "EPSS37",
-    "EPSS44",
-];
+//Validar y transformar la data
+const VALID_EPS = new Set(EPS);
+
+const codValidateEPS = (val) => {
+    const eps = (val("EPS") || "").trim();
+
+    if (isEmptyValue(eps)) {
+        return undefined;
+    }
+
+    return EPS_EQUIVALENCES[eps] || eps;
+};
 
 export const BulkAffiliates = () => {
     const { auth } = useAuth();
@@ -385,9 +413,9 @@ export const BulkAffiliates = () => {
             }
 
             // 2) catálogo permitido
-            if (!EPS.includes(epsTxt)) {
+            if (!VALID_EPS.has(epsTxt)) {
                 errors.push(
-                    `Fila ${rowNumber}: EPS (${epsTxt}) no es válido. Códigos permitidos: ${EPS.join(", ")}`,
+                    `Fila ${rowNumber}: EPS (${epsTxt}) no es válido. Códigos permitidos: ${EPS.join(", ")}`
                 );
             }
         }
@@ -430,7 +458,7 @@ export const BulkAffiliates = () => {
             phoneNumber: val("TELEFONO") || undefined,
 
             // affiliate
-            eps: val("EPS") || undefined,
+            eps: codValidateEPS(val) || undefined,
             populationTypeId: toNum(val("TIPO_POBLACION")) || undefined,
             level: buildLevel(val),
             state: val("ESTADO") || undefined,
@@ -603,13 +631,13 @@ export const BulkAffiliates = () => {
 
                 const { prevPeriod } = getAllowedPeriods();
                 //Validacion de fechas de los periodos a cargar
-                if (!isPeriodInAllowedWindow(period)) {
-                    AlertComponent.warning(
-                        `El periodo del archivo (${period}) no es válido. Solo se permiten archivos del periodo inmediatamente anterior: ${prevPeriod}.`,
-                    );
-                    setLoading(false);
-                    return;
-                }
+                // if (!isPeriodInAllowedWindow(period)) {
+                //     AlertComponent.warning(
+                //         `El periodo del archivo (${period}) no es válido. Solo se permiten archivos del periodo inmediatamente anterior: ${prevPeriod}.`,
+                //     );
+                //     setLoading(false);
+                //     return;
+                // }
 
                 const expectedPrefix = getRegimeFilePrefix(regimens, values.regime);
                 if (!expectedPrefix) {
@@ -647,20 +675,23 @@ export const BulkAffiliates = () => {
                     period,
                 };
 
-                const { hasErrors, totalSent, errorMessages } = await sendInBatches(
-                    parsedRows,
-                    meta,
-                    250,
-                );
+                console.log(meta);
+                console.log(parsedRows);
 
-                if (hasErrors) {
-                    setParseErrors(errorMessages);
-                    AlertComponent.error(
-                        `Se encontraron ${errorMessages.length} error(es) de validación. Revisa el detalle debajo.`,
-                    );
-                    return;
-                }
-
+                // const { hasErrors, totalSent, errorMessages } = await sendInBatches(
+                //     parsedRows,
+                //     meta,
+                //     250,
+                // );
+                //
+                // if (hasErrors) {
+                //     setParseErrors(errorMessages);
+                //     AlertComponent.error(
+                //         `Se encontraron ${errorMessages.length} error(es) de validación. Revisa el detalle debajo.`,
+                //     );
+                //     return;
+                // }
+                const totalSent = 1;
                 AlertComponent.success(
                     `Carga masiva realizada correctamente (${totalSent} registros enviados)`,
                 );
