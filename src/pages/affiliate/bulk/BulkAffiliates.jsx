@@ -219,7 +219,7 @@ const IDENTIFICATION_TYPE = ["AS", "CC", "CD", "CE", "CN", "PA", "PE", "RC", "SC
 const AREA_TYPE = ["U", "R", "RD", "CP", "CM"];
 
 //
-const STATUS_TYPE = ["AF", "AC", "RE", "PL", "SM"];
+const STATUS_TYPE = ["AF", "AC", "RE", "PL", "SM", "DE"];
 
 //Validar y transformar la data
 const VALID_EPS = new Set(EPS);
