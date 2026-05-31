@@ -193,6 +193,7 @@ const EPS = [
     "EPSM03",
     "EPSS33",
     "EPSS44",
+    "EPS018",
 ];
 
 //EPS
@@ -674,9 +675,6 @@ export const BulkAffiliates = () => {
                     regime: values.regime,
                     period,
                 };
-
-                console.log(meta);
-                console.log(parsedRows);
 
                 const { hasErrors, totalSent, errorMessages } = await sendInBatches(
                     parsedRows,
