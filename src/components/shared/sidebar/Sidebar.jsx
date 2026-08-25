@@ -181,9 +181,9 @@ const baseMenu = [
 const roleMenuMap = {
     [RolesEnum.SUPER_ADMIN]: ["home", "user", "pqrs", "membership_module", "censales", "reportes"],
     [RolesEnum.ADMIN]: ["home", "user", "affiliates", "censales", "reportes"],
-    [RolesEnum.PQRS]: ["user", "pqrs"],
+    [RolesEnum.PQRS]: ["user", "pqrs", "affiliates", "censales"],
     [RolesEnum.AFFILIATES]: ["user", "pqrs", "affiliates"],
-    [RolesEnum.CENSALES]: ["user", "affiliates", "censales"],
+    [RolesEnum.CENSALES]: ["user", "pqrs", "affiliates", "censales"],
     [RolesEnum.AUDITOR]: ["user", "pqrs", "censales", "membership_module", "reportes"],
 };
 
